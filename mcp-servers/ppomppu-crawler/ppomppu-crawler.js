@@ -4,7 +4,6 @@
  *
  * URL: https://www.ppomppu.co.kr/zboard/zboard.php?id=freeboard&page=X
  */
-
 const http = require('http');
 const url = require('url');
 const querystring = require('querystring');
@@ -69,6 +68,33 @@ const tools = [
                 }
             },
             required: ['board', 'page']
+        }
+    },
+    {
+        name: 'get_top_views',
+        description: '게시판에서 조회수 기준 TOP N 게시물을 조회합니다',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                board: {
+                    type: 'string',
+                    enum: ['freeboard', 'baseball', 'ppomppu', 'stock'],
+                    description: '게시판 ID'
+                },
+                page: {
+                    type: 'number',
+                    minimum: 1,
+                    description: '페이지 번호',
+                    default: 1
+                },
+                limit: {
+                    type: 'number',
+                    minimum: 1,
+                    description: '조회수 TOP N 개수',
+                    default: 10
+                }
+            },
+            required: ['board']
         }
     },
     {
@@ -444,6 +470,12 @@ function generateHelp(topic = 'overview') {
                 endpoint: 'GET /analyze?board=freeboard&page=1'
             },
             {
+                name: 'get_top_views',
+                description: '조회수 기준 TOP N 게시물 조회',
+                params: { board: 'freeboard|baseball|ppomppu|stock', page: '1+', limit: '1+' },
+                endpoint: 'GET /top-views?board=freeboard&page=1&limit=5'
+            },
+            {
                 name: 'get_freeboard',
                 description: '자유게시판(freeboard) 조회',
                 params: { page: '1+' },
@@ -488,6 +520,10 @@ function generateHelp(topic = 'overview') {
             {
                 description: 'baseball 분석',
                 command: `curl "http://localhost:${PORT}/analyze?board=baseball&page=1"`
+            },
+            {
+                description: 'top views 조회',
+                command: `curl "http://localhost:${PORT}/top-views?board=freeboard&page=1&limit=5"`
             },
             {
                 description: '도구 목록 확인',
@@ -719,6 +755,79 @@ const server = http.createServer(async (req, res) => {
             return;
         }
 
+        // ===== /top-views =====
+        if (pathname === '/top-views' && req.method === 'GET') {
+            const requestStartTime = Date.now();
+            const { board = 'freeboard', page = 1, limit = 10 } = query;
+
+            if (!board) {
+                res.writeHead(400);
+                res.end(JSON.stringify({
+                    error: 'board parameter is required',
+                    code: 'INVALID_BOARD',
+                    supportedBoards: ['freeboard', 'baseball', 'stock', 'ppomppu']
+                }));
+                return;
+            }
+
+            if (page < 1 || page > 999) {
+                res.writeHead(400);
+                res.end(JSON.stringify({
+                    error: 'page must be between 1 and 999',
+                    code: 'INVALID_PAGE'
+                }));
+                return;
+            }
+
+            const posts = await crawlBoard(board, parseInt(page, 10));
+
+            if (!posts || posts.length === 0) {
+                res.writeHead(503);
+                res.end(JSON.stringify({
+                    error: 'No data available',
+                    code: 'NO_DATA'
+                }));
+                return;
+            }
+
+            // 조회수 기준 정렬 및 TOP N 추출
+            const sortedPosts = posts
+                .map(post => ({
+                    no: post.no,
+                    title: post.title,
+                    author: post.author,
+                    views: parseInt(post.views, 10) || 0,
+                    recommends: (() => {
+                        const [up, down] = post.recommend.split('-');
+                        return { up: parseInt(up, 10) || 0, down: parseInt(down, 10) || 0 };
+                    })(),
+                    createdAt: post.date,
+                    url: post.url
+                }))
+                .sort((a, b) => b.views - a.views)
+                .slice(0, parseInt(limit, 10) || 10);
+
+            res.writeHead(200);
+            res.end(JSON.stringify({
+                success: true,
+                metadata: {
+                    board,
+                    page: parseInt(page, 10),
+                    limit: parseInt(limit, 10) || 10,
+                    totalPosts: posts.length,
+                    processedAt: new Date().toISOString(),
+                    processingTime: `${Date.now() - requestStartTime}ms`
+                },
+                data: {
+                    boardId: board,
+                    page: parseInt(page, 10),
+                    limit: parseInt(limit, 10) || 10,
+                    topPosts: sortedPosts
+                }
+            }, null, 2));
+            return;
+        }
+
         // ===== /health =====
         if (pathname === '/health' && req.method === 'GET') {
             res.writeHead(200);
@@ -745,9 +854,8 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({
             error: 'Not Found',
             code: 'NOT_FOUND',
-            availableEndpoints: ['/tools', '/health', '/crawl', '/freeboard', '/ppomppu', '/baseball', '/stock', '/analyze']
+            availableEndpoints: ['/tools', '/health', '/crawl', '/freeboard', '/ppomppu', '/baseball', '/stock', '/analyze', '/top-views']
         }));
-
     } catch (error) {
         console.error('서버 오류:', error);
         res.writeHead(500);
@@ -787,11 +895,13 @@ server.listen(PORT, () => {
     console.log(`  GET  /stock?page=1       - 주식 게시판\n`);
 
     console.log(`📊 분석 기능:`);
-    console.log(`  GET  /analyze?board=freeboard&page=1  - 데이터 조회 + 분석\n`);
+    console.log(`  GET  /analyze?board=freeboard&page=1  - 데이터 조회 + 분석`);
+    console.log(`  GET  /top-views?board=freeboard&page=1&limit=5  - 조회수 TOP N 게시물\n`);
 
     console.log(`예시:`);
     console.log(`  curl "http://localhost:${PORT}/tools"`);
     console.log(`  curl "http://localhost:${PORT}/analyze?board=baseball&page=1"`);
+    console.log(`  curl "http://localhost:${PORT}/top-views?board=freeboard&page=1&limit=3"`);
     console.log(`  curl "http://localhost:${PORT}/health\n"`);
 });
 
