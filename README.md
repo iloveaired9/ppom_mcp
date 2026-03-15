@@ -1,52 +1,55 @@
-# 🚀 Todo App - MCP 기반 자동화 개발 프로젝트
+# 🚀 PPOM MCP - Model Context Protocol 기반 데이터 자동화 플랫폼
 
-> Model Context Protocol을 활용한 완전 자동화 개발 워크플로우
+> MySQL 데이터베이스 조작과 웹 스크래핑을 MCP를 통해 자동화하는 Next-Gen 개발 플랫폼
 
 ## 📋 프로젝트 개요
 
-**목표**: Todo 애플리케이션을 MCP(Model Context Protocol)를 활용하여 자동화된 개발 프로세스로 구현
+**PPOM MCP**는 Model Context Protocol을 활용하여 다음 기능을 제공합니다:
 
-**기술 스택**:
-- **Frontend**: Next.js 14 (App Router), Tailwind CSS
-- **Backend**: Express.js + Prisma + SQLite
-- **Tools**: MCP (filesystem + npm-scripts)
+- 🗄️ **myawsdb**: MySQL 데이터베이스 쿼리 및 조작 (CRUD)
+- 🌐 **ppomppu-crawler**: 한국 커뮤니티(뽐뿌) 게시판 크롤링 및 실시간 분석
+- 🤖 **Claude Code Skills**: 자동화된 데이터 작업을 위한 4개의 커스텀 스킬
+- 📊 **Zero-Script Analytics**: 로그 분석 기반의 자동 검증
 
 ---
 
 ## 🏗️ 프로젝트 구조
 
 ```
-todo-app/
-├── docs/                          # PDCA 문서
-│   ├── 01-plan/
-│   │   └── PLAN.md               # 기능 계획
-│   ├── 02-design/
-│   │   └── DESIGN.md             # 기술 설계
-│   └── 03-analysis/
-│       └── README.md             # 분석 문서
+ppom_mcp/
+├── mcp-servers/                      # MCP 서버 구현
+│   ├── myawsdb.js                   # MySQL DB 쿼리 서버 (포트: 3010)
+│   ├── ppomppu-crawler/
+│   │   └── ppomppu-crawler.js       # 뽐뿌 크롤러 (포트: 3008)
+│   └── README.md                    # MCP 서버 문서
 │
-├── src/                          # Backend 소스 코드
-│   ├── index.js                  # Express 서버 (메인)
-│   ├── api/                      # API 라우트
-│   ├── models/                   # 데이터 모델
-│   ├── middleware/               # 미들웨어
-│   ├── config/                   # 설정
-│   └── utils/                    # 유틸리티
+├── .claude/skills/                   # Claude Code 스킬 (자동화)
+│   ├── myawsdb/
+│   │   └── SKILL.md                 # DB 쿼리 스킬
+│   ├── myawsdb-export/
+│   │   └── SKILL.md                 # 데이터 내보내기 (CSV/JSON/TSV)
+│   ├── ppom/
+│   │   └── SKILL.md                 # 뽐뿌 분석 스킬
+│   └── php-migrate/
+│       └── SKILL.md                 # PHP 레거시 코드 마이그레이션
 │
-├── prisma/
-│   └── schema.prisma             # DB 스키마
+├── scripts/                          # 유틸리티 스크립트
+│   ├── fetch-freeboard.js           # 게시판 데이터 수집
+│   ├── analyze-*.js                 # 데이터 분석 스크립트
+│   └── query-posts.js               # DB 쿼리 유틸
 │
-├── mcp-servers/
-│   └── npm-scripts.js            # 커스텀 MCP 서버
+├── docs/                             # 상세 문서
+│   ├── 01-plan/                     # 기능 계획 문서
+│   ├── 02-design/                   # 기술 설계 문서
+│   ├── 03-analysis/                 # 분석 결과 문서
+│   ├── 04-report/                   # 완료 보고서
+│   ├── API.md                       # API 명세서
+│   └── ADDING_MORE_BOARDS.md        # 게시판 추가 가이드
 │
-├── .claude/
-│   └── mcp.json                  # MCP 설정
-│
-├── .env                          # 환경 변수
-├── .env.example                  # 환경 변수 예제
-├── .gitignore                    # Git 무시 파일
-├── package.json                  # npm 의존성
-└── README.md                     # 이 파일
+├── .env.example                      # 환경 변수 템플릿
+├── package.json                      # npm 의존성
+├── CLAUDE.md                        # Claude Code 설정 가이드
+└── README.md                        # 이 파일
 ```
 
 ---
@@ -59,320 +62,376 @@ todo-app/
 npm install
 ```
 
-### 2️⃣ 데이터베이스 마이그레이션
+### 2️⃣ 환경 설정
 
 ```bash
-npx prisma migrate dev --name init
+cp .env.example .env
+# .env 파일에서 데이터베이스 정보 설정
 ```
 
-### 3️⃣ 개발 서버 시작
+### 3️⃣ MCP 서버 시작
 
 ```bash
-npm run dev
+# myawsdb 서버 (포트 3010)
+npm run myawsdb
+
+# ppomppu-crawler 서버 (포트 3008)
+npm run ppom
 ```
 
-✅ **결과**: `http://localhost:3000` 에서 서버 실행
+✅ **결과**: 두 서버가 모두 실행되면 Claude Code에서 자동으로 인식됩니다.
 
 ---
 
-## 📚 npm Scripts
+## 🔌 MCP 서버 상세
 
-### 개발
+### 1. myawsdb (포트: 3010)
 
+**목적**: MySQL 데이터베이스에 대한 CRUD 작업
+
+**지원 명령어**:
 ```bash
-npm run dev              # 개발 서버 시작
-npm run start            # 프로덕션 서버 시작
-npm run test             # 테스트 실행
-npm run format           # 코드 포맷팅
-npm run build            # 빌드
+/myawsdb query posts limit 5           # 데이터 조회
+/myawsdb describe posts                # 테이블 구조 확인
+/myawsdb get_tables                    # 모든 테이블 목록
+/myawsdb insert posts {...}            # 데이터 삽입
+/myawsdb update posts {...}            # 데이터 수정
+/myawsdb delete posts id=1             # 데이터 삭제
 ```
 
-### Database
-
-```bash
-npx prisma migrate dev  # 마이그레이션 실행
-npx prisma studio      # Prisma Studio (DB GUI)
-npx prisma generate    # Prisma 클라이언트 생성
+**API 엔드포인트**:
+```
+POST   http://localhost:3010/query      # SQL 쿼리 실행
+POST   http://localhost:3010/describe   # 테이블 구조
+GET    http://localhost:3010/tables     # 테이블 목록
+POST   http://localhost:3010/execute    # 직접 SQL 실행
 ```
 
-### PDCA 문서
+**지원 도구 (inputSchema 포함)**:
+- execute_query
+- get_tables
+- describe_table
+- query_records
+- insert_record
+- update_record
+- delete_record
 
+---
+
+### 2. ppomppu-crawler (포트: 3008)
+
+**목적**: 뽐뿌 게시판 데이터 수집 및 실시간 분석
+
+**지원 게시판**:
+- freeboard (자유게시판)
+- baseball (야구 게시판)
+- ppomppu (뽐뿌 일반)
+- stock (주식 게시판)
+
+**지원 명령어**:
 ```bash
-npm run plan            # 기능 계획 보기
-npm run design          # 설계 문서 보기
-npm run analyze         # 분석 결과 보기
+/ppom freeboard 1                      # 게시판 데이터 조회
+/ppom analyze freeboard 1              # 게시판 분석 (키워드, 통계)
+/ppom baseball 1                       # 야구 게시판 조회
 ```
 
-### MCP
+**API 엔드포인트**:
+```
+GET    http://localhost:3008/freeboard?page=1
+GET    http://localhost:3008/analyze?board=freeboard&page=1
+GET    http://localhost:3008/baseball?page=1
+GET    http://localhost:3008/health
+```
+
+**분석 제공 정보**:
+- timeline: 시간대별 게시물 분포
+- keywords: 핵심 키워드 추출 (상위 5개)
+- categories: 게시물 카테고리 자동 분류
+- participation: 사용자 참여도 (추천, 댓글)
+- topPosts: 상위 조회 게시물
+
+---
+
+## 🤖 Claude Code 스킬
+
+### /myawsdb - 데이터베이스 조회
 
 ```bash
-npm run mcp:npm-scripts # MCP 서버 시작
+/myawsdb query posts limit 10
+```
+
+**기능**:
+- 테이블 데이터 조회
+- SQL 쿼리 실행
+- 구조 확인
+
+---
+
+### /myawsdb-export - 데이터 내보내기
+
+```bash
+/myawsdb-export posts csv limit=100
+/myawsdb-export posts json limit=50
+/myawsdb-export posts tsv limit=200
+```
+
+**기능**:
+- CSV/JSON/TSV 형식 내보내기
+- 자동 인코딩 (UTF-8 with BOM)
+- 타임스탐프 파일명 자동 생성
+
+**출력 예**:
+- `posts_20260315_152400.csv`
+- `posts_20260315_152400.json`
+
+---
+
+### /ppom - 게시판 분석
+
+```bash
+/ppom freeboard 1                      # 원본 데이터 조회
+/ppom analyze freeboard 1              # 실시간 분석
+```
+
+**분석 결과**:
+- 시간대별 분포 (피크 시간 분석)
+- 핵심 키워드 추출
+- 카테고리 자동 분류
+- 참여도 통계
+
+**분석 예시**:
+```
+[시간대별 분석]
+19시: 18개 (60.0%) ← 피크 시간
+20시: 12개
+
+[핵심 키워드]
+1. 트렌드 (3회)
+2. 영화 (2회)
+
+[카테고리]
+기타: 18개 (60.0%)
+연예/종교: 5개 (16.7%)
 ```
 
 ---
 
-## 🔌 API 엔드포인트
+### /php-migrate - PHP 레거시 코드 마이그레이션
 
-### Base URL
-```
-http://localhost:3000/api
-```
-
-### Endpoints
-
-#### 1. 할 일 목록 조회
-```http
-GET /api/todos?completed=false&priority=HIGH&limit=50&offset=0
+```bash
+/php-migrate legacy-code.php
 ```
 
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "title": "할 일 제목",
-      "completed": false,
-      "priority": "HIGH",
-      "dueDate": "2026-03-20",
-      "createdAt": "2026-03-13T10:00:00Z"
-    }
-  ],
-  "total": 10
+**기능**:
+- PHP 5.6 코드를 현대적 문법으로 변환
+- 자동 테스트 코드 생성
+- 마이그레이션 가이드 제공
+
+---
+
+## 📊 데이터베이스 스키마
+
+### posts 테이블 (43개 컬럼)
+
+**메타데이터** (게시물 기본 정보)
+```
+no (PK)          - 게시물 번호
+division         - 게시판 구분
+depth           - 답글 깊이
+father, child   - 부모/자식 번호
+```
+
+**사용자 정보**
+```
+name            - 작성자명
+email           - 이메일
+ip              - IP 주소
+password        - 비밀번호
+```
+
+**통계**
+```
+hit             - 조회수
+vote            - 추천수
+total_comment   - 댓글 수
+download1/2     - 다운로드 수
+```
+
+**시간정보**
+```
+reg_date        - 등록 시간 (timestamp)
+read_date       - 읽은 날짜
+comment_date    - 댓글 날짜
+```
+
+---
+
+## 🧪 사용 예시
+
+### 예시 1: 데이터베이스 쿼리
+
+```bash
+# posts 테이블 구조 확인
+/myawsdb describe posts
+
+# 상위 10개 게시물 조회
+/myawsdb query posts limit 10
+
+# 특정 데이터 삽입
+/myawsdb insert posts {
+  "name": "사용자",
+  "subject": "제목",
+  "memo": "내용"
 }
 ```
 
----
-
-#### 2. 할 일 생성
-```http
-POST /api/todos
-Content-Type: application/json
-
-{
-  "title": "새로운 할 일",
-  "description": "상세 설명 (선택)",
-  "priority": "HIGH",
-  "dueDate": "2026-03-20",
-  "category": "work"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "id": 5,
-    "title": "새로운 할 일",
-    "completed": false,
-    "createdAt": "2026-03-13T10:05:00Z"
-  },
-  "message": "할 일이 생성되었습니다"
-}
-```
-
----
-
-#### 3. 할 일 수정
-```http
-PATCH /api/todos/:id
-Content-Type: application/json
-
-{
-  "title": "수정된 제목",
-  "completed": true,
-  "priority": "LOW"
-}
-```
-
----
-
-#### 4. 할 일 삭제
-```http
-DELETE /api/todos/:id
-```
-
----
-
-#### 5. Health Check
-```http
-GET /health
-```
-
----
-
-## 🗄️ 데이터베이스 스키마
-
-### todos 테이블
-
-```prisma
-model Todo {
-  id          Int       @id @default(autoincrement())
-  title       String
-  description String?
-  completed   Boolean   @default(false)
-  category    String    @default("general")
-  priority    String    @default("MEDIUM")  // HIGH, MEDIUM, LOW
-  dueDate     DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([completed])
-  @@index([priority])
-}
-```
-
----
-
-## 🧪 테스트
-
-### API 테스트 (curl)
+### 예시 2: 게시판 분석
 
 ```bash
-# 할 일 생성
-curl -X POST http://localhost:3000/api/todos \
-  -H "Content-Type: application/json" \
-  -d '{"title":"테스트 할 일","priority":"HIGH"}'
+# freeboard 원본 데이터 조회
+/ppom freeboard 1
 
-# 할 일 목록 조회
-curl http://localhost:3000/api/todos
+# freeboard 상세 분석 (키워드, 통계)
+/ppom analyze freeboard 1
 
-# Health Check
-curl http://localhost:3000/health
+# 다른 게시판 분석
+/ppom baseball 1
+/ppom stock 1
 ```
 
-### Postman/Insomnia
-
-Postman이나 Insomnia를 사용하면 API 테스트가 더 편합니다.
-
----
-
-## 🛠️ 개발 환경
-
-### 필수 요구사항
-
-- Node.js 18+
-- npm 9+
-- SQLite (로컬 개발)
-
-### 환경 변수
-
-`.env` 파일 참조:
-
-```env
-PORT=3000
-NODE_ENV=development
-DATABASE_URL="file:./dev.db"
-FRONTEND_URL="http://localhost:3000"
-API_PREFIX="/api"
-```
-
----
-
-## 📝 PDCA 프로세스
-
-### Phase 1: Plan ✅
-- 기능 정의: `docs/01-plan/PLAN.md`
-- MVP: 할 일 CRUD 구현
-
-### Phase 2: Design ✅
-- 기술 설계: `docs/02-design/DESIGN.md`
-- API 명세, 데이터 모델
-
-### Phase 3: Do 🔄 (진행 중)
-- Backend 구현: Express + Prisma
-- API 엔드포인트 완성
-
-### Phase 4: Check ⏳ (예정)
-- 설계-구현 검증
-- 테스트 및 버그 수정
-
-### Phase 5: Act ⏳ (예정)
-- 개선사항 반영
-- 성능 최적화
-
----
-
-## 🔧 MCP 활용
-
-### 등록된 MCP 서버
-
-1. **filesystem** (기본 제공)
-   - 파일 읽기/쓰기
-   - 폴더 탐색
-
-2. **npm-scripts** (커스텀)
-   - npm scripts 실행
-   - PDCA 문서 조회
-
-### 사용 예
+### 예시 3: 데이터 내보내기
 
 ```bash
-# 당신의 요청
-"PLAN.md를 읽어서 내용을 정리해줘"
+# CSV로 내보내기
+/myawsdb-export posts csv limit=100
 
-# MCP가 자동 실행
-read_file("docs/01-plan/PLAN.md")
+# JSON으로 내보내기
+/myawsdb-export posts json limit=50
+
+# 뽐뿌 데이터 분석 후 내보내기
+/ppom analyze freeboard 1           # 분석 수행
+# 결과가 자동으로 JSON 파일로 저장됨
 ```
 
 ---
 
-## 🚀 배포
+## 🔧 npm Scripts
 
-### 로컬 개발
 ```bash
-npm run dev
-```
+# MCP 서버 실행
+npm run myawsdb                    # myawsdb 서버 (포트 3010)
+npm run ppom                       # ppomppu-crawler (포트 3008)
 
-### 프로덕션
-```bash
-npm run build
-npm start
-```
+# 데이터 작업 스크립트
+npm run fetch-freeboard            # 게시판 데이터 수집
+npm run query-posts                # DB 쿼리 실행
+npm run analyze-all                # 모든 데이터 분석
 
-### Docker (예정)
-```bash
-docker build -t todo-app .
-docker run -p 3000:3000 todo-app
+# 유틸리티
+npm run status                     # 시스템 상태 확인
+npm run help                       # 도움말
 ```
 
 ---
 
-## 📊 진행 상황
+## 📈 현재 진행 상황
 
-| Phase | 상태 | 진행률 |
-|-------|------|--------|
-| Plan | ✅ 완료 | 100% |
-| Design | ✅ 완료 | 100% |
-| Do (Backend) | 🔄 진행중 | 50% |
-| Check | ⏳ 예정 | 0% |
-| Act | ⏳ 예정 | 0% |
-
----
-
-## 📚 참고 자료
-
-- [Express.js 문서](https://expressjs.com/)
-- [Prisma 문서](https://www.prisma.io/docs/)
-- [MCP 문서](https://modelcontextprotocol.io/)
+| 컴포넌트 | 상태 | 설명 |
+|---------|------|------|
+| **myawsdb** | ✅ 완성 | MySQL 쿼리/조작, inputSchema 포함 |
+| **ppomppu-crawler** | ✅ 완성 | 4개 게시판 크롤링 + 분석 |
+| **스킬 자동화** | ✅ 완성 | prompt 섹션으로 완전 자동화 |
+| **데이터 내보내기** | ✅ 완성 | CSV/JSON/TSV 지원 |
+| **PHP 마이그레이션** | ✅ 완성 | Legacy 코드 변환 |
 
 ---
 
-## 👨‍💻 개발자
+## 🎯 주요 특징
 
-- **주도**: Claude (MCP-powered)
-- **프로젝트 리드**: You
-- **시작**: 2026-03-13
+✅ **완전 자동화**: Claude Code 스킬로 클릭 한 번에 실행
+✅ **MCP 표준 준수**: inputSchema 포함, 모든 도구 문서화
+✅ **Zero-Script QA**: Docker 로그 기반 자동 검증
+✅ **HTTP 기반 통신**: curl로 직접 API 호출 가능
+✅ **실시간 분석**: 게시판 데이터 수집 후 즉시 분석
+✅ **다중 형식 지원**: CSV, JSON, TSV 동시 지원
+
+---
+
+## 💡 사용 사례
+
+### 사례 1: 뽐뿌 게시판 모니터링
+```
+1. /ppom freeboard 1          → 최신 게시물 조회
+2. /ppom analyze freeboard 1  → 트렌드 분석
+3. 자동 리포트 생성
+```
+
+### 사례 2: 데이터 마이그레이션
+```
+1. /myawsdb query source_table limit 1000   → 소스 DB 조회
+2. /myawsdb-export source_table csv         → CSV 내보내기
+3. /myawsdb insert target_table {...}       → 대상 DB 삽입
+```
+
+### 사례 3: 레거시 코드 현대화
+```
+1. /php-migrate old_code.php                → PHP 5.6 → 현대 문법
+2. 테스트 코드 자동 생성
+3. 마이그레이션 가이드 제공
+```
+
+---
+
+## 🛠️ 개발 환경 요구사항
+
+- **Node.js**: 18+
+- **npm**: 9+
+- **MySQL**: 5.7+ (myawsdb 사용 시)
+- **Claude Code**: 최신 버전
+
+---
+
+## 📚 문서
+
+- **[API 명세](docs/API.md)** - 모든 엔드포인트 문서
+- **[설계 문서](docs/02-design/)** - 기술 아키텍처
+- **[게시판 추가 가이드](docs/ADDING_MORE_BOARDS.md)** - 새로운 크롤러 추가
+- **[PDCA 인덱스](docs/PDCA-INDEX.md)** - 프로젝트 진행 현황
+
+---
+
+## 🌟 핵심 기술
+
+- **Model Context Protocol (MCP)**: 자동화 연동 표준
+- **Node.js + Express**: HTTP 기반 MCP 서버
+- **MySQL 2**: 데이터베이스 커넥션 풀
+- **Claude Code**: AI 기반 자동화
+- **curl + JSON**: 간단한 HTTP 통신
 
 ---
 
 ## 📝 라이선스
 
-ISC
+MIT
 
 ---
 
-**마지막 업데이트**: 2026-03-13
-**다음 단계**: Frontend 개발 시작
+## 👨‍💻 개발자
+
+- **프로젝트 시작**: 2026-03-13
+- **마지막 업데이트**: 2026-03-15
+- **주요 기여**: Claude (AI-assisted development)
+
+---
+
+## 🚀 다음 단계
+
+- [ ] 추가 게시판 크롤러 (Reddit, HN, etc.)
+- [ ] 실시간 알림 시스템
+- [ ] 데이터 시각화 대시보드
+- [ ] REST API 게이트웨이
+- [ ] GraphQL 지원
+
+---
+
+**GitHub**: https://github.com/iloveaired9/ppom_mcp
