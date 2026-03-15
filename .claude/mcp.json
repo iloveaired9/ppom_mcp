@@ -1,0 +1,28 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "mcp-server-filesystem",
+      "args": ["/"]
+    },
+    "npm-scripts": {
+      "command": "node",
+      "args": ["mcp-servers/npm-scripts.js"]
+    },
+    "doc-generator": {
+      "command": "node",
+      "args": ["mcp-servers/doc-generator.js"]
+    },
+    "myawsdb": {
+      "command": "node",
+      "args": ["mcp-servers/myawsdb.js"]
+    },
+    "ppomppu-crawler": {
+      "command": "node",
+      "args": ["mcp-servers/ppomppu-crawler/ppomppu-crawler.js"]
+    },
+    "system-dashboard": {
+      "command": "node",
+      "args": ["mcp-servers/system-dashboard.js"]
+    }
+  }
+}

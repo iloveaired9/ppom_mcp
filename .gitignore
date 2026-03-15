@@ -41,3 +41,7 @@ tmp/
 
 # OS
 Thumbs.db
+
+# Project folders and data
+work/
+*.csv

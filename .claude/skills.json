@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "skills": {
+    "analyze-freeboard": {
+      "name": "analyze-freeboard",
+      "path": "skills/analyze-freeboard",
+      "skillFile": "skills/analyze-freeboard/SKILL.md",
+      "type": "command",
+      "enabled": true,
+      "description": "뽐뿌 자유게시판 현황을 CSV에서 분석하고 요약",
+      "command": "analyze-freeboard",
+      "version": "1.0.0"
+    },
+    "fetch-and-summarize": {
+      "name": "fetch-and-summarize",
+      "path": "skills/fetch-and-summarize",
+      "skillFile": "skills/fetch-and-summarize/SKILL.md",
+      "type": "automation",
+      "enabled": true,
+      "description": "뽐뿌 freeboard 최신 데이터를 가져와서 자동으로 분석하고 요약",
+      "command": "fetch-and-summarize-freeboard",
+      "version": "1.0.0"
+    },
+    "multi-board-analysis": {
+      "name": "multi-board-analysis",
+      "path": "skills/multi-board-analysis",
+      "skillFile": "skills/multi-board-analysis/SKILL.md",
+      "type": "command",
+      "enabled": false,
+      "description": "여러 게시판을 동시에 분석하고 비교",
+      "version": "0.1.0"
+    },
+    "system-status": {
+      "name": "system-status",
+      "path": "skills/system-status",
+      "skillFile": "skills/system-status/SKILL.md",
+      "type": "utility",
+      "enabled": true,
+      "description": "View MCP servers, plugins, and skills status",
+      "command": "system-status",
+      "version": "1.0.0"
+    }
+  },
+  "metadata": {
+    "lastUpdated": "2026-03-14T13:00:00Z",
+    "totalSkills": 4,
+    "enabledSkills": 3
+  }
+}

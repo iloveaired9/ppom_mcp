@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "lastUpdated": "2026-03-15T06:20:36.020Z",
+  "lastUpdated": "2026-03-15T11:43:09.600Z",
   "activeFeatures": [
     "mcp-servers",
     "first",
@@ -36,9 +36,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-13T11:54:44.245Z",
-        "lastUpdated": "2026-03-15T05:02:38.907Z"
+        "lastUpdated": "2026-03-15T11:43:09.600Z"
       },
-      "lastFile": "C:\\rnd\\claude\\mcp\\first\\lib_migrated.php"
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\pclaude.bat"
     },
     "plugins": {
       "phase": "do",
@@ -62,9 +62,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-13T16:18:16.423Z",
-        "lastUpdated": "2026-03-14T05:29:43.286Z"
+        "lastUpdated": "2026-03-15T11:42:55.842Z"
       },
-      "lastFile": "C:\\rnd\\claude\\mcp\\first\\scripts\\freeboard-list.js"
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\scripts\\set-utf8.ps1"
     },
     "php-code-migrator": {
       "phase": "do",
@@ -140,7 +140,7 @@
   "session": {
     "startedAt": "2026-03-13T11:34:18.188Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-15T06:20:36.020Z"
+    "lastActivity": "2026-03-15T11:43:09.600Z"
   },
   "history": [
     {
@@ -842,6 +842,24 @@
     {
       "timestamp": "2026-03-15T06:20:36.020Z",
       "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T11:40:16.981Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T11:42:55.842Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T11:43:09.600Z",
+      "feature": "first",
       "phase": "do",
       "action": "updated"
     }

@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"http://localhost:3008/help\")",
+      "Bash(curl -s \"http://localhost:3008/freeboard?page=1\")",
+      "Bash(python3:*)",
+      "Bash(curl -s \"http://localhost:3010/tools\")",
+      "Bash(curl -s \"http://localhost:3008/health\")",
+      "Bash(curl -s http://localhost:3008/freeboard?page=1)",
+      "Bash(curl -s http://localhost:3008/help)",
+      "Bash(curl -s \"http://localhost:3008/ppomppu?page=1\")",
+      "Bash(curl -w \"\\\\n응답시간: %{time_total}초\\\\n\" -s \"http://localhost:3008/health\")",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"feat: Optimize ppom skill for faster execution and fix Windows encoding:*)",
+      "Bash(git push:*)",
+      "Bash(claude plugins:*)",
+      "Bash(find . -maxdepth 2 -name package.json -o -name *.config.js -o -name Makefile)",
+      "Bash(grep -n \"PORT\\\\|port\\\\|listen\" mcp-servers/*.js mcp-servers/ppomppu-crawler/*.js)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s \"http://localhost:3008/tools\")",
+      "Bash(curl -s \"http://localhost:3008/analyze?board=freeboard&page=1\")",
+      "Bash(chmod +x .claude/skills/ppom/help.sh)",
+      "Bash(bash .claude/skills/ppom/help.sh)",
+      "Bash(curl -s http://localhost:3008/tools)",
+      "Bash(git commit:*)",
+      "Bash(git rm:*)"
+    ]
+  }
+}

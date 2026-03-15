@@ -1,0 +1,139 @@
+{
+  "name": "php-code-migrator-plus",
+  "version": "2.0.0",
+  "description": "PHP 레거시 코드를 PHP 5.6 호환 클래스로 마이그레이션하고 자동으로 데이터 검증 테스트 코드 생성",
+  "author": "AI Assistant",
+  "license": "MIT",
+  "main": "index.js",
+  "type": "plugin",
+  "enabled": true,
+
+  "commands": [
+    {
+      "name": "full",
+      "description": "전체 프로세스 실행 (마이그레이션 → 테스트 코드 → 샘플 데이터 → 가이드)",
+      "usage": "node index.js full --className Posts --table_name posts"
+    },
+    {
+      "name": "migrate",
+      "description": "PHP 코드 마이그레이션만 실행",
+      "usage": "node index.js migrate --input legacy.php --output lib/Posts.php"
+    },
+    {
+      "name": "generate-tests",
+      "description": "데이터 검증 테스트 코드 생성",
+      "usage": "node index.js generate-tests --className Posts"
+    },
+    {
+      "name": "fetch-sample",
+      "description": "myawsdb에서 샘플 데이터 조회 및 CSV 생성",
+      "usage": "node index.js fetch-sample --table_name posts"
+    },
+    {
+      "name": "generate-guide",
+      "description": "마이그레이션 가이드 생성",
+      "usage": "node index.js generate-guide --className Posts"
+    }
+  ],
+
+  "features": [
+    "PHP 함수 → Static 메서드 클래스 자동 변환",
+    "PHP 5.6 호환성 유지",
+    "데이터 검증 테스트 코드 자동 생성 (PHP assert 기반)",
+    "myawsdb 샘플 데이터 자동 조회",
+    "샘플 데이터를 CSV로 자동 저장",
+    "마이그레이션 가이드 자동 생성 (기본 정보)",
+    "마이그레이션 체크리스트 생성"
+  ],
+
+  "dependencies": {
+    "axios": "^1.13.6",
+    "fs": "builtin",
+    "path": "builtin"
+  },
+
+  "configuration": {
+    "outputDir": {
+      "type": "string",
+      "default": "output",
+      "description": "마이그레이션 결과물 출력 디렉토리"
+    },
+    "samplesDir": {
+      "type": "string",
+      "default": "samples",
+      "description": "샘플 데이터 CSV 저장 디렉토리"
+    },
+    "myawsdbUrl": {
+      "type": "string",
+      "default": "http://localhost:3009",
+      "description": "myawsdb MCP 서버 URL"
+    },
+    "phpVersion": {
+      "type": "string",
+      "default": "5.6",
+      "description": "유지할 PHP 버전"
+    }
+  },
+
+  "inputs": {
+    "className": {
+      "type": "string",
+      "description": "마이그레이션 클래스명",
+      "example": "Posts"
+    },
+    "tableName": {
+      "type": "string",
+      "description": "myawsdb 테이블명",
+      "example": "posts",
+      "default": "posts"
+    },
+    "sampleLimit": {
+      "type": "number",
+      "description": "조회할 샘플 레코드 개수",
+      "example": 1,
+      "default": 1
+    },
+    "originalFunctionName": {
+      "type": "string",
+      "description": "원본 PHP 함수명",
+      "example": "get_posts"
+    }
+  },
+
+  "outputs": [
+    {
+      "name": "Test Code",
+      "path": "output/test_*.php",
+      "description": "PHP 5.6 데이터 검증 테스트 코드"
+    },
+    {
+      "name": "Sample CSV",
+      "path": "samples/posts_sample.csv",
+      "description": "myawsdb에서 조회한 샘플 데이터"
+    },
+    {
+      "name": "Migration Guide",
+      "path": "output/MIGRATION_GUIDE.md",
+      "description": "마이그레이션 기본 정보 가이드"
+    },
+    {
+      "name": "Checklist",
+      "path": "output/CHECKLIST_*.md",
+      "description": "마이그레이션 체크리스트"
+    }
+  ],
+
+  "requirements": {
+    "php": "5.6+",
+    "node": "12.0.0+",
+    "myawsdb": "running on localhost:3009 (optional)"
+  },
+
+  "tags": [
+    "php",
+    "migration",
+    "legacy-code",
+    "testing",
+    "automation"
+  ]
+}

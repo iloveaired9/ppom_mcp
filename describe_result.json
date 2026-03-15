@@ -1,0 +1,264 @@
+{
+  "success": true,
+  "tableName": "posts",
+  "columns": [
+    {
+      "name": "no",
+      "type": "int",
+      "nullable": false,
+      "key": "PRI"
+    },
+    {
+      "name": "division",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "headnum",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "arrangenum",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "depth",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "prev_no",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "next_no",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "father",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "child",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "ismember",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "islevel",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "memo",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "ip",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "password",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "homepage",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "email",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "subject",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "use_html",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "reply_mail",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "category",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "is_secret",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "sitelink1",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "sitelink2",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "file_name1",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "file_name2",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "s_file_name1",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "s_file_name2",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "download1",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "download2",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "reg_date",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "hit",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "vote",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "vote_anti",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "total_comment",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "x",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "y",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "read_date",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "comment_date",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "poll",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "best_date",
+      "type": "int",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "chk_mobile",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    },
+    {
+      "name": "safe_mail",
+      "type": "text",
+      "nullable": true,
+      "key": null
+    }
+  ]
+}

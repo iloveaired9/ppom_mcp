@@ -1,0 +1,30 @@
+{
+  "name": "php-code-migrator",
+  "version": "1.0.0",
+  "description": "PHP 5.6 레거시 코드를 현대적인 Static 메소드 클래스로 자동 변환",
+  "type": "utility",
+  "enabled": true,
+  "entry": "index.js",
+  "icon": "🔄",
+  "commands": [
+    {
+      "name": "convert",
+      "description": "PHP 파일을 Static 클래스로 변환"
+    },
+    {
+      "name": "analyze",
+      "description": "PHP 파일 분석 및 변환 가능 여부 확인"
+    }
+  ],
+  "options": {
+    "preserveEncoding": true,
+    "generateDocstring": true,
+    "phpNamespacePrefix": "App\\Legacy"
+  },
+  "capabilities": {
+    "fileUpload": true,
+    "fileDownload": true,
+    "encoding": ["UTF-8", "UTF-16", "UTF-16LE", "UTF-16BE", "EUC-KR"]
+  }
+
+}

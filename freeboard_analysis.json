@@ -1,0 +1,185 @@
+{
+  "success": true,
+  "metadata": {
+    "board": "freeboard",
+    "page": 1,
+    "totalPosts": 30,
+    "analyzedAt": "2026-03-15T07:40:05.758Z",
+    "processingTime": "427ms"
+  },
+  "analysis": {
+    "timeline": {
+      "hourlyDistribution": {
+        "15": 4,
+        "16": 26
+      },
+      "peakHours": [
+        "16"
+      ],
+      "peakHourCount": 26,
+      "concentration": 86.7
+    },
+    "keywords": {
+      "keywords": [
+        {
+          "text": "오늘자",
+          "count": 2,
+          "score": 0.5333333333333333
+        },
+        {
+          "text": "박찬대",
+          "count": 1,
+          "score": 0.5166666666666667
+        },
+        {
+          "text": "스스로",
+          "count": 1,
+          "score": 0.5166666666666667
+        },
+        {
+          "text": "지얼굴에",
+          "count": 1,
+          "score": 0.5166666666666667
+        },
+        {
+          "text": "침뱉기",
+          "count": 1,
+          "score": 0.5166666666666667
+        }
+      ],
+      "totalKeywords": 145,
+      "uniqueKeywords": 144,
+      "avgFrequency": 1.01
+    },
+    "categories": {
+      "categoryDistribution": {
+        "정치/검찰": {
+          "count": 0,
+          "percentage": 0
+        },
+        "국제": {
+          "count": 3,
+          "percentage": 10
+        },
+        "스포츠": {
+          "count": 1,
+          "percentage": 3.3
+        },
+        "연예/종교": {
+          "count": 1,
+          "percentage": 3.3
+        },
+        "경제/쇼핑": {
+          "count": 0,
+          "percentage": 0
+        },
+        "일상": {
+          "count": 0,
+          "percentage": 0
+        },
+        "기타": {
+          "count": 25,
+          "percentage": 83.3
+        }
+      },
+      "topCategory": "기타",
+      "topCategoryCount": 25
+    },
+    "participation": {
+      "recommends": {
+        "average": 0.7,
+        "max": 4,
+        "min": 0,
+        "median": 0,
+        "stdDev": 1.1
+      },
+      "dislikes": {
+        "average": 0,
+        "max": 0,
+        "min": 0,
+        "median": 0,
+        "stdDev": 0
+      },
+      "views": {
+        "average": 1096.9,
+        "max": 9294,
+        "min": 34,
+        "median": 630,
+        "stdDev": 1649.99
+      },
+      "engagement": {
+        "highEngagement": 0,
+        "mediumEngagement": 0,
+        "lowEngagement": 30
+      },
+      "activityLevel": "낮음"
+    },
+    "topPosts": [
+      {
+        "no": "9873567",
+        "title": "일본 호르무즈 함정 파견 거절 ㄷㄷㄷㄷ",
+        "author": "Conditioner",
+        "views": 9294,
+        "recommends": {
+          "up": 4,
+          "down": 0
+        },
+        "createdAt": "15:57:30",
+        "url": "https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&page=1&divpage=1844&no=9873567"
+      },
+      {
+        "no": "9873568",
+        "title": "주말에난리난 코인판.jpg",
+        "author": "cdjjje",
+        "views": 2725,
+        "recommends": {
+          "up": 0,
+          "down": 0
+        },
+        "createdAt": "15:59:22",
+        "url": "https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&page=1&divpage=1844&no=9873568"
+      },
+      {
+        "no": "9873576",
+        "title": "지금상태도 매우 위험하다는 어느 아파트..jpg",
+        "author": "어드쿠",
+        "views": 2297,
+        "recommends": {
+          "up": 0,
+          "down": 0
+        },
+        "createdAt": "16:12:42",
+        "url": "https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&page=1&divpage=1844&no=9873576"
+      },
+      {
+        "no": "9873571",
+        "title": "편의점 4500원짜리 버거.jpg",
+        "author": "라이카아리",
+        "views": 1826,
+        "recommends": {
+          "up": 2,
+          "down": 0
+        },
+        "createdAt": "16:05:03",
+        "url": "https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&page=1&divpage=1844&no=9873571"
+      },
+      {
+        "no": "9873588",
+        "title": "모텔 연쇄 살인녀 김소영 실물 ㄷㄷ..jpg",
+        "author": "NVlDIA",
+        "views": 1667,
+        "recommends": {
+          "up": 1,
+          "down": 0
+        },
+        "createdAt": "16:30:00",
+        "url": "https://www.ppomppu.co.kr/zboard/view.php?id=freeboard&page=1&divpage=1844&no=9873588"
+      }
+    ],
+    "metadata": {
+      "totalPosts": 30,
+      "analyzedAt": "2026-03-15T07:40:05.758Z",
+      "processingTime": "1ms"
+    }
+  }
+}
