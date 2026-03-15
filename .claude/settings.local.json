@@ -23,7 +23,15 @@
       "Bash(bash .claude/skills/ppom/help.sh)",
       "Bash(curl -s http://localhost:3008/tools)",
       "Bash(git commit:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(curl -s \"http://localhost:3008/freeboard?page=2\")",
+      "Bash(npm start:*)",
+      "Bash(curl:*)",
+      "Bash(pkill -f ppomppu-crawler)",
+      "Bash(kill 1633)",
+      "Bash(netstat -ano)",
+      "Bash(for board:*)",
+      "Bash(do echo:*)"
     ]
   }
 }

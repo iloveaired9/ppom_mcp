@@ -14,6 +14,7 @@ prompt: |
   - `/ppom ppomppu [page]` → curl -s "http://localhost:3008/ppomppu?page=[page|1]" → 게시물 목록
   - `/ppom stock [page]` → curl -s "http://localhost:3008/stock?page=[page|1]" → 게시물 목록
   - `/ppom analyze <board> [page]` → curl -s "http://localhost:3008/analyze?board=[board]&page=[page|1]" → 분석 결과
+  - `/ppom top-views <board> [page] [limit]` → curl -s "http://localhost:3008/top-views?board=[board]&page=[page|1]&limit=[limit|10]" → 조회수 기준 TOP N 게시물 ✨
   - `/ppom tools` → curl -s "http://localhost:3008/tools" → 도구 목록 (JSON)
   - `/ppom status` → curl -s "http://localhost:3008/health" → 서버 상태
 
@@ -30,20 +31,23 @@ prompt: |
 
 ### 기본 사용법
 ```bash
-/ppom help                      # 이 도움말 표시
-/ppom freeboard [page]          # 자유게시판 조회 (기본: 1페이지)
-/ppom baseball [page]           # 야구 게시판 조회
-/ppom ppomppu [page]            # 뽐뿌 일반 게시판 조회
-/ppom stock [page]              # 주식 게시판 조회
-/ppom analyze <board> [page]    # 게시판 분석 (키워드, 통계, 카테고리)
+/ppom help                           # 이 도움말 표시
+/ppom freeboard [page]               # 자유게시판 조회 (기본: 1페이지)
+/ppom baseball [page]                # 야구 게시판 조회
+/ppom ppomppu [page]                 # 뽐뿌 일반 게시판 조회
+/ppom stock [page]                   # 주식 게시판 조회
+/ppom analyze <board> [page]         # 게시판 분석 (키워드, 통계, 카테고리)
+/ppom top-views <board> [page] [limit] # 조회수 기준 TOP N 게시물 ✨
 ```
 
 ### 실제 예제
 ```bash
-/ppom freeboard 1               # 자유게시판 1페이지 데이터 조회
-/ppom analyze freeboard 1       # 자유게시판 1페이지 분석 (트렌드, 키워드, 통계)
-/ppom baseball 1                # 야구 게시판 1페이지 조회
-/ppom analyze baseball 1        # 야구 게시판 분석
+/ppom freeboard 1                    # 자유게시판 1페이지 데이터 조회
+/ppom analyze freeboard 1            # 자유게시판 1페이지 분석 (트렌드, 키워드, 통계)
+/ppom top-views freeboard 1          # 자유게시판 1페이지의 조회수 TOP 10 ✨
+/ppom top-views baseball 1 5         # 야구 게시판 1페이지의 조회수 TOP 5 ✨
+/ppom baseball 1                     # 야구 게시판 1페이지 조회
+/ppom analyze baseball 1             # 야구 게시판 분석
 ```
 
 ### 출력 결과
@@ -56,6 +60,11 @@ prompt: |
   - 카테고리 분류
   - 참여도 통계 (추천, 댓글)
   - 상위 게시물
+
+- **조회수 TOP N** (`/ppom top-views board [page] [limit]`) ✨:
+  - 조회수 기준 상위 게시물 (내림차순)
+  - 각 게시물의 조회수, 추천 수, 작성자, 작성 시간
+  - 기본 10개, limit으로 조정 가능
 
 ---
 
