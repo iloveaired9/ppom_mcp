@@ -1,23 +1,21 @@
 ---
 name: ppom
-description: ppomppu-crawler MCP 서버의 도움말 및 API 호출
-version: 1.0.0
+description: ppomppu-crawler MCP 서버 (빠른 조회)
+version: 1.0.1
 prompt: |
-  사용자가 ppomppu-crawler 관련 명령을 요청합니다.
+  사용자의 입력을 파싱하고 즉시 curl로 실행하세요. 문서는 표시하지 말고 결과만 보여주세요.
 
-  명령 형식:
-  - /ppom help → 도움말 표시
-  - /ppom freeboard [page] → 자유게시판 조회
-  - /ppom baseball [page] → 야구 게시판 조회
-  - /ppom ppomppu [page] → 뽐뿌 게시판 조회
-  - /ppom stock [page] → 주식 게시판 조회
-  - /ppom analyze <board> [page] → 게시판 분석
+  명령어 매핑:
+  - `/ppom help` → curl -s "http://localhost:3008/help" → 도움말 표시
+  - `/ppom freeboard [page]` → curl -s "http://localhost:3008/freeboard?page=[page|1]" → 테이블
+  - `/ppom baseball [page]` → curl -s "http://localhost:3008/baseball?page=[page|1]" → 테이블
+  - `/ppom ppomppu [page]` → curl -s "http://localhost:3008/ppomppu?page=[page|1]" → 테이블
+  - `/ppom stock [page]` → curl -s "http://localhost:3008/stock?page=[page|1]" → 테이블
+  - `/ppom analyze <board> [page]` → curl -s "http://localhost:3008/analyze?board=[board]&page=[page|1]" → 분석결과
+  - `/ppom tools` → curl -s "http://localhost:3008/tools" → 도구목록
+  - `/ppom status` → curl -s "http://localhost:3008/health" → 서버상태
 
-  당신은 다음을 자동으로 실행합니다:
-  1. 사용자 명령 파싱
-  2. 해당하는 curl 명령 실행 (localhost:3008)
-  3. JSON 결과 수신
-  4. 데이터 정리 및 표시
+  출력: 테이블 또는 마크다운 형식 (간결하게)
 ---
 
 # ppomppu-crawler 도움말

@@ -1,5 +1,8 @@
 @echo off
 REM Claude Code with local configuration
+REM Windows UTF-8 인코딩 설정 (Korean/Unicode 문자 표시)
+chcp 65001 >nul
+
 set ANTHROPIC_AUTH_TOKEN=sk-litellm-local-proxy
 set USE_BUILTIN_RIPGREP=1
 set ANTHROPIC_BASE_URL=http://192.168.0.61:8896
