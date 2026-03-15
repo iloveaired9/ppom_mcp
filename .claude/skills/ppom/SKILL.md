@@ -26,6 +26,39 @@ prompt: |
 
 ---
 
+## 🚀 사용 가능한 명령어
+
+### 기본 사용법
+```bash
+/ppom help                      # 이 도움말 표시
+/ppom freeboard [page]          # 자유게시판 조회 (기본: 1페이지)
+/ppom baseball [page]           # 야구 게시판 조회
+/ppom ppomppu [page]            # 뽐뿌 일반 게시판 조회
+/ppom stock [page]              # 주식 게시판 조회
+/ppom analyze <board> [page]    # 게시판 분석 (키워드, 통계, 카테고리)
+```
+
+### 실제 예제
+```bash
+/ppom freeboard 1               # 자유게시판 1페이지 데이터 조회
+/ppom analyze freeboard 1       # 자유게시판 1페이지 분석 (트렌드, 키워드, 통계)
+/ppom baseball 1                # 야구 게시판 1페이지 조회
+/ppom analyze baseball 1        # 야구 게시판 분석
+```
+
+### 출력 결과
+- **데이터 조회** (`/ppom board page`):
+  - 게시물 목록 (번호, 제목, 작성자, 조회수)
+
+- **분석** (`/ppom analyze board page`):
+  - 시간대별 분포
+  - 핵심 키워드 (상위 5개)
+  - 카테고리 분류
+  - 참여도 통계 (추천, 댓글)
+  - 상위 게시물
+
+---
+
 ## 📋 제공하는 도구 (MCP Tools)
 
 ppomppu-crawler MCP 서버는 다음 **6개의 도구**를 제공합니다:
