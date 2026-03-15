@@ -3,19 +3,21 @@ name: ppom
 description: ppomppu-crawler MCP 서버 (빠른 조회)
 version: 1.0.1
 prompt: |
-  사용자의 입력을 파싱하고 즉시 curl로 실행하세요. 문서는 표시하지 말고 결과만 보여주세요.
+  사용자 명령어를 파싱하고 즉시 curl로 실행하세요.
 
-  명령어 매핑:
-  - `/ppom help` → curl -s "http://localhost:3008/help" → 도움말 표시
-  - `/ppom freeboard [page]` → curl -s "http://localhost:3008/freeboard?page=[page|1]" → 테이블
-  - `/ppom baseball [page]` → curl -s "http://localhost:3008/baseball?page=[page|1]" → 테이블
-  - `/ppom ppomppu [page]` → curl -s "http://localhost:3008/ppomppu?page=[page|1]" → 테이블
-  - `/ppom stock [page]` → curl -s "http://localhost:3008/stock?page=[page|1]" → 테이블
-  - `/ppom analyze <board> [page]` → curl -s "http://localhost:3008/analyze?board=[board]&page=[page|1]" → 분석결과
-  - `/ppom tools` → curl -s "http://localhost:3008/tools" → 도구목록
-  - `/ppom status` → curl -s "http://localhost:3008/health" → 서버상태
+  `/ppom help` 명령어 실행 시:
+  - bash .claude/skills/ppom/help.sh 를 실행하고 결과를 표시 (도움말 + 실제 API 응답 명세 포함)
 
-  출력: 테이블 또는 마크다운 형식 (간결하게)
+  기타 명령어:
+  - `/ppom freeboard [page]` → curl -s "http://localhost:3008/freeboard?page=[page|1]" → 게시물 목록 (JSON 또는 테이블)
+  - `/ppom baseball [page]` → curl -s "http://localhost:3008/baseball?page=[page|1]" → 게시물 목록
+  - `/ppom ppomppu [page]` → curl -s "http://localhost:3008/ppomppu?page=[page|1]" → 게시물 목록
+  - `/ppom stock [page]` → curl -s "http://localhost:3008/stock?page=[page|1]" → 게시물 목록
+  - `/ppom analyze <board> [page]` → curl -s "http://localhost:3008/analyze?board=[board]&page=[page|1]" → 분석 결과
+  - `/ppom tools` → curl -s "http://localhost:3008/tools" → 도구 목록 (JSON)
+  - `/ppom status` → curl -s "http://localhost:3008/health" → 서버 상태
+
+  출력 형식: 간결하게 (JSON, 테이블, 또는 마크다운)
 ---
 
 # ppomppu-crawler 도움말
@@ -149,34 +151,51 @@ npm run ppom:help:examples
 
 ---
 
-## 🔧 분석 기능
+## 📡 엔드포인트 응답 명세
 
-`/analyze` 엔드포인트는 다음 분석 정보를 제공합니다:
+### 1️⃣ GET /tools - MCP 도구 목록 (6개)
+**crawl_board**, **analyze_board**, **get_freeboard**, **get_baseball**, **get_ppomppu**, **get_stock**
+- 각 도구는 JSON-RPC 스키마로 정의됨
+- 입력 파라미터: board (필수), page (선택)
 
-- **timeline**: 시간대별 게시물 분석
-- **keywords**: 핵심 키워드 추출 (상위 5개)
-- **categories**: 게시물 자동 카테고리 분류
-- **participation**: 사용자 참여도 분석
-- **topPosts**: 상위 게시물 (조회수 기준)
-
-### 예시:
-```bash
-curl "http://localhost:3008/analyze?board=freeboard&page=1"
-```
-
-응답:
+### 2️⃣ GET /freeboard?page=1 - 게시판 데이터
 ```json
 {
-  "analysis": {
-    "timeline": { ... },
-    "keywords": [ "검찰개혁", "김어준", ... ],
-    "categories": { "정치": 12, "국제": 5, ... },
-    "participation": { "avgRecommends": 285, "maxRecommends": 1065 },
-    "topPosts": [ ... ]
-  },
-  "metadata": { ... }
+  "success": true,
+  "data": {
+    "boardId": "freeboard",
+    "page": 1,
+    "postCount": 30,
+    "posts": [
+      {"no": "9873895", "title": "이동형이 김어준을...", "author": "예비역", "views": "278"},
+      {"no": "9873894", "title": "뉴이재명 토론...", "author": "길냥이추워", "views": "251"}
+    ]
+  }
 }
 ```
+**응답 구조**: success, data.boardId, data.page, data.postCount, data.posts[]
+
+### 3️⃣ GET /analyze?board=freeboard&page=1 - 분석 결과
+```json
+{
+  "success": true,
+  "metadata": {
+    "board": "freeboard",
+    "page": 1,
+    "totalPosts": 30,
+    "processingTime": "370ms"
+  },
+  "analysis": {
+    "timeline": {"hourlyDistribution": {"21": 26}, "peakHours": ["21"]},
+    "keywords": [
+      {"text": "뉴이재명", "count": 3, "score": 0.55},
+      {"text": "페북", "count": 2, "score": 0.53}
+    ],
+    "categories": {"정치/검찰": 8, "국제": 5}
+  }
+}
+```
+**응답 구조**: success, metadata, analysis.timeline, analysis.keywords[], analysis.categories
 
 ---
 

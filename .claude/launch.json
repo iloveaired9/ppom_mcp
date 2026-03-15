@@ -1,0 +1,35 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ppomppu-crawler",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["mcp-servers/ppomppu-crawler/ppomppu-crawler.js"],
+      "port": 3008
+    },
+    {
+      "name": "system-dashboard",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["mcp-servers/system-dashboard.js"],
+      "port": 3010
+    },
+    {
+      "name": "doc-generator",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["mcp-servers/doc-generator.js"],
+      "port": 3002
+    },
+    {
+      "name": "myawsdb",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["mcp-servers/myawsdb.js"],
+      "port": 3004
+    },
+    {
+      "name": "npm-scripts",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["mcp-servers/npm-scripts.js"],
+      "port": 3000
+    }
+  ]
+}

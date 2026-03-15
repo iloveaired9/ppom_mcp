@@ -136,5 +136,5 @@ function readJSON(filePath) {
 }
 
 app.listen(PORT, () => {
-  console.log(\`🚀 Dashboard running at http://localhost:\${PORT}\`);
+  console.log(`🚀 Dashboard running at http://localhost:${PORT}`);
 });
