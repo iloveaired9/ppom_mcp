@@ -1,0 +1,849 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-03-15T06:20:36.020Z",
+  "activeFeatures": [
+    "mcp-servers",
+    "first",
+    "plugins",
+    "scripts",
+    "php-code-migrator",
+    "work",
+    "system-status",
+    "ppomppu-crawler",
+    "php-code-migrator-plus"
+  ],
+  "primaryFeature": "mcp-servers",
+  "features": {
+    "mcp-servers": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-13T11:47:15.978Z",
+        "lastUpdated": "2026-03-15T06:20:36.020Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\mcp-servers\\myawsdb.js"
+    },
+    "first": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-13T11:54:44.245Z",
+        "lastUpdated": "2026-03-15T05:02:38.907Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\lib_migrated.php"
+    },
+    "plugins": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-13T15:06:46.060Z",
+        "lastUpdated": "2026-03-13T15:06:46.060Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\.claude\\plugins\\php-legacy-converter.js"
+    },
+    "scripts": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-13T16:18:16.423Z",
+        "lastUpdated": "2026-03-14T05:29:43.286Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\scripts\\freeboard-list.js"
+    },
+    "php-code-migrator": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-14T04:19:29.544Z",
+        "lastUpdated": "2026-03-14T04:31:10.618Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\plugins\\php-code-migrator\\index.js"
+    },
+    "work": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-14T04:20:58.539Z",
+        "lastUpdated": "2026-03-14T04:20:58.539Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\work\\test_php_code.php"
+    },
+    "system-status": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-14T04:58:03.696Z",
+        "lastUpdated": "2026-03-14T04:58:03.696Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\.claude\\skills\\system-status\\index.js"
+    },
+    "ppomppu-crawler": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-15T04:03:28.994Z",
+        "lastUpdated": "2026-03-15T04:17:46.305Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\mcp-servers\\ppomppu-crawler\\ppomppu-crawler.js"
+    },
+    "php-code-migrator-plus": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-15T04:50:32.820Z",
+        "lastUpdated": "2026-03-15T05:12:49.225Z"
+      },
+      "lastFile": "C:\\rnd\\claude\\mcp\\first\\plugins\\php-code-migrator-plus\\lib\\SampleDataManager.js"
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Dynamic",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-03-13T11:34:18.188Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-03-15T06:20:36.020Z"
+  },
+  "history": [
+    {
+      "timestamp": "2026-03-13T11:47:15.978Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T11:54:44.245Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:12:08.440Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:17:52.176Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:28:32.365Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:28:40.001Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:28:49.819Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:30:46.282Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:30:50.860Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:30:54.932Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:31:01.342Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:31:40.287Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:31:44.530Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:31:49.208Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:33:15.549Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:33:27.811Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:33:34.296Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:35:42.242Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:35:49.670Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:35:54.869Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:35:58.898Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:37:10.333Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:42:25.824Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:42:31.113Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T12:42:37.466Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T14:27:09.264Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T14:40:46.124Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:06:46.060Z",
+      "feature": "plugins",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:18:11.917Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:28:47.776Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:29:24.280Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:30:04.652Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:34:03.395Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:35:12.029Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:41:27.172Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:54:30.840Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:54:38.745Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T15:56:10.166Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-13T16:18:16.423Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:10:15.508Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:10:22.396Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:18:41.860Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:19:39.643Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:42:34.881Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:43:03.653Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:43:21.842Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:43:30.881Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:43:41.447Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:57:23.472Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:57:32.703Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:57:40.240Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T02:58:10.279Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:06:55.777Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:07:02.019Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:07:55.083Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:08:15.017Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:08:43.720Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:08:57.572Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:09:50.568Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:10:13.270Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:10:56.904Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:11:59.956Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:12:36.613Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:13:16.964Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:16:43.974Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:17:06.300Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:17:22.099Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:19:04.665Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:19:34.402Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:20:33.999Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:21:10.077Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:24:34.755Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:25:17.813Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:27:49.151Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:27:52.629Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T03:44:55.289Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T04:19:29.544Z",
+      "feature": "php-code-migrator",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T04:20:58.539Z",
+      "feature": "work",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T04:29:05.082Z",
+      "feature": "php-code-migrator",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T04:30:52.241Z",
+      "feature": "php-code-migrator",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T04:31:10.618Z",
+      "feature": "php-code-migrator",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T04:55:58.969Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T04:58:03.696Z",
+      "feature": "system-status",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T04:58:38.761Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:00:55.366Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:04:39.874Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:08:16.043Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:16:23.905Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:16:44.061Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:16:59.252Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:20:38.480Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:20:54.510Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:25:35.041Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-14T05:29:43.286Z",
+      "feature": "scripts",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:03:28.994Z",
+      "feature": "ppomppu-crawler",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:14:58.965Z",
+      "feature": "ppomppu-crawler",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:15:15.040Z",
+      "feature": "ppomppu-crawler",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:16:16.193Z",
+      "feature": "ppomppu-crawler",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:16:31.828Z",
+      "feature": "ppomppu-crawler",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:16:40.998Z",
+      "feature": "ppomppu-crawler",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:17:46.305Z",
+      "feature": "ppomppu-crawler",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:50:32.820Z",
+      "feature": "php-code-migrator-plus",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:50:46.471Z",
+      "feature": "php-code-migrator-plus",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:51:04.253Z",
+      "feature": "php-code-migrator-plus",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T04:51:21.714Z",
+      "feature": "php-code-migrator-plus",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:02:38.907Z",
+      "feature": "first",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:12:37.365Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:12:41.174Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:12:44.112Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:12:49.225Z",
+      "feature": "php-code-migrator-plus",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:16:08.939Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:25:27.376Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:26:18.142Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:26:31.886Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T05:29:25.037Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T06:18:36.187Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-15T06:20:36.020Z",
+      "feature": "mcp-servers",
+      "phase": "do",
+      "action": "updated"
+    }
+  ]
+}
