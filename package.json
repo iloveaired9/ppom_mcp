@@ -22,7 +22,13 @@
     "ppom:help:boards": "curl -s 'http://localhost:3008/help?topic=boards' | jq . || curl -s 'http://localhost:3008/help?topic=boards'",
     "ppom:help:examples": "curl -s 'http://localhost:3008/help?topic=examples' | jq . || curl -s 'http://localhost:3008/help?topic=examples'",
     "ppom:tools": "curl -s http://localhost:3008/tools | jq . || curl -s http://localhost:3008/tools",
-    "ppom:status": "curl -s http://localhost:3008/health | jq . || curl -s http://localhost:3008/health"
+    "ppom:status": "curl -s http://localhost:3008/health | jq . || curl -s http://localhost:3008/health",
+    "php:index:init": "node plugins/php-index-generator/index.js help",
+    "php:index:build": "node plugins/php-index-generator/index.js build",
+    "php:index:search": "node plugins/php-index-generator/index.js search",
+    "php:index:info": "node plugins/php-index-generator/index.js info",
+    "php:index:list": "node plugins/php-index-generator/index.js list",
+    "php:index:goto": "node plugins/php-index-generator/index.js goto"
   },
   "keywords": [
     "mcp",

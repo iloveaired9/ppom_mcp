@@ -34,19 +34,21 @@ console.log(cache.files['app/Models/User.php'].hash);
 // → "abc123def456..."
 ```
 
-**반환값**:
+**반환값** (PHP 5.6 예제):
 ```javascript
 {
   files: {
-    'app/Models/User.php': {
-      hash: 'sha256_hash',
-      mtime: 1710570000000,
-      symbols: ['App\\Models\\User']
+    'work\\mobile\\include\\libraries\\notice_ad.class.php': {
+      hash: '7984074247046b44d3f1c58ccff12f099af53073874a8e7f7ea107ee062b67e9',
+      mtime: 1735194967000,
+      symbols: ['include\\libraries\\notice_ad.class.php::NoticeAd']
     }
   },
   version: '1.0.0'
 }
 ```
+
+**주목:** FQCN은 `filename::symbol` 형식입니다 (네임스페이스 없음, PHP 5.6)
 
 ---
 
@@ -657,23 +659,31 @@ async function fullWorkflow() {
     cacheDir: '.claude/php-index-cache'
   });
 
-  // 3. 색인 생성
+  // 3. 증분 색인 생성 (변경된 파일만 처리)
   const buildResult = await builder.build({ force: false });
-  console.log(`색인 생성 완료: ${buildResult.processedFiles}개 파일`);
+  console.log(`
+    ✅ 색인 생성 완료
+    • 처리 파일: ${buildResult.processedFiles}개
+    • 총 심볼: ${buildResult.totalSymbols}개
+    • 빌드 시간: ${buildResult.buildTime}ms
+  `);
 
   // 4. 검색 엔진 초기화
   const searcher = new IndexSearcher(buildResult.outputFile);
   await searcher.loadIndex();
 
-  // 5. 검색
-  const results = searcher.search('User', { type: 'class' });
-  console.log(`검색 결과: ${results.length}개`);
+  // 5. NoticeAd 클래스 검색 (실제 예제)
+  const results = searcher.search('NoticeAd', { type: 'class' });
+  console.log(`🔍 검색 결과: ${results.length}개`);
 
   // 6. 상세 정보
   if (results.length > 0) {
     const info = searcher.getSymbolInfo(results[0].name);
-    console.log(`파일: ${info.file}`);
-    console.log(`라인: ${info.line}`);
+    console.log(`
+      📄 파일: ${info.file}
+      📍 라인: ${info.line}
+      🔗 FQCN: ${results[0].name}
+    `);
   }
 }
 
@@ -755,17 +765,33 @@ for (let i = 0; i < 4; i++) {
 
 ---
 
-## 마이그레이션 가이드
+## PHP 5.6 특화 기능
 
-### v0.x → v1.0
+### FQCN 형식
+
+PHP 5.6 코드에는 네임스페이스가 없으므로, FQCN은 `filename::symbol` 형식입니다:
 
 ```javascript
-// 이전 API
-const index = require('./output/index.json');
-const symbol = index.symbols['App\\Models\\User'];
-
-// 새 API
-const searcher = new IndexSearcher('./output/index.json');
-await searcher.loadIndex();
-const symbol = searcher.getSymbolInfo('App\\Models\\User');
+// 예제
+'include\\libraries\\notice_ad.class.php::NoticeAd'
+'api\\gcm\\etc_alarm.php::send_header'
+'new\\bbs_notice.php::noticeAd'
 ```
+
+### 종료 태그 없는 파일 처리
+
+PHP 파일이 종료 태그 (`?>`)로 끝나지 않아도 정상 처리됩니다:
+
+```php
+<?php
+// 파일 내용...
+class NoticeAd { ... }
+// 종료 태그 없음 (PHP 권장 사항)
+```
+
+### 단기 기능
+
+- ✅ 짧은 태그 `<?: ... ?>` 지원
+- ✅ `include`/`require` 의존성 추적
+- ✅ 주석 처리 (HTML `<!-- -->`, PHP `/* */`, `//`)
+- ✅ 메서드/속성의 접근성 감지 (public/private/protected)

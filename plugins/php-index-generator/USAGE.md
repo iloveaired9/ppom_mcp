@@ -17,7 +17,7 @@
 ### 요구사항
 - Node.js 14.x 이상
 - npm 또는 yarn
-- PHP 5.7 이상 (색인 대상)
+- PHP 5.6 이상 (색인 대상, 레거시 코드 지원)
 
 ### 설치 단계
 
@@ -90,7 +90,7 @@ npm run php:index:build -- \
 npm run php:index:build -- --verbose --force
 ```
 
-#### 출력 예제
+#### 출력 예제 (실제)
 
 ```
 🔍 PHP Index Generator - Build
@@ -98,26 +98,32 @@ npm run php:index:build -- --verbose --force
 📂 소스 디렉토리: work/mobile
 📁 출력 위치: plugins/php-index-generator/output
 
-🔄 캐시 로드 중... ✓
-📋 PHP 파일 수집 중... ✓ (245개 파일)
-🔍 변경 파일 필터링 중... ✓ (12개 파일 변경됨)
+📂 캐시 로드 중...
+📋 PHP 파일 수집 중...
+✓ 363개 파일 발견
+🔄 변경된 파일 필터링 중...
+✓ 1개 파일 변경됨
 
-🔨 파일 처리 중:
-  ✓ app/Models/User.php (3 클래스, 15 메서드)
-  ✓ app/Controllers/UserController.php (1 클래스, 8 메서드)
-  ✓ app/Services/UserService.php (1 클래스, 12 메서드)
-  ... (12개 파일 총 처리)
+🔨 파일 처리 중 (1/363)...
+  ✓ 1/363 파일 처리됨
 
-🧬 심볼 병합 중... ✓
-💾 색인 저장 중... ✓
-🗄️  캐시 업데이트 중... ✓
+✅ 색인 생성 완료!
+  • 처리 파일: 363/363개
+  • 총 심볼: 84개
+  • 소요 시간: 0.29초
+  • 모드: full
+```
 
-✅ 완료!
-  • 처리 파일: 12개
-  • 추가 심볼: 87개
-  • 제거 심볼: 5개
-  • 총 심볼: 3421개
-  • 소요 시간: 2.5초
+**증분 색인화 예제:**
+```
+🔄 변경된 파일 필터링 중...
+✓ 1개 파일 변경됨
+🔨 파일 처리 중 (1/363)...
+
+✅ 색인 생성 완료!
+  • 처리 파일: 1개 (363개 중)
+  • 소요 시간: 0.08초
+  • 모드: incremental
 ```
 
 ---
@@ -152,44 +158,40 @@ npm run php:index:search -- --symbol "UserController" --exact
 #### 예제
 
 ```bash
-# 클래스 검색
-npm run php:index:search -- --symbol "User" --type "class"
+# NoticeAd 클래스 검색
+npm run php:index:search -- --symbol "NoticeAd" --type "class"
 
-# 메서드 검색
-npm run php:index:search -- --symbol "create" --type "method" --limit 20
+# send_header 함수 검색
+npm run php:index:search -- --symbol "send_header" --type "function"
 
-# 특정 네임스페이스 내 검색
-npm run php:index:search -- \
-  --symbol "Controller" \
-  --namespace "App\\Http\\Controllers" \
-  --type "class"
+# 부분 일치 (오타 자동 수정)
+npm run php:index:search -- --symbol "NoticeAd" --limit 5
 ```
 
-#### 출력 예제
+**참고:** PHP 5.6 코드이므로 네임스페이스가 없고, FQCN 형식은 `filename::symbol` 입니다
+
+#### 출력 예제 (실제)
 
 ```
-🔍 검색: "User" (타입: 모든 타입)
+🔍 검색: "NoticeAd"
 
-📌 결과 (6개 발견, 상위 10개 표시):
+📌 결과 (10개 발견):
 
-1. App\Models\User (class)
-   📄 work/mobile/app/Models/User.php:12
-   👨 Members: 15 메서드, 5 속성
-   📏 Score: 1.0 (정확 일치)
+1. NoticeAd (class)
+   📄 work\mobile\include\libraries\notice_ad.class.php:4
+   📏 점수: 90%
 
-2. App\Factories\UserFactory (class)
-   📄 work/mobile/database/factories/UserFactory.php:8
-   👨 Members: 3 메서드
-   📏 Score: 0.9
+2. send_header (function)
+   📄 work\mobile\api\gcm\etc_alarm.php:3
+   📏 점수: 0%
 
-3. UserController (class)
-   📄 work/mobile/app/Http/Controllers/UserController.php:15
-   👨 Members: 8 메서드
-   📏 Score: 0.85
+3. send_header (function)
+   📄 work\mobile\api\gcm\hot_article.php:3
+   📏 점수: 0%
 
 ... (계속)
 
-💡 힌트: 더 자세한 정보는 'npm run php:index:info'를 사용하세요.
+💡 정확 일치 검색: npm run php:index:search -- --symbol "NoticeAd" --exact
 ```
 
 ---
@@ -431,55 +433,50 @@ PHP_INDEX_VERBOSE=true
 
 ## 예제 및 시나리오
 
-### 시나리오 1: Laravel 프로젝트 시작
+### 시나리오 1: 레거시 PHP 프로젝트 시작
 
 ```bash
 # 1. 초기 색인 생성
 npm run php:index:build -- \
-  --source work/mobile/app \
-  --exclude "*/migrations/*" \
-  --exclude "*/seeders/*" \
-  --force
+  --source work/mobile \
+  --force --verbose
 
-# 2. 모델 찾기
-npm run php:index:search -- \
-  --namespace "App\\Models" \
-  --type "class"
+# 2. 전체 클래스 찾기
+npm run php:index:list -- --type "class"
 
-# 3. UserController 정보 조회
-npm run php:index:info -- --symbol "App\\Http\\Controllers\\UserController"
+# 3. NoticeAd 클래스 정보 조회
+npm run php:index:info -- --symbol "NoticeAd"
 
-# 4. 정의로 이동
-npm run php:index:goto -- --symbol "UserController"
+# 4. 정의 위치 찾기 (파일 및 라인 번호)
+npm run php:index:goto -- --symbol "NoticeAd"
 ```
 
-### 시나리오 2: 리팩토링 중 메서드 찾기
+### 시나리오 2: 함수/메서드 호출 추적
 
 ```bash
-# 1. 사용되는 메서드 검색
-npm run php:index:search -- --symbol "store" --type "method" --limit 20
+# 1. Helper 클래스의 메서드 찾기
+npm run php:index:search -- --symbol "cache_get" --type "function" --limit 10
 
-# 2. 각 메서드의 정의 확인
-npm run php:index:info -- --symbol "UserController::store"
-npm run php:index:info -- --symbol "PostController::store"
+# 2. 메서드의 정의 확인
+npm run php:index:goto -- --symbol "cache_get"
 
-# 3. 메서드 변경 시 영향도 분석
-npm run php:index:list -- --type "method" --name "store"
+# 3. 파일별 함수 목록
+npm run php:index:list -- --file "work/mobile/include/libraries/notice_ad.class.php"
 ```
 
 ### 시나리오 3: 새로운 팀원 온보딩
 
 ```bash
-# 1. 전체 프로젝트 구조 파악
+# 1. 전체 프로젝트 색인 상태 파악
 npm run php:index:info -- --status
 
-# 2. 주요 네임스페이스 탐색
-npm run php:index:list -- --namespace "App\\Models"
-npm run php:index:list -- --namespace "App\\Controllers"
+# 2. 주요 클래스 탐색
+npm run php:index:list -- --type "class"
 
-# 3. 특정 기능 찾기
-npm run php:index:search -- --symbol "User" --type "class"
-npm run php:index:goto -- --symbol "App\\Models\\User"
+# 3. 특정 클래스 상세 정보
+npm run php:index:search -- --symbol "NoticeAd"
+npm run php:index:goto -- --symbol "NoticeAd"
+npm run php:index:info -- --symbol "NoticeAd"
 ```
 
 ### 시나리오 4: 자동화 스크립트
@@ -508,60 +505,69 @@ fi
 
 ## 문제 해결
 
-### 문제 1: 색인이 생성되지 않음
+### 문제 1: 파일 변경이 감지되지 않음
 
-**증상**: `npm run php:index:build` 실행 후 색인 파일 없음
+**증상**: 파일을 수정했으나 색인이 업데이트되지 않음
+
+**원인**: SHA256 해시 캐시와 현재 파일의 해시가 다를 때 변경으로 감지됨
 
 **해결책**:
 ```bash
-# 1. 캐시 초기화
+# 1. 캐시 초기화 (모든 파일을 다시 색인)
 rm -rf .claude/php-index-cache
 
 # 2. 강제 전체 색인화
 npm run php:index:build -- --force --verbose
 
-# 3. 소스 디렉토리 확인
-ls -la work/mobile/app/*.php
+# 3. 색인 상태 확인
+npm run php:index:info -- --status
 ```
 
 ### 문제 2: 검색 결과가 없음
 
-**증상**: `npm run php:index:search -- --symbol "MyClass"` 결과 없음
+**증상**: `npm run php:index:search -- --symbol "NoticeAd"` 결과 없음
+
+**원인:**
+- 색인이 생성되지 않음
+- 심볼이 파일에 없음 (파싱 실패)
+- FQCN 형식이 다름 (PHP 5.6은 `filename::symbol` 형식)
 
 **해결책**:
 ```bash
 # 1. 색인 상태 확인
 npm run php:index:info -- --status
 
-# 2. 파일에 심볼이 있는지 확인
-npm run php:index:list -- --file "app/Models/MyClass.php"
+# 2. 해당 파일의 심볼 목록 확인
+npm run php:index:list -- --file "work/mobile/include/libraries/notice_ad.class.php"
 
-# 3. 전체 색인 재생성
-npm run php:index:build -- --force
+# 3. 전체 클래스 목록 확인
+npm run php:index:list -- --type "class"
 
-# 4. 정확 일치 아닌 부분 일치 시도
-npm run php:index:search -- --symbol "MyClass" --exact false
+# 4. 파일이 처리되지 않았으면 강제 재색인
+npm run php:index:build -- --force --verbose
 ```
 
 ### 문제 3: 성능 저하
 
 **증상**: 색인 생성이 너무 오래 걸림
 
-**해결책**:
+**일반적인 경우:**
+- 전체 색인: ~290ms (363개 파일)
+- 증분 색인: ~50-100ms (변경 파일만)
+
+**해결책** (장시간 소요 시):
 ```bash
-# 1. 처리 파일 수 확인
-npm run php:index:build -- --verbose
-
-# 2. 불필요한 파일 제외
-npm run php:index:build -- \
-  --exclude "vendor/*" \
-  --exclude "tests/*" \
-  --exclude "node_modules/*"
-
-# 3. 증분 색인 확인
+# 1. 현재 색인 상태 확인
 npm run php:index:info -- --status
 
-# 4. 메모리 증가
+# 2. 캐시 상태 확인 및 초기화
+rm -rf .claude/php-index-cache
+
+# 3. 증분 색인 사용 (권장)
+npm run php:index:build
+# → 변경된 파일만 처리하여 빠름
+
+# 4. 메모리 부족 시 (대규모 프로젝트)
 NODE_OPTIONS="--max-old-space-size=4096" npm run php:index:build
 ```
 

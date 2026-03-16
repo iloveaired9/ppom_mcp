@@ -45,7 +45,17 @@
       "Bash(find ~/.claude -name *hook* -o -name *settings*)",
       "Bash(xargs ls:*)",
       "Bash(xargs wc:*)",
-      "Bash(grep -r \"include\\\\|require\" /c/rnd/claude/mcp/ppom_mcp/work/mobile/mobile/api/app/*.php)"
+      "Bash(grep -r \"include\\\\|require\" /c/rnd/claude/mcp/ppom_mcp/work/mobile/mobile/api/app/*.php)",
+      "Bash(node -e \"const fs = require\\(''fs''\\); const data = JSON.parse\\(fs.readFileSync\\(''plugins/php-index-generator/output/index.json'', ''utf8''\\)\\); console.log\\(''Version:'', data.version\\); console.log\\(''Metadata:'', JSON.stringify\\(data.metadata, null, 2\\)\\); console.log\\(''Symbol count:'', Object.keys\\(data.symbols\\).length\\); console.log\\(''FileMap count:'', Object.keys\\(data.fileMap\\).length\\); console.log\\(''Sample symbols:'', Object.keys\\(data.symbols\\).slice\\(0, 5\\)\\);\")",
+      "Bash(grep -l \"^class\\\\|^[[:space:]]*class\\\\|^abstract\\\\|^final\" work/mobile/*.php)",
+      "Bash(find work/mobile -name \"*.php\" -type f -exec grep -l \"class \" {})",
+      "Bash(node -e \":*)",
+      "Bash(node test-parser.js)",
+      "Bash(find . -name index*.json -o -name *cache*.json)",
+      "Bash(/tmp/incremental-flow.txt:*)",
+      "Read(//tmp/**)",
+      "Bash(timeout 30 node plugins/php-index-generator/index.js build --verbose)",
+      "Bash(node plugins/php-index-generator/index.js build --verbose)"
     ]
   }
 }
