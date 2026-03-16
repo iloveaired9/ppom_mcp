@@ -41,7 +41,11 @@
       "Bash(mkdir C:tools:*)",
       "Bash(set PATH=%PATH%:*)",
       "Bash(ls -la *.json)",
-      "Bash(ls -la *.md)"
+      "Bash(ls -la *.md)",
+      "Bash(find ~/.claude -name *hook* -o -name *settings*)",
+      "Bash(xargs ls:*)",
+      "Bash(xargs wc:*)",
+      "Bash(grep -r \"include\\\\|require\" /c/rnd/claude/mcp/ppom_mcp/work/mobile/mobile/api/app/*.php)"
     ]
   }
 }
