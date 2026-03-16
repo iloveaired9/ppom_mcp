@@ -39,7 +39,8 @@
       "Bash(choco install:*)",
       "Bash(powershell:*)",
       "Bash(mkdir C:tools:*)",
-      "Bash(set PATH=%PATH%:*)"
+      "Bash(set PATH=%PATH%:*)",
+      "Bash(ls -la *.json)"
     ]
   }
 }
