@@ -40,7 +40,8 @@
       "Bash(powershell:*)",
       "Bash(mkdir C:tools:*)",
       "Bash(set PATH=%PATH%:*)",
-      "Bash(ls -la *.json)"
+      "Bash(ls -la *.json)",
+      "Bash(ls -la *.md)"
     ]
   }
 }
