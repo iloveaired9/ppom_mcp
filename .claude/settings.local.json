@@ -31,7 +31,15 @@
       "Bash(kill 1633)",
       "Bash(netstat -ano)",
       "Bash(for board:*)",
-      "Bash(do echo:*)"
+      "Bash(do echo:*)",
+      "Bash(npm run:*)",
+      "Bash(curl -s http://localhost:3008/health)",
+      "Bash(timeout 5 node mcp-servers/ppomppu-crawler/ppomppu-crawler.js)",
+      "Bash(npm install:*)",
+      "Bash(choco install:*)",
+      "Bash(powershell:*)",
+      "Bash(mkdir C:tools:*)",
+      "Bash(set PATH=%PATH%:*)"
     ]
   }
 }

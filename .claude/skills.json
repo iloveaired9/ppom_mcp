@@ -39,11 +39,21 @@
       "description": "View MCP servers, plugins, and skills status",
       "command": "system-status",
       "version": "1.0.0"
+    },
+    "ppom": {
+      "name": "ppom",
+      "path": "skills/ppom",
+      "skillFile": "skills/ppom/SKILL.md",
+      "type": "command",
+      "enabled": true,
+      "description": "ppomppu-crawler MCP 서버 (빠른 조회)",
+      "command": "ppom",
+      "version": "1.0.1"
     }
   },
   "metadata": {
-    "lastUpdated": "2026-03-14T13:00:00Z",
-    "totalSkills": 4,
-    "enabledSkills": 3
+    "lastUpdated": "2026-03-16T09:44:00Z",
+    "totalSkills": 5,
+    "enabledSkills": 4
   }
 }
