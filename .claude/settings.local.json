@@ -117,7 +117,16 @@
       "Bash(taskkill /F /IM node.exe)",
       "Bash(find C:rndclaudemcpppom_mcpworkmobile -name *article* -o -name *history*)",
       "Bash(grep -l /* C:rndclaudemcpppom_mcpworkmobile/*.php)",
-      "Bash(xargs -I {} basename {})"
+      "Bash(xargs -I {} basename {})",
+      "Bash(node analyze-circular.js)",
+      "Bash(node list-file.js)",
+      "Bash(node list-all-files.js)",
+      "Bash(node trace-function.js)",
+      "Bash(node find-callers.js)",
+      "Bash(node trace-getnotice.js)",
+      "Bash(node list-notice-ad.js)",
+      "Bash(node analyze-getarticles.js)",
+      "Bash(ls -la C:rndclaudemcpppom_mcp*.js)"
     ]
   }
 }
