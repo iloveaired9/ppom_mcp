@@ -1,0 +1,404 @@
+/**
+ * responsive.css
+ * 반응형 디자인: 모바일, 태블릿, 데스크톱
+ */
+
+/* ========================================
+   모바일 레이아웃 (width < 768px)
+   ======================================== */
+@media (max-width: 768px) {
+  /* 메인 컨테이너 */
+  .app-container {
+    flex-direction: column;
+  }
+
+  /* 메인 콘텐츠 - 세로 스택 레이아웃 */
+  .main-content {
+    flex-direction: column;
+    height: auto;
+  }
+
+  /* 좌측 검색 패널 */
+  .left-panel {
+    width: 100%;
+    max-height: 40%;
+    min-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    overflow-y: auto;
+  }
+
+  /* 검색 입력 */
+  .search-box {
+    margin-bottom: 8px;
+  }
+
+  .search-input {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  /* 검색 결과 */
+  .results-list {
+    max-height: 300px;
+  }
+
+  /* 중앙 그래프 영역 */
+  .center-panel {
+    width: 100%;
+    max-height: 30%;
+    min-height: 200px;
+    order: 2;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .graph-container {
+    min-height: 200px;
+  }
+
+  .graph {
+    height: 200px;
+  }
+
+  /* 우측 정보 패널 */
+  .right-panel {
+    width: 100%;
+    max-height: 30%;
+    min-height: 200px;
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+    overflow-y: auto;
+  }
+
+  /* 헤더 축소 */
+  .app-header {
+    flex-direction: column;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .app-header h1 {
+    font-size: 18px;
+    margin: 0;
+  }
+
+  .header-right {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .stats-badge {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+  }
+
+  .stats-badge .stat {
+    width: 100%;
+  }
+
+  /* 탭 버튼 */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .tab-button {
+    font-size: 12px;
+    padding: 8px 12px;
+    flex: 1;
+    min-width: 60px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 정보 항목 */
+  .info-item {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .info-item label {
+    font-size: 11px;
+  }
+
+  .info-item value {
+    font-size: 12px;
+  }
+
+  /* 토스트 알림 */
+  .toast {
+    font-size: 12px;
+    padding: 10px;
+    max-width: 90%;
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+    margin: auto;
+  }
+
+  /* 로딩 인디케이터 */
+  .loading-indicator {
+    max-width: 90%;
+  }
+
+  .spinner {
+    width: 30px;
+    height: 30px;
+  }
+
+  .loading-text {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  .progress-bar-container {
+    width: 150px;
+  }
+}
+
+/* ========================================
+   태블릿 레이아웃 (768px < width < 1024px)
+   ======================================== */
+@media (max-width: 1024px) and (min-width: 769px) {
+  /* 패널 최소 너비 조정 */
+  .left-panel {
+    min-width: 180px;
+    max-width: 25%;
+  }
+
+  .right-panel {
+    min-width: 220px;
+    max-width: 25%;
+  }
+
+  /* 헤더 콤팩트 */
+  .app-header h1 {
+    font-size: 20px;
+  }
+
+  .stats-badge {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stats-badge .stat {
+    font-size: 12px;
+  }
+
+  /* 탭 버튼 축소 */
+  .tab-button {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  /* 검색 입력 */
+  .search-input {
+    font-size: 13px;
+  }
+
+  /* 정보 항목 */
+  .info-item {
+    padding: 10px;
+  }
+}
+
+/* ========================================
+   데스크톱 레이아웃 (width >= 1024px)
+   ======================================== */
+@media (min-width: 1024px) {
+  /* 기본 레이아웃 유지 */
+  .main-content {
+    flex-direction: row;
+  }
+
+  .left-panel {
+    width: 20%;
+    min-width: 250px;
+    max-width: 350px;
+  }
+
+  .center-panel {
+    flex: 1;
+    min-width: 400px;
+  }
+
+  .right-panel {
+    width: 20%;
+    min-width: 280px;
+    max-width: 380px;
+  }
+}
+
+/* ========================================
+   큰 화면 (width >= 1440px)
+   ======================================== */
+@media (min-width: 1440px) {
+  /* 더 넓은 패널 */
+  .left-panel {
+    width: 22%;
+    max-width: 400px;
+  }
+
+  .right-panel {
+    width: 22%;
+    max-width: 400px;
+  }
+}
+
+/* ========================================
+   가로 모드 최적화 (landscape)
+   ======================================== */
+@media (max-height: 600px) and (orientation: landscape) {
+  /* 세로 스택을 가로로 변경 (모바일 가로) */
+  .main-content {
+    flex-direction: row;
+  }
+
+  .left-panel {
+    width: 30%;
+    max-height: none;
+    border-right: 1px solid var(--color-border);
+    border-bottom: none;
+  }
+
+  .center-panel {
+    width: 40%;
+    max-height: none;
+    order: initial;
+  }
+
+  .right-panel {
+    width: 30%;
+    max-height: none;
+    border-left: 1px solid var(--color-border);
+    border-top: none;
+  }
+
+  /* 헤더 축소 */
+  .app-header {
+    padding: 8px 12px;
+  }
+
+  .app-header h1 {
+    font-size: 16px;
+  }
+
+  .stats-badge {
+    font-size: 11px;
+  }
+}
+
+/* ========================================
+   고해상도 디스플레이 (Retina, 2x)
+   ======================================== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* 폰트 렌더링 최적화 */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 테두리 선명도 */
+  .search-input,
+  .search-select,
+  .tab-button,
+  .result-item {
+    border-width: 0.5px;
+  }
+}
+
+/* ========================================
+   다크 모드 + 모바일 조합
+   ======================================== */
+@media (max-width: 768px) {
+  html.dark-mode .search-input,
+  html.dark-mode .search-select {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  html.dark-mode .result-item {
+    padding: 10px;
+    border-radius: 4px;
+  }
+
+  html.dark-mode .tab-button {
+    font-size: 12px;
+  }
+}
+
+/* ========================================
+   접근성 개선
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   터치 친화적 크기 (최소 44x44px)
+   ======================================== */
+@media (hover: none) and (pointer: coarse) {
+  /* 터치 버튼 크기 증가 */
+  .tab-button {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .result-item {
+    min-height: 50px;
+    padding: 12px;
+  }
+
+  .theme-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* 터치 피드백 */
+  .tab-button:active,
+  .result-item:active,
+  .theme-toggle:active {
+    opacity: 0.7;
+  }
+}
+
+/* ========================================
+   출력 최적화
+   ======================================== */
+@media print {
+  .app-header,
+  .search-box,
+  .loading-indicator,
+  .toast-container,
+  .theme-toggle {
+    display: none;
+  }
+
+  .main-content {
+    flex-direction: column;
+  }
+
+  .left-panel,
+  .center-panel,
+  .right-panel {
+    width: 100%;
+    border: none;
+    page-break-inside: avoid;
+  }
+
+  .graph {
+    max-height: 500px;
+  }
+}

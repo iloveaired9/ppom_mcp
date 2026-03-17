@@ -337,6 +337,204 @@ class IndexSearcher {
       metadata: this.index.metadata || {}
     };
   }
+
+  /**
+   * 순환 의존성을 찾습니다 (DFS 기반).
+   * @returns {array} 순환 의존성 배열
+   */
+  findCircularDependencies() {
+    if (!this.index || !this.index.callGraph) {
+      return [];
+    }
+
+    const callGraph = this.index.callGraph;
+    const visited = new Set();
+    const cycles = [];
+
+    const dfs = (node, path, pathSet) => {
+      if (pathSet.has(node)) {
+        // 순환 발견
+        const cycleStart = path.indexOf(node);
+        if (cycleStart !== -1) {
+          const cycle = path.slice(cycleStart);
+          cycle.push(node);
+          cycles.push(cycle);
+        }
+        return;
+      }
+
+      if (visited.has(node)) {
+        return;
+      }
+
+      pathSet.add(node);
+      path.push(node);
+
+      const calls = callGraph[node] || [];
+      for (const callee of calls) {
+        dfs(callee, [...path], new Set(pathSet));
+      }
+    };
+
+    // 모든 노드에서 DFS 시작
+    for (const node of Object.keys(callGraph)) {
+      if (!visited.has(node)) {
+        dfs(node, [], new Set());
+        visited.add(node);
+      }
+    }
+
+    return cycles;
+  }
+
+  /**
+   * 호출 경로를 추적합니다.
+   * @param {string} symbol - 시작 심볼명
+   * @param {number} maxDepth - 최대 깊이
+   * @returns {object} 호출 경로
+   */
+  traceCallPath(symbol, maxDepth = 5) {
+    if (!this.index || !this.index.callGraph) {
+      return { symbol, calls: [] };
+    }
+
+    const callGraph = this.index.callGraph;
+    const visited = new Set();
+
+    const buildTree = (node, depth) => {
+      if (depth > maxDepth || visited.has(node)) {
+        return null;
+      }
+
+      visited.add(node);
+
+      const calls = callGraph[node] || [];
+      const callTree = calls
+        .map(callee => buildTree(callee, depth + 1))
+        .filter(c => c !== null);
+
+      return {
+        symbol: node,
+        depth,
+        calls: callTree
+      };
+    };
+
+    // symbol로 시작하는 심볼 찾기
+    let startSymbol = null;
+    for (const [fqcn, callList] of Object.entries(callGraph)) {
+      if (fqcn.endsWith(`::${symbol}`) || fqcn === symbol) {
+        startSymbol = fqcn;
+        break;
+      }
+    }
+
+    if (!startSymbol) {
+      return { symbol, calls: [], found: false };
+    }
+
+    const tree = buildTree(startSymbol, 0);
+    return {
+      symbol: startSymbol,
+      found: true,
+      callTree: tree
+    };
+  }
+
+  /**
+   * 호출 깊이를 분석합니다.
+   * @param {string} symbol - 심볼명
+   * @returns {object} 깊이 분석 결과
+   */
+  analyzeCallDepth(symbol) {
+    if (!this.index || !this.index.callGraph) {
+      return { symbol, maxDepth: 0, calls: {} };
+    }
+
+    const callGraph = this.index.callGraph;
+    const depths = {};
+
+    const calculateDepth = (node, visited = new Set()) => {
+      if (visited.has(node)) {
+        return 0; // 순환 의존성 방지
+      }
+
+      if (depths[node] !== undefined) {
+        return depths[node];
+      }
+
+      visited.add(node);
+
+      const calls = callGraph[node] || [];
+      if (calls.length === 0) {
+        depths[node] = 0;
+        return 0;
+      }
+
+      let maxDepth = 0;
+      for (const callee of calls) {
+        const depth = calculateDepth(callee, new Set(visited));
+        if (depth + 1 > maxDepth) {
+          maxDepth = depth + 1;
+        }
+      }
+
+      depths[node] = maxDepth;
+      return maxDepth;
+    };
+
+    // symbol로 시작하는 심볼 찾기
+    let startSymbol = null;
+    for (const fqcn of Object.keys(callGraph)) {
+      if (fqcn.endsWith(`::${symbol}`) || fqcn === symbol) {
+        startSymbol = fqcn;
+        break;
+      }
+    }
+
+    if (!startSymbol) {
+      return { symbol, found: false, maxDepth: 0 };
+    }
+
+    const maxDepth = calculateDepth(startSymbol);
+
+    // 호출하는 함수들의 깊이도 계산
+    const calls = {};
+    const directCalls = callGraph[startSymbol] || [];
+    for (const callee of directCalls) {
+      calls[callee] = calculateDepth(callee);
+    }
+
+    return {
+      symbol: startSymbol,
+      found: true,
+      maxDepth,
+      calls,
+      directCallCount: directCalls.length
+    };
+  }
+
+  /**
+   * 함수를 호출하는 모든 함수를 찾습니다 (역 호출).
+   * @param {string} symbol - 심볼명
+   * @returns {array} 호출하는 함수들
+   */
+  findCallers(symbol) {
+    if (!this.index || !this.index.symbols) {
+      return [];
+    }
+
+    const callers = [];
+    const targetName = symbol.split('::').pop();
+
+    for (const [fqcn, symbolInfo] of Object.entries(this.index.symbols)) {
+      if (symbolInfo.calls && symbolInfo.calls.includes(targetName)) {
+        callers.push(fqcn);
+      }
+    }
+
+    return callers;
+  }
 }
 
 module.exports = IndexSearcher;

@@ -29,7 +29,10 @@
     "php:index:info": "node plugins/php-index-generator/index.js info",
     "php:index:list": "node plugins/php-index-generator/index.js list",
     "php:index:goto": "node plugins/php-index-generator/index.js goto",
-    "php:index:refs": "node plugins/php-index-generator/index.js refs"
+    "php:index:refs": "node plugins/php-index-generator/index.js refs",
+    "php:index:deps": "node plugins/php-index-generator/index.js deps",
+    "php:dashboard": "node mcp-servers/php-index-dashboard.js",
+    "php:dashboard:dev": "nodemon mcp-servers/php-index-dashboard.js"
   },
   "keywords": [
     "mcp",
@@ -50,6 +53,7 @@
   },
   "_note": "Express와 cors는 다른 MCP 서버들이 사용하므로 유지됨. ppomppu-crawler는 Node.js http 표준 사용",
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "playwright": "^1.58.2"
   }
 }

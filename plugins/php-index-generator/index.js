@@ -61,6 +61,11 @@ class PHPIndexGenerator {
           await this.cmdReferences(args);
           break;
 
+        case 'deps':
+        case 'dependencies':
+          await this.cmdDependencies(args);
+          break;
+
         case 'help':
         case '-h':
         case '--help':
@@ -388,6 +393,270 @@ class PHPIndexGenerator {
   }
 
   /**
+   * dependencies 커맨드 - 의존성 분석
+   */
+  async cmdDependencies(args) {
+    console.log(`\n📊 의존성 분석\n`);
+
+    try {
+      await this.searcher.loadIndex();
+
+      // 고급 분석 옵션 (먼저 처리)
+      if (args.circular) {
+        return this.analyzeCircularDeps();
+      }
+
+      if (args.trace) {
+        return this.analyzeCallTrace(args.trace);
+      }
+
+      if (args.depth) {
+        return this.analyzeCallDepth(args.depth);
+      }
+
+      if (args.callers) {
+        return this.analyzeCallers(args.callers);
+      }
+
+      // 기본 분석
+      const deps = this.searcher.index.dependencies;
+
+      if (!deps) {
+        console.log('❌ 의존성 정보를 찾을 수 없습니다. 색인을 먼저 생성하세요.\n');
+        return;
+      }
+
+      // 옵션별 처리
+      if (args.file) {
+        // 특정 파일의 의존성
+        const fileDeps = deps.byFile[args.file];
+        if (!fileDeps) {
+          console.log(`❌ 파일 "${args.file}"의 의존성을 찾을 수 없습니다.\n`);
+          return;
+        }
+
+        console.log(`📄 파일: ${args.file}\n`);
+
+        // 함수 호출
+        if (fileDeps.functionCalls.length > 0) {
+          console.log('🔹 함수 호출:');
+          const calls = fileDeps.functionCalls.filter(c => !c.builtin);
+          calls.slice(0, 20).forEach(call => {
+            console.log(`  • ${call.name} (${call.type})`);
+          });
+          if (calls.length > 20) {
+            console.log(`  ... 외 ${calls.length - 20}개`);
+          }
+          console.log();
+        }
+
+        // 클래스 의존성
+        if (fileDeps.classDependencies.length > 0) {
+          console.log('🔹 클래스 의존성:');
+          fileDeps.classDependencies.forEach(dep => {
+            if (dep.type === 'extends') {
+              console.log(`  • ${dep.class} extends ${dep.parent}`);
+            } else if (dep.type === 'implements') {
+              console.log(`  • ${dep.class} implements ${dep.interface}`);
+            }
+          });
+          console.log();
+        }
+
+        // 파일 의존성
+        if (fileDeps.fileDependencies.length > 0) {
+          console.log('🔹 파일 의존성 (include/require):');
+          fileDeps.fileDependencies.forEach(dep => {
+            console.log(`  • ${dep.path} (${dep.type})`);
+          });
+          console.log();
+        }
+
+        return;
+      }
+
+      if (args.type === 'functions') {
+        // 자주 호출되는 함수 TOP
+        console.log('🔹 자주 호출되는 함수 (top 20):\n');
+        const sorted = Object.entries(deps.functionCalls)
+          .filter(([_, data]) => !this.isBuiltInFunction(_))
+          .sort((a, b) => b[1].count - a[1].count)
+          .slice(0, 20);
+
+        sorted.forEach(([name, data], idx) => {
+          console.log(`  ${idx + 1}. ${name} (${data.count}회, ${data.files.length}개 파일)`);
+        });
+        console.log();
+        return;
+      }
+
+      if (args.type === 'classes') {
+        // 클래스 상속 관계
+        console.log('🔹 클래스 상속 관계:\n');
+        deps.classDependencies.extends.forEach(dep => {
+          console.log(`  • ${dep.child} extends ${dep.parent}`);
+        });
+
+        if (deps.classDependencies.implements.length > 0) {
+          console.log('\n🔹 인터페이스 구현:\n');
+          deps.classDependencies.implements.forEach(dep => {
+            console.log(`  • ${dep.class} implements ${dep.interface}`);
+          });
+        }
+        console.log();
+        return;
+      }
+
+      if (args.type === 'files') {
+        // include/require 의존성 TOP
+        console.log('🔹 자주 포함되는 파일 (top 20):\n');
+        const sorted = Object.entries(deps.fileDependencies)
+          .sort((a, b) => b[1].count - a[1].count)
+          .slice(0, 20);
+
+        sorted.forEach(([path, data], idx) => {
+          console.log(`  ${idx + 1}. ${path} (${data.type}, ${data.count}회, ${data.files.length}개 파일)`);
+        });
+        console.log();
+        return;
+      }
+
+      // 기본: 전체 통계
+      console.log('📈 의존성 통계:\n');
+      console.log(`  • 총 함수 호출: ${Object.keys(deps.functionCalls).length}개`);
+      console.log(`  • 클래스 상속: ${deps.classDependencies.extends.length}개`);
+      console.log(`  • 인터페이스 구현: ${deps.classDependencies.implements.length}개`);
+      console.log(`  • 포함된 파일: ${Object.keys(deps.fileDependencies).length}개\n`);
+
+      console.log('💡 더 자세한 분석:');
+      console.log('  node index.js deps --type functions      # 자주 호출되는 함수');
+      console.log('  node index.js deps --type classes        # 클래스 상속 관계');
+      console.log('  node index.js deps --circular            # 순환 의존성 감지');
+      console.log('  node index.js deps --trace <symbol>      # 호출 경로 추적');
+      console.log('  node index.js deps --depth <symbol>      # 호출 깊이 분석\n');
+
+    } catch (error) {
+      console.error(`❌ 오류: ${error.message}\n`);
+      process.exit(1);
+    }
+  }
+
+  /**
+   * 순환 의존성 분석
+   */
+  analyzeCircularDeps() {
+    const cycles = this.searcher.findCircularDependencies();
+
+    if (cycles.length === 0) {
+      console.log('✅ 순환 의존성을 찾을 수 없습니다.\n');
+      return;
+    }
+
+    console.log(`🔴 순환 의존성 발견 (${cycles.length}개):\n`);
+
+    cycles.slice(0, 10).forEach((cycle, idx) => {
+      const path = cycle.join(' → ');
+      console.log(`  ${idx + 1}. ${path}`);
+    });
+
+    if (cycles.length > 10) {
+      console.log(`\n  ... 외 ${cycles.length - 10}개의 순환 의존성\n`);
+    } else {
+      console.log();
+    }
+  }
+
+  /**
+   * 호출 경로 추적
+   */
+  analyzeCallTrace(symbol) {
+    const result = this.searcher.traceCallPath(symbol, 4);
+
+    if (!result.found) {
+      console.log(`❌ 심볼을 찾을 수 없습니다: ${symbol}\n`);
+      return;
+    }
+
+    console.log(`📍 호출 경로: ${result.symbol}\n`);
+
+    const printTree = (node, indent = '') => {
+      console.log(`${indent}• ${node.symbol.split('::').pop()} (깊이: ${node.depth})`);
+      if (node.calls && node.calls.length > 0) {
+        node.calls.forEach((child, idx) => {
+          const isLast = idx === node.calls.length - 1;
+          printTree(child, indent + (isLast ? '  ' : '  │ '));
+        });
+      }
+    };
+
+    if (result.callTree) {
+      printTree(result.callTree);
+    }
+    console.log();
+  }
+
+  /**
+   * 호출 깊이 분석
+   */
+  analyzeCallDepth(symbol) {
+    const result = this.searcher.analyzeCallDepth(symbol);
+
+    if (!result.found) {
+      console.log(`❌ 심볼을 찾을 수 없습니다: ${symbol}\n`);
+      return;
+    }
+
+    console.log(`📈 호출 깊이 분석: ${result.symbol}\n`);
+    console.log(`  • 최대 깊이: ${result.maxDepth}`);
+    console.log(`  • 직접 호출 개수: ${result.directCallCount}\n`);
+
+    if (Object.keys(result.calls).length > 0) {
+      console.log('🔹 호출하는 함수들 (깊이):');
+      Object.entries(result.calls)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .forEach(([name, depth]) => {
+          console.log(`  • ${name.split('::').pop()} (깊이: ${depth})`);
+        });
+      console.log();
+    }
+  }
+
+  /**
+   * 호출자 분석
+   */
+  analyzeCallers(symbol) {
+    const callers = this.searcher.findCallers(symbol);
+
+    if (callers.length === 0) {
+      console.log(`⚠️  "${symbol}"을(를) 호출하는 함수가 없습니다.\n`);
+      return;
+    }
+
+    console.log(`📞 "${symbol}"을(를) 호출하는 함수들:\n`);
+    callers.slice(0, 20).forEach((caller, idx) => {
+      console.log(`  ${idx + 1}. ${caller}`);
+    });
+
+    if (callers.length > 20) {
+      console.log(`\n  ... 외 ${callers.length - 20}개`);
+    }
+    console.log();
+  }
+
+  /**
+   * 내장 함수인지 확인
+   */
+  isBuiltInFunction(name) {
+    const builtins = new Set([
+      'echo', 'print', 'var_dump', 'print_r', 'exit', 'die',
+      'strlen', 'substr', 'strpos', 'str_replace', 'trim', 'explode', 'implode',
+      'array_push', 'array_pop', 'count', 'sizeof', 'in_array'
+    ]);
+    return builtins.has(name);
+  }
+
+  /**
    * 도움말 표시
    */
   showHelp() {
@@ -411,12 +680,25 @@ class PHPIndexGenerator {
     console.log(`  refs        - 심볼 참조 찾기`);
     console.log(`    옵션: --symbol <name> --source <dir> --limit <n>\n`);
 
+    console.log(`  deps        - 의존성 분석 (기본 + 고급)`);
+    console.log(`    기본: --type <functions|classes|files> --file <path>`);
+    console.log(`    고급: --circular --trace <symbol> --depth <symbol> --callers <symbol>\n`);
+
     console.log(`  help        - 도움말 표시\n`);
 
     console.log(`예제:\n`);
-    console.log(`  node index.js build --source work/mobile --force`);
-    console.log(`  node index.js search --symbol "Helper" --type class`);
-    console.log(`  node index.js goto --symbol "Helper::cache_get" --format json\n`);
+    console.log(`  # 기본 색인 생성`);
+    console.log(`  node index.js build --source work/mobile --force\n`);
+
+    console.log(`  # 심볼 검색`);
+    console.log(`  node index.js search --symbol "manager"\n`);
+
+    console.log(`  # 의존성 분석`);
+    console.log(`  node index.js deps --type functions                  # 자주 호출되는 함수`);
+    console.log(`  node index.js deps --circular                        # 순환 의존성`);
+    console.log(`  node index.js deps --trace manager --depth 3         # 호출 경로`);
+    console.log(`  node index.js deps --depth manager                   # 호출 깊이`);
+    console.log(`  node index.js deps --callers "cache_get"             # 호출자 찾기\n`);
   }
 }
 

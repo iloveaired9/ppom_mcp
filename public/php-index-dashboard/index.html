@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PHP Index Generator Dashboard</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dark-mode.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
+  <!-- Cytoscape.js 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 헤더 -->
+    <header class="app-header">
+      <div class="header-left">
+        <h1>📊 PHP Index Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <div class="stats-badge">
+          <span class="stat">파일: <strong id="stat-files">-</strong></span>
+          <span class="stat">심볼: <strong id="stat-symbols">-</strong></span>
+          <span class="stat">시간: <strong id="stat-time">-</strong>ms</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content">
+      <!-- 좌측 검색 패널 -->
+      <aside class="left-panel">
+        <div class="search-box">
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="심볼 검색 (예: User, getData)..."
+            autocomplete="off"
+          >
+          <div class="search-options">
+            <select id="search-type" class="search-select">
+              <option value="all">모든 타입</option>
+              <option value="class">클래스</option>
+              <option value="function">함수</option>
+              <option value="method">메서드</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 검색 결과 -->
+        <div class="results-container">
+          <div id="results-list" class="results-list">
+            <div class="empty-state">
+              <p>검색 결과가 여기에 표시됩니다</p>
+              <small>심볼 이름을 입력해서 검색하세요</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 중앙 그래프 영역 -->
+      <main class="center-panel">
+        <div class="graph-container">
+          <div id="graph" class="graph"></div>
+          <div class="graph-empty-state">
+            <p>호출 그래프가 여기에 표시됩니다</p>
+            <small>검색 결과를 클릭하면 그래프를 볼 수 있습니다</small>
+          </div>
+        </div>
+      </main>
+
+      <!-- 우측 상세정보 패널 -->
+      <aside class="right-panel">
+        <div class="tabs">
+          <button class="tab-button active" data-tab="info">정보</button>
+          <button class="tab-button" data-tab="callers">호출자</button>
+          <button class="tab-button" data-tab="stats">통계</button>
+          <button class="tab-button" data-tab="circular">순환</button>
+        </div>
+
+        <div class="tab-content">
+          <!-- Info 탭 -->
+          <div id="info-tab" class="tab-pane active">
+            <div class="details-section">
+              <h3>심볼 정보</h3>
+              <div id="symbol-info" class="info-content">
+                <p class="empty">선택된 심볼이 없습니다</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Callers 탭 -->
+          <div id="callers-tab" class="tab-pane">
+            <div class="details-section">
+              <h3>호출자 분석</h3>
+              <div id="callers-info" class="info-content">
+                <p class="empty">호출자 정보를 로드 중...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats 탭 -->
+          <div id="stats-tab" class="tab-pane">
+            <div class="details-section">
+              <h3>색인 통계</h3>
+              <div id="stats-info" class="info-content">
+                <p class="empty">통계를 로드 중...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Circular 탭 -->
+          <div id="circular-tab" class="tab-pane">
+            <div class="details-section">
+              <h3>순환 의존성</h3>
+              <div id="circular-info" class="info-content">
+                <p class="empty">순환 의존성을 로드 중...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 로딩 인디케이터 -->
+  <div id="loading-indicator" class="loading-indicator">
+    <div class="spinner"></div>
+    <p class="loading-text">처리 중...</p>
+    <div class="progress-bar-container">
+      <div class="progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- 스크립트 -->
+  <script src="js/utils/formatter.js"></script>
+  <script src="js/utils/theme.js"></script>
+  <script src="js/utils/loadingManager.js"></script>
+  <script src="js/api/client.js"></script>
+  <script src="js/components/SearchPanel.js"></script>
+  <script src="js/components/GraphRenderer.js"></script>
+  <script src="js/components/StatsPanel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

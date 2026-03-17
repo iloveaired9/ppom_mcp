@@ -116,14 +116,26 @@ class PHPParser {
       // include/require 추적
       const includes = this.extractIncludes(content, lines);
 
+      // 함수 호출 추출 (파일 레벨)
+      const functionCalls = this.extractFunctionCalls(cleanContent);
+
       // 모든 심볼 합치기
       const symbols = [...classes, ...interfaces, ...traits, ...functions];
+
+      // 각 심볼별 호출 관계 분석 (함수 레벨)
+      const symbolCallMap = this.buildSymbolCallMap(cleanContent, symbols);
 
       return {
         file: filePath,
         namespace,
         symbols,
         includes,
+        symbolCallMap, // 새로 추가: 심볼별 호출 정보
+        dependencies: {
+          functionCalls,
+          classDependencies: this.extractClassDependencies(cleanContent),
+          fileDependencies: includes
+        },
         error: null
       };
     } catch (error) {
@@ -268,6 +280,171 @@ class PHPParser {
 
     this.patterns.function.lastIndex = 0;
     return functions;
+  }
+
+  /**
+   * 함수 본문을 추출합니다.
+   * @param {string} content - PHP 코드
+   * @param {string} functionName - 함수명
+   * @returns {string} 함수 본문 (중괄호 포함)
+   */
+  extractFunctionBody(content, functionName) {
+    // function functionName( ... ) { ... }
+    const pattern = new RegExp(
+      `function\\s+${functionName}\\s*\\([^)]*\\)\\s*\\{`,
+      'i'
+    );
+
+    const match = pattern.exec(content);
+    if (!match) return '';
+
+    let braceCount = 0;
+    let startIndex = match.index + match[0].length - 1; // 시작 중괄호 위치
+    let endIndex = startIndex;
+    let inString = false;
+    let stringChar = '';
+
+    // 중괄호 매칭으로 함수 본문 끝 찾기
+    for (let i = startIndex; i < content.length; i++) {
+      const char = content[i];
+
+      // 문자열 처리
+      if (!inString && (char === '"' || char === "'")) {
+        inString = true;
+        stringChar = char;
+        continue;
+      } else if (inString && char === stringChar && content[i - 1] !== '\\') {
+        inString = false;
+        continue;
+      }
+
+      if (!inString) {
+        if (char === '{') {
+          braceCount++;
+        } else if (char === '}') {
+          braceCount--;
+          if (braceCount === 0) {
+            endIndex = i;
+            break;
+          }
+        }
+      }
+    }
+
+    return content.substring(startIndex, endIndex + 1);
+  }
+
+  /**
+   * PHP 코드의 함수 호출을 추출합니다.
+   * @param {string} content - PHP 코드
+   * @param {string} sourceFunction - 어느 함수에서 호출되는지 (선택사항)
+   * @returns {array} 함수 호출 배열
+   */
+  extractFunctionCalls(content, sourceFunction = null) {
+    const calls = [];
+    const seen = new Set();
+
+    // 1. 일반 함수 호출: functionName(
+    const functionCallPattern = /([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+    const controlKeywords = new Set(['if', 'for', 'while', 'foreach', 'switch', 'catch', 'elseif']);
+
+    let match;
+    while ((match = functionCallPattern.exec(content)) !== null) {
+      const functionName = match[1];
+
+      // 제어문 제외
+      if (controlKeywords.has(functionName)) {
+        continue;
+      }
+
+      // 내장 함수 감지 (대부분의 PHP 내장 함수)
+      const isBuiltIn = this.isBuiltInFunction(functionName);
+
+      const key = `function:${functionName}`;
+      if (!seen.has(key)) {
+        calls.push({
+          name: functionName,
+          type: 'function',
+          builtin: isBuiltIn,
+          source: 'direct'
+        });
+        seen.add(key);
+      }
+    }
+
+    // 2. 메서드 호출: $obj->method(
+    const methodCallPattern = /\$([a-zA-Z_][a-zA-Z0-9_]*)->([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+    while ((match = methodCallPattern.exec(content)) !== null) {
+      const methodName = match[2];
+      const key = `method:${methodName}`;
+
+      if (!seen.has(key)) {
+        calls.push({
+          name: methodName,
+          type: 'method',
+          builtin: false,
+          source: 'instance'
+        });
+        seen.add(key);
+      }
+    }
+
+    // 3. 정적 메서드 호출: ClassName::method(
+    const staticMethodPattern = /([a-zA-Z_][a-zA-Z0-9_]*)\s*::\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+    while ((match = staticMethodPattern.exec(content)) !== null) {
+      const className = match[1];
+      const methodName = match[2];
+      const key = `static:${className}::${methodName}`;
+
+      if (!seen.has(key)) {
+        calls.push({
+          name: methodName,
+          class: className,
+          type: 'static_method',
+          builtin: false,
+          source: 'static'
+        });
+        seen.add(key);
+      }
+    }
+
+    return calls;
+  }
+
+  /**
+   * 내장 PHP 함수인지 확인합니다.
+   * @param {string} functionName - 함수명
+   * @returns {boolean} 내장 함수 여부
+   */
+  isBuiltInFunction(functionName) {
+    // PHP 5.6 주요 내장 함수들
+    const builtins = new Set([
+      'echo', 'print', 'var_dump', 'print_r', 'exit', 'die',
+      'strlen', 'substr', 'strpos', 'str_replace', 'trim', 'explode', 'implode',
+      'array_push', 'array_pop', 'array_shift', 'array_unshift', 'array_merge', 'array_keys', 'array_values',
+      'count', 'sizeof', 'in_array', 'array_key_exists',
+      'json_encode', 'json_decode', 'serialize', 'unserialize',
+      'file_get_contents', 'file_put_contents', 'fopen', 'fclose', 'fread', 'fwrite',
+      'mkdir', 'rmdir', 'unlink', 'file_exists', 'is_dir', 'is_file',
+      'isset', 'empty', 'is_null', 'is_array', 'is_string', 'is_int', 'is_float', 'is_bool',
+      'intval', 'floatval', 'strval', 'boolval',
+      'date', 'time', 'strtotime', 'mktime',
+      'preg_match', 'preg_match_all', 'preg_replace', 'preg_split',
+      'strtoupper', 'strtolower', 'ucfirst', 'lcfirst', 'ucwords',
+      'htmlspecialchars', 'htmlentities', 'urlencode', 'urldecode', 'base64_encode', 'base64_decode',
+      'md5', 'sha1', 'hash',
+      'mysql_query', 'mysql_fetch_array', 'mysql_fetch_assoc', 'mysql_fetch_row',
+      'mysqli_query', 'mysqli_fetch_array', 'mysqli_fetch_assoc',
+      'define', 'defined', 'constant',
+      'class_exists', 'function_exists', 'method_exists', 'property_exists',
+      'get_class', 'get_parent_class', 'get_class_methods', 'get_class_vars',
+      'error_log', 'trigger_error', 'set_error_handler', 'restore_error_handler',
+      'header', 'headers_sent', 'http_response_code',
+      'session_start', 'session_destroy', 'session_id',
+      'header_remove', 'setcookie', 'setrawcookie'
+    ]);
+
+    return builtins.has(functionName);
   }
 
   /**
@@ -432,6 +609,141 @@ class PHPParser {
     const before = content.substring(Math.max(0, index - 50), index);
     const match = before.match(/(public|protected|private)\s+/);
     return match ? match[1] : 'public'; // 기본값: public
+  }
+
+  /**
+   * 각 심볼별 호출 관계 맵을 생성합니다.
+   * @param {string} content - PHP 코드
+   * @param {array} symbols - 추출된 심볼 배열
+   * @returns {object} 심볼명 → 호출 정보 매핑
+   */
+  buildSymbolCallMap(content, symbols) {
+    const callMap = {};
+
+    // 함수들에 대해
+    for (const symbol of symbols) {
+      if (symbol.type === 'function') {
+        // 함수 본문 추출
+        const body = this.extractFunctionBody(content, symbol.name);
+        if (body) {
+          // 본문에서 호출되는 함수들 추출
+          const calls = this.extractFunctionCalls(body);
+          callMap[symbol.name] = {
+            type: 'function',
+            calls: calls.filter(c => !c.builtin), // 내장 함수 제외
+            allCalls: calls
+          };
+        }
+      } else if (symbol.type === 'class' && symbol.methods) {
+        // 클래스의 각 메서드에 대해
+        callMap[symbol.name] = {
+          type: 'class',
+          methods: {}
+        };
+
+        for (const methodName of Object.keys(symbol.methods)) {
+          // 메서드 본문 추출
+          const methodPattern = new RegExp(
+            `(?:public|protected|private)?\\s+(?:static\\s+)?function\\s+${methodName}\\s*\\([^)]*\\)\\s*\\{`,
+            'i'
+          );
+          const match = methodPattern.exec(content);
+
+          if (match) {
+            let braceCount = 0;
+            let startIndex = match.index + match[0].length - 1;
+            let endIndex = startIndex;
+            let inString = false;
+            let stringChar = '';
+
+            for (let i = startIndex; i < content.length; i++) {
+              const char = content[i];
+
+              if (!inString && (char === '"' || char === "'")) {
+                inString = true;
+                stringChar = char;
+                continue;
+              } else if (inString && char === stringChar && content[i - 1] !== '\\') {
+                inString = false;
+                continue;
+              }
+
+              if (!inString) {
+                if (char === '{') {
+                  braceCount++;
+                } else if (char === '}') {
+                  braceCount--;
+                  if (braceCount === 0) {
+                    endIndex = i;
+                    break;
+                  }
+                }
+              }
+            }
+
+            const methodBody = content.substring(startIndex, endIndex + 1);
+            const calls = this.extractFunctionCalls(methodBody);
+
+            callMap[symbol.name].methods[methodName] = {
+              calls: calls.filter(c => !c.builtin),
+              allCalls: calls
+            };
+          }
+        }
+      }
+    }
+
+    return callMap;
+  }
+
+  /**
+   * 클래스 간의 의존성을 추출합니다 (상속, 구현).
+   * @param {string} content - PHP 코드
+   * @returns {array} 클래스 의존성 배열
+   */
+  extractClassDependencies(content) {
+    const dependencies = [];
+    const seen = new Set();
+
+    // extends 관계
+    const extendsPattern = /class\s+(\w+)\s+extends\s+(\w+)/g;
+    let match;
+
+    while ((match = extendsPattern.exec(content)) !== null) {
+      const childClass = match[1];
+      const parentClass = match[2];
+      const key = `extends:${childClass}:${parentClass}`;
+
+      if (!seen.has(key)) {
+        dependencies.push({
+          type: 'extends',
+          class: childClass,
+          parent: parentClass
+        });
+        seen.add(key);
+      }
+    }
+
+    // implements 관계
+    const implementsPattern = /class\s+(\w+)\s+(?:extends\s+\w+)?\s+implements\s+([\w,\s]+)/g;
+    while ((match = implementsPattern.exec(content)) !== null) {
+      const className = match[1];
+      const interfaces = match[2].split(',').map(i => i.trim());
+
+      for (const iface of interfaces) {
+        const key = `implements:${className}:${iface}`;
+        if (!seen.has(key)) {
+          dependencies.push({
+            type: 'implements',
+            class: className,
+            interface: iface
+          });
+          seen.add(key);
+        }
+      }
+    }
+
+    return dependencies;
   }
 }
 

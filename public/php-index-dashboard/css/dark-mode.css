@@ -1,0 +1,121 @@
+/* 다크모드 색상 정의 */
+html.dark-mode {
+  --color-bg: #1e1e1e;
+  --color-surface: #252526;
+  --color-border: #3e3e42;
+  --color-text: #e0e0e0;
+  --color-text-muted: #a0a0a0;
+  --color-primary: #7e57c2;
+  --color-primary-light: #9575cd;
+  --color-success: #66bb6a;
+  --color-warning: #ffa726;
+  --color-error: #ef5350;
+}
+
+/* 다크모드 상세 스타일 */
+html.dark-mode {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+html.dark-mode .app-header {
+  background-color: var(--color-surface);
+  border-bottom-color: var(--color-border);
+}
+
+html.dark-mode .search-input,
+html.dark-mode .search-select {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+html.dark-mode .search-input:focus {
+  box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
+}
+
+html.dark-mode .results-container {
+  background-color: var(--color-bg);
+  border-color: var(--color-border);
+}
+
+html.dark-mode .result-item {
+  color: var(--color-text);
+}
+
+html.dark-mode .result-item:hover {
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
+}
+
+html.dark-mode .result-item.active {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+html.dark-mode .graph-container {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+html.dark-mode .graph {
+  background-color: var(--color-surface);
+}
+
+html.dark-mode .tabs {
+  border-bottom-color: var(--color-border);
+}
+
+html.dark-mode .tab-button {
+  color: var(--color-text-muted);
+}
+
+html.dark-mode .tab-button:hover {
+  color: var(--color-text);
+}
+
+html.dark-mode .tab-button.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+html.dark-mode .details-section {
+  color: var(--color-text);
+}
+
+html.dark-mode .info-item {
+  border-bottom-color: var(--color-border);
+  color: var(--color-text);
+}
+
+html.dark-mode .info-item label {
+  color: var(--color-text-muted);
+}
+
+html.dark-mode .theme-toggle {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+html.dark-mode .theme-toggle:hover {
+  background-color: var(--color-border);
+  border-color: var(--color-primary);
+}
+
+html.dark-mode .empty-state {
+  color: var(--color-text-muted);
+}
+
+html.dark-mode .empty {
+  color: var(--color-text-muted);
+}
+
+/* Cytoscape 다크모드 스타일 */
+html.dark-mode .graph {
+  background-color: #1a1a1a !important;
+}
+
+html.dark-mode canvas {
+  background-color: #1a1a1a !important;
+}

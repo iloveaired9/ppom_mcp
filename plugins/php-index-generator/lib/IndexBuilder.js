@@ -70,13 +70,23 @@ class IndexBuilder {
 
       // 4. 파일 처리
       const allSymbols = [];
+      const allDependencies = [];
       for (const filePath of filesToProcess) {
         const fileSymbols = await this.processFile(filePath);
         allSymbols.push({
           file: filePath,
           symbols: fileSymbols.symbols || [],
-          includes: fileSymbols.includes || []
+          includes: fileSymbols.includes || [],
+          symbolCallMap: fileSymbols.symbolCallMap || {}  // 심볼별 호출 맵
         });
+
+        // 의존성 수집
+        if (fileSymbols.dependencies) {
+          allDependencies.push({
+            file: filePath,
+            dependencies: fileSymbols.dependencies
+          });
+        }
 
         if (verbose && (allSymbols.length % 10 === 0)) {
           console.log(`  ✓ ${allSymbols.length}/${filesToProcess.length} 파일 처리됨`);
@@ -88,6 +98,11 @@ class IndexBuilder {
       // 5. 심볼 병합 (FQCN 생성)
       const mergedIndex = this.mergeSymbols(allSymbols);
 
+      if (verbose) console.log('🔗 의존성 병합 중...');
+
+      // 5-1. 의존성 병합
+      const dependencies = this.mergeDependencies(allDependencies);
+
       // 6. 메타데이터 생성
       const metadata = this.generateMetadata(mergedIndex, totalFiles, filesToProcess.length);
 
@@ -97,7 +112,9 @@ class IndexBuilder {
         generated: new Date().toISOString(),
         metadata,
         symbols: mergedIndex.symbols,
-        fileMap: mergedIndex.fileMap
+        fileMap: mergedIndex.fileMap,
+        callGraph: mergedIndex.callGraph,  // 함수 호출 그래프 추가
+        dependencies
       };
 
       if (verbose) console.log('💾 색인 저장 중...');
@@ -246,7 +263,9 @@ class IndexBuilder {
     const symbols = {};
     const fileMap = {};
     const fileCache = {};
+    const callGraph = {}; // 호출 그래프 (심볼 레벨)
 
+    // 첫 번째 패스: 심볼 기본 정보 저장
     for (const data of allSymbols) {
       const filePath = data.file;
       const relativePath = path.relative(this.options.sourceDir, filePath);
@@ -260,8 +279,19 @@ class IndexBuilder {
         symbols[fqcn] = {
           ...symbol,
           file: filePath,
-          namespace: ''
+          namespace: '',
+          calls: [],      // 호출하는 함수들
+          calledBy: []    // 호출하는 함수들
         };
+
+        // symbolCallMap에서 호출 정보 가져오기
+        if (data.symbolCallMap && data.symbolCallMap[symbol.name]) {
+          const callInfo = data.symbolCallMap[symbol.name];
+          if (callInfo.calls) {
+            symbols[fqcn].calls = callInfo.calls.map(c => c.name);
+            callGraph[fqcn] = callInfo.calls.map(c => c.name);
+          }
+        }
       }
 
       // 파일 맵 생성
@@ -283,7 +313,24 @@ class IndexBuilder {
       };
     }
 
-    return { symbols, fileMap, fileCache };
+    // 두 번째 패스: 역 호출 관계 (calledBy) 구축
+    for (const [caller, callees] of Object.entries(callGraph)) {
+      for (const callee of callees) {
+        // callee를 찾기 (동일한 파일 또는 다른 파일에서)
+        for (const [fqcn, symbolInfo] of Object.entries(symbols)) {
+          if (fqcn.endsWith(`::${callee}`)) {
+            if (!symbolInfo.calledBy) {
+              symbolInfo.calledBy = [];
+            }
+            if (!symbolInfo.calledBy.includes(caller)) {
+              symbolInfo.calledBy.push(caller);
+            }
+          }
+        }
+      }
+    }
+
+    return { symbols, fileMap, fileCache, callGraph };
   }
 
   /**
@@ -305,6 +352,90 @@ class IndexBuilder {
       console.error(`[ERROR] 색인 저장 실패: ${error.message}`);
       throw error;
     }
+  }
+
+  /**
+   * 의존성을 병합합니다.
+   * @param {array} allDependencies - 모든 파일의 의존성 데이터
+   * @returns {object} 병합된 의존성 데이터
+   */
+  mergeDependencies(allDependencies) {
+    const result = {
+      byFile: {},      // 파일별 의존성
+      functionCalls: {},  // 함수 호출 통계
+      classDependencies: {  // 클래스 상속/구현 관계
+        extends: [],
+        implements: []
+      },
+      fileDependencies: {}  // include/require 의존성
+    };
+
+    for (const data of allDependencies) {
+      const filePath = data.file;
+      const relativePath = path.relative(this.options.sourceDir, filePath);
+      const deps = data.dependencies;
+
+      // 파일별 의존성 저장
+      result.byFile[relativePath] = {
+        functionCalls: deps.functionCalls || [],
+        classDependencies: deps.classDependencies || [],
+        fileDependencies: deps.fileDependencies || []
+      };
+
+      // 함수 호출 통계
+      if (deps.functionCalls) {
+        for (const call of deps.functionCalls) {
+          if (!call.builtin) {
+            if (!result.functionCalls[call.name]) {
+              result.functionCalls[call.name] = {
+                count: 0,
+                files: [],
+                type: call.type
+              };
+            }
+            result.functionCalls[call.name].count++;
+            result.functionCalls[call.name].files.push(relativePath);
+          }
+        }
+      }
+
+      // 클래스 의존성
+      if (deps.classDependencies) {
+        for (const classDep of deps.classDependencies) {
+          if (classDep.type === 'extends') {
+            result.classDependencies.extends.push({
+              child: classDep.class,
+              parent: classDep.parent,
+              file: relativePath
+            });
+          } else if (classDep.type === 'implements') {
+            result.classDependencies.implements.push({
+              class: classDep.class,
+              interface: classDep.interface,
+              file: relativePath
+            });
+          }
+        }
+      }
+
+      // 파일 의존성 (include/require)
+      if (deps.fileDependencies) {
+        for (const fileDep of deps.fileDependencies) {
+          const depKey = fileDep.path;
+          if (!result.fileDependencies[depKey]) {
+            result.fileDependencies[depKey] = {
+              type: fileDep.type,
+              count: 0,
+              files: []
+            };
+          }
+          result.fileDependencies[depKey].count++;
+          result.fileDependencies[depKey].files.push(relativePath);
+        }
+      }
+    }
+
+    return result;
   }
 
   /**

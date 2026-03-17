@@ -34,6 +34,9 @@ out/
 logs/
 *.log
 
+# Test files
+test*.js
+
 # Temporary
 .tmp/
 temp/
