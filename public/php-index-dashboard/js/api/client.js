@@ -68,6 +68,11 @@ class APIClient {
       body: { force }
     });
   }
+
+  // 코드 조회
+  getCode(symbol) {
+    return this.fetch(`/code/${encodeURIComponent(symbol)}`);
+  }
 }
 
 const api = window.api = new APIClient();

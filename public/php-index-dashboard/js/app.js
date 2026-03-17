@@ -25,6 +25,40 @@ class App {
     // 검색 패널: searchPanel (이미 초기화됨)
     // 그래프 렌더러: graphRenderer (이미 초기화됨)
     // 통계 패널: statsPanel (이미 초기화됨)
+    // 코드 뷰어: codeViewer (이미 초기화됨)
+
+    // 다크모드 변경 감지
+    this.setupThemeListener();
+  }
+
+  setupThemeListener() {
+    // 다크모드 변경 시 highlight.js 테마도 함께 변경
+    const htmlElement = document.documentElement;
+    const observer = new MutationObserver(() => {
+      this.updateHighlightTheme();
+    });
+
+    observer.observe(htmlElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme']
+    });
+
+    // 초기 테마 설정
+    this.updateHighlightTheme();
+  }
+
+  updateHighlightTheme() {
+    const isDarkMode = document.documentElement.classList.contains('dark-mode') ||
+                      document.documentElement.getAttribute('data-theme') === 'dark';
+
+    const themeLink = document.getElementById('hljs-theme');
+    if (themeLink) {
+      const theme = isDarkMode
+        ? 'atom-one-dark.min.css'
+        : 'atom-one-light.min.css';
+      themeLink.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${theme}`;
+      console.log(`[App] highlight.js 테마 변경: ${theme}`);
+    }
   }
 
   setupTabSwitching() {

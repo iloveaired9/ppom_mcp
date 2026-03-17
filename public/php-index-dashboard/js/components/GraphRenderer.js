@@ -370,6 +370,13 @@ class GraphRenderer {
       this.displayNodeInfo(null);
     });
 
+    // 노드 더블클릭 - 코드 팝업 표시
+    this.cy.on('dbltap', 'node', (event) => {
+      const node = event.target;
+      const nodeData = node.data();
+      this.showCodeForNode(nodeData);
+    });
+
     // 줌 제한
     this.cy.minZoom(0.3);
     this.cy.maxZoom(5);
@@ -562,6 +569,38 @@ class GraphRenderer {
     link.download = `graph-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * 노드의 코드를 팝업으로 표시
+   */
+  async showCodeForNode(nodeData) {
+    try {
+      if (!nodeData || !nodeData.id) {
+        app.showToast('노드 정보가 없습니다', 'error');
+        return;
+      }
+
+      console.log('[GraphRenderer] 노드 코드 로드:', nodeData.id);
+
+      // API에서 코드 데이터 받기
+      const result = await api.getCode(nodeData.id);
+
+      if (!result.success || !result.data) {
+        app.showToast('코드를 로드할 수 없습니다', 'error');
+        return;
+      }
+
+      // CodeViewer를 이용해 팝업 표시
+      if (window.codeViewer) {
+        window.codeViewer.showPopup(result.data);
+      } else {
+        app.showToast('코드 뷰어를 초기화할 수 없습니다', 'error');
+      }
+    } catch (error) {
+      console.error('[GraphRenderer] 코드 로드 에러:', error);
+      app.showToast('코드 로드 실패: ' + error.message, 'error');
+    }
   }
 }
 

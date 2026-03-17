@@ -134,6 +134,11 @@ class SearchPanel {
       // 상세 정보 표시
       this.displaySymbolInfo(result);
 
+      // 코드 뷰어에서 코드 로드
+      if (window.codeViewer) {
+        window.codeViewer.render(result.name, result);
+      }
+
       loadingManager.complete('그래프 로드 완료', 500);
     } catch (error) {
       console.error('Failed to load symbol details:', error);

@@ -5,6 +5,8 @@
 
 const { execSync, exec } = require('child_process');
 const path = require('path');
+const fs = require('fs');
+const iconv = require('iconv-lite');
 
 class PHPIndexService {
   constructor() {
@@ -313,6 +315,200 @@ class PHPIndexService {
     } catch (error) {
       throw new Error(`Rebuild index failed: ${error.message}`);
     }
+  }
+
+  /**
+   * 심볼의 PHP 코드 추출
+   * @param {string} symbol - 심볼 이름 (예: "api\gcm\etc_alarm.php::send_header")
+   * @returns {Promise<object>} { code, file, startLine, endLine, language }
+   */
+  async getCode(symbol) {
+    try {
+      // 1. 색인 파일 로드
+      const indexPath = path.join(__dirname, '../../../plugins/php-index-generator/output/index.json');
+      if (!fs.existsSync(indexPath)) {
+        throw new Error('색인 파일을 찾을 수 없습니다. 먼저 색인을 생성하세요.');
+      }
+
+      const indexContent = fs.readFileSync(indexPath, 'utf8');
+      const index = JSON.parse(indexContent);
+
+      // 2. 심볼 정보 조회
+      let symbolInfo = index.symbols[symbol];
+
+      // 폴백: 심볼이 단순 이름만 있으면 FQCN으로 검색
+      if (!symbolInfo && !symbol.includes('::')) {
+        // 인덱스에서 "::심볼명"으로 끝나는 항목 찾기
+        const matchingKey = Object.keys(index.symbols).find(key =>
+          key.endsWith(`::${symbol}`)
+        );
+        if (matchingKey) {
+          symbolInfo = index.symbols[matchingKey];
+          console.log(`[PHPIndexService] 심볼 폴백 조회: ${symbol} -> ${matchingKey}`);
+        }
+      }
+
+      if (!symbolInfo) {
+        throw new Error(`심볼을 찾을 수 없습니다: ${symbol}`);
+      }
+
+      // 3. PHP 파일 읽기 (EUC-KR 지원)
+      const filePath = symbolInfo.file;
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`파일을 찾을 수 없습니다: ${filePath}`);
+      }
+
+      // 파일을 바이너리로 읽은 후 인코딩 감지
+      let fileContent;
+      try {
+        const fileBuffer = fs.readFileSync(filePath);
+
+        // EUC-KR 인코딩 감지 (한글 바이트 패턴)
+        // EUC-KR의 한글 범위: 첫 바이트는 0xA1-0xFE, 두 번째 바이트는 0xA1-0xFE
+        let euckrCount = 0;
+        let utf8Count = 0;
+
+        for (let i = 0; i < fileBuffer.length - 1; i++) {
+          const byte1 = fileBuffer[i];
+          const byte2 = fileBuffer[i + 1];
+
+          // EUC-KR 한글: 0xB0-0xC8 또는 0xCA-0xFD
+          if ((byte1 >= 0xB0 && byte1 <= 0xC8) || (byte1 >= 0xCA && byte1 <= 0xFD)) {
+            if (byte2 >= 0xA1 && byte2 <= 0xFE) {
+              euckrCount++;
+              i++; // 2바이트 문자이므로 다음 바이트 스킵
+            }
+          }
+
+          // UTF-8 한글: 0xEC-0xEF (3바이트 시작)
+          if (byte1 >= 0xEC && byte1 <= 0xEF) {
+            if (i + 2 < fileBuffer.length) {
+              utf8Count++;
+              i += 2; // 3바이트 문자이므로 스킵
+            }
+          }
+        }
+
+        const isEuckr = euckrCount > utf8Count;
+
+        // 인코딩에 따라 디코딩
+        fileContent = isEuckr
+          ? iconv.decode(fileBuffer, 'euc-kr')
+          : fileBuffer.toString('utf-8');
+
+      } catch (err) {
+        console.error('파일 읽기 에러:', err);
+        fileContent = fs.readFileSync(filePath, 'utf8');
+      }
+
+      const lines = fileContent.split('\n');
+
+      // 4. 함수/클래스 범위 추출
+      const { startLine, endLine, code } = this.extractCodeRange(
+        lines,
+        symbolInfo.line,
+        symbolInfo.type,
+        symbolInfo.name
+      );
+
+      // 5. 결과 반환
+      return {
+        success: true,
+        symbol: symbol,
+        code: code,
+        file: filePath,
+        startLine: startLine,
+        endLine: endLine,
+        type: symbolInfo.type,
+        language: 'php'
+      };
+    } catch (error) {
+      throw new Error(`코드 추출 실패: ${error.message}`);
+    }
+  }
+
+  /**
+   * 함수/클래스의 코드 범위 추출 (중괄호 기반)
+   * @private
+   */
+  extractCodeRange(lines, startLineNum, type, name) {
+    const startIdx = startLineNum - 1; // 0-based 인덱싱
+
+    if (type === 'function' || type === 'method') {
+      // 함수: { } 쌍으로 범위 추출
+      let braceCount = 0;
+      let foundStart = false;
+      let endIdx = startIdx;
+
+      for (let i = startIdx; i < lines.length; i++) {
+        const line = lines[i];
+
+        // 중괄호 카운팅
+        for (let j = 0; j < line.length; j++) {
+          if (line[j] === '{') {
+            braceCount++;
+            foundStart = true;
+          } else if (line[j] === '}') {
+            braceCount--;
+            if (foundStart && braceCount === 0) {
+              endIdx = i;
+              break;
+            }
+          }
+        }
+
+        if (foundStart && braceCount === 0) {
+          break;
+        }
+      }
+
+      return {
+        startLine: startLineNum,
+        endLine: endIdx + 1,
+        code: lines.slice(startIdx, endIdx + 1).join('\n')
+      };
+    } else if (type === 'class' || type === 'interface') {
+      // 클래스: 첫 번째 { 부터 마지막 } 까지
+      let braceCount = 0;
+      let foundStart = false;
+      let endIdx = lines.length - 1;
+
+      for (let i = startIdx; i < lines.length; i++) {
+        const line = lines[i];
+
+        for (let j = 0; j < line.length; j++) {
+          if (line[j] === '{') {
+            braceCount++;
+            foundStart = true;
+          } else if (line[j] === '}') {
+            braceCount--;
+            if (foundStart && braceCount === 0) {
+              endIdx = i;
+              break;
+            }
+          }
+        }
+
+        if (foundStart && braceCount === 0) {
+          break;
+        }
+      }
+
+      // 클래스는 처음 100줄만 표시 (너무 길 수 있음)
+      const classCode = lines.slice(startIdx, Math.min(endIdx + 1, startIdx + 100)).join('\n');
+      return {
+        startLine: startLineNum,
+        endLine: Math.min(endIdx + 1, startIdx + 100),
+        code: classCode + (endIdx > startIdx + 100 ? '\n\n// ... (이하 생략, 파일에서 전체 코드 확인) ...' : '')
+      };
+    }
+
+    // 알 수 없는 타입은 5줄만 표시
+    return {
+      startLine: startLineNum,
+      endLine: Math.min(startLineNum + 5, lines.length),
+      code: lines.slice(startIdx, Math.min(startIdx + 5, lines.length)).join('\n')
+    };
   }
 }
 

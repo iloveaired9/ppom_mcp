@@ -94,7 +94,30 @@
       "Bash(node test-graph-text.js)",
       "Bash(timeout 60 node test-graph-render.js)",
       "Bash(timeout 120 node test-debug-graph.js)",
-      "Bash(timeout 120 node test-final-verify.js)"
+      "Bash(timeout 120 node test-final-verify.js)",
+      "Bash(start \"\" \"C:\\\\rnd\\\\claude\\\\mcp\\\\ppom_mcp\\\\public\\\\php-index-dashboard\\\\index.html\")",
+      "Bash(grep -E \"\\(app|server|index\\)\\\\.js$\")",
+      "Bash(grep -E \"\\\\.js$\")",
+      "Bash(node -e \"const ctrl = require\\(''C:/rnd/claude/mcp/ppom_mpc/mcp-servers/php-index-dashboard/controllers/codeController''\\); console.log\\(''Controller loaded:'', Object.keys\\(ctrl\\)\\);\")",
+      "Bash(node -e \"const ctrl = require\\(''C:/rnd/claude/mcp/ppom_mcp/mcp-servers/php-index-dashboard/controllers/codeController''\\); console.log\\(''Controller loaded:'', Object.keys\\(ctrl\\)\\);\")",
+      "Bash(node -e \"const routes = require\\(''C:/rnd/claude/mcp/ppom_mcp/mcp-servers/php-index-dashboard/routes/index''\\); console.log\\(''Routes loaded successfully''\\);\")",
+      "Bash(netstat -tulnp)",
+      "Bash(tasklist)",
+      "Bash(Get-WmiObject Win32_Process -Filter \"Name=''''node.exe''''\")",
+      "Bash(Select-Object ProcessId, CommandLine)",
+      "Bash(Format-Table -AutoSize)",
+      "Bash(kill -9 5796 29952)",
+      "Bash(xargs kill:*)",
+      "Bash(__NEW_LINE_e9c4082c523858fd__ echo:*)",
+      "Bash(__NEW_LINE_bdf09f52b3f505ea__ sleep:*)",
+      "Bash(__NEW_LINE_d1aa02dfdca8c8e7__ timeout:*)",
+      "Bash(__NEW_LINE_d1aa02dfdca8c8e7__ echo:*)",
+      "Bash(find C:rndclaudemcpppom_mcpworkmobile -name *.php -type f -exec file {})",
+      "Bash(2)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(find C:rndclaudemcpppom_mcpworkmobile -name *article* -o -name *history*)",
+      "Bash(grep -l /* C:rndclaudemcpppom_mcpworkmobile/*.php)",
+      "Bash(xargs -I {} basename {})"
     ]
   }
 }

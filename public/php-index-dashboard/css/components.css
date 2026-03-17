@@ -181,3 +181,251 @@ select:focus {
     display: inline;
   }
 }
+
+/* ==================== 코드 뷰어 스타일 ==================== */
+
+.code-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-variant);
+  flex-shrink: 0;
+}
+
+.code-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-path {
+  font-weight: 500;
+  color: var(--color-text);
+  word-break: break-all;
+  line-height: 1.3;
+}
+
+.line-info {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.code-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.btn-open-file,
+.btn-copy-code,
+.btn-popup-code {
+  padding: 6px 10px;
+  font-size: 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-open-file:hover,
+.btn-copy-code:hover,
+.btn-popup-code:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.btn-open-file:active,
+.btn-copy-code:active,
+.btn-popup-code:active {
+  transform: scale(0.95);
+}
+
+.code-content {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.code-content pre {
+  margin: 0;
+  background: transparent;
+  padding: 0;
+  position: relative;
+  overflow: visible;
+}
+
+.code-content pre.line-numbers {
+  counter-reset: linenumber;
+  padding-left: 45px;
+}
+
+.code-content code {
+  display: block;
+  color: var(--color-text);
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* highlight.js 구문 강조 색상 */
+.hljs {
+  background: transparent;
+  color: var(--color-text);
+}
+
+.hljs-attr,
+.hljs-attribute {
+  color: var(--color-primary);
+}
+
+.hljs-string {
+  color: #22863a;
+}
+
+.hljs-literal,
+.hljs-number {
+  color: #005cc5;
+}
+
+.hljs-comment {
+  color: #6a737d;
+  font-style: italic;
+}
+
+.hljs-keyword {
+  color: #d73a49;
+  font-weight: 600;
+}
+
+.hljs-function {
+  color: #6f42c1;
+}
+
+.hljs-title {
+  color: #6f42c1;
+}
+
+.hljs-params {
+  color: var(--color-text);
+}
+
+.hljs-built_in {
+  color: #005cc5;
+}
+
+.hljs-variable {
+  color: var(--color-text);
+}
+
+/* 다크모드 구문 강조 색상 */
+.dark-mode .hljs {
+  background: transparent;
+}
+
+.dark-mode .hljs-string {
+  color: #85e89d;
+}
+
+.dark-mode .hljs-literal,
+.dark-mode .hljs-number {
+  color: #79b8ff;
+}
+
+.dark-mode .hljs-comment {
+  color: #6f42c1;
+}
+
+.dark-mode .hljs-keyword {
+  color: #f97583;
+}
+
+.dark-mode .hljs-function,
+.dark-mode .hljs-title {
+  color: #b392f0;
+}
+
+.dark-mode .hljs-attr,
+.dark-mode .hljs-attribute {
+  color: #79b8ff;
+}
+
+.dark-mode .hljs-built_in {
+  color: #79b8ff;
+}
+
+/* 라인번호 (선택사항) */
+.code-content pre.line-numbers code::before {
+  counter-increment: linenumber;
+  content: counter(linenumber);
+  display: inline-block;
+  width: 35px;
+  text-align: right;
+  margin-right: 10px;
+  color: var(--color-text-muted);
+  user-select: none;
+  border-right: 1px solid var(--color-border);
+  padding-right: 10px;
+}
+
+/* 반응형 - 코드 뷰어 */
+@media (max-width: 1024px) {
+  .code-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .code-info {
+    margin-bottom: 8px;
+    width: 100%;
+  }
+
+  .code-actions {
+    margin-left: 0;
+  }
+
+  .btn-open-file,
+  .btn-copy-code,
+  .btn-popup-code {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .code-content {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .code-content pre.line-numbers {
+    padding-left: 30px;
+  }
+
+  .file-path {
+    font-size: 11px;
+  }
+
+  .line-info {
+    font-size: 10px;
+  }
+}
