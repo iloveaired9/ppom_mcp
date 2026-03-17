@@ -126,7 +126,12 @@
       "Bash(node trace-getnotice.js)",
       "Bash(node list-notice-ad.js)",
       "Bash(node analyze-getarticles.js)",
-      "Bash(ls -la C:rndclaudemcpppom_mcp*.js)"
+      "Bash(ls -la C:rndclaudemcpppom_mcp*.js)",
+      "Bash(node scripts/extract-queries.js notice_ad.class.php)",
+      "Bash(node .claude/skills/php-query/scripts/extract-queries.js notice_ad.class.php)",
+      "Bash(node .claude/skills/php-query/scripts/extract-queries.js api/member.php)",
+      "Bash(ls -lh work/mobile/api/*.php)",
+      "Bash(node .claude/skills/php-query/scripts/extract-queries.js api/gcm/etc_alarm.php)"
     ]
   }
 }
