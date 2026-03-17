@@ -56,6 +56,11 @@ class PHPIndexGenerator {
           await this.cmdGoto(args);
           break;
 
+        case 'refs':
+        case 'references':
+          await this.cmdReferences(args);
+          break;
+
         case 'help':
         case '-h':
         case '--help':
@@ -296,6 +301,93 @@ class PHPIndexGenerator {
   }
 
   /**
+   * references 커맨드 - 심볼 참조 찾기
+   */
+  async cmdReferences(args) {
+    const { symbol, limit = 20 } = args;
+
+    if (!symbol) {
+      console.error('❌ --symbol 옵션을 지정해주세요.');
+      console.error('   예: node index.js refs --symbol "NoticeAd"');
+      process.exit(1);
+    }
+
+    console.log(`\n🔗 참조 찾기: "${symbol}"\n`);
+
+    try {
+      await this.searcher.loadIndex();
+
+      // grep을 사용해서 참조 찾기
+      const { execSync } = require('child_process');
+
+      try {
+        // PHP 파일에서 심볼 참조 찾기
+        const grep = `grep -r "${symbol}" ${args.source || 'work/mobile'} --include="*.php" -n`;
+        const output = execSync(grep, { encoding: 'utf8' });
+        const lines = output.trim().split('\n').filter(l => l);
+
+        if (lines.length === 0) {
+          console.log(`❌ 참조를 찾을 수 없습니다.\n`);
+          return;
+        }
+
+        // 결과 파싱 및 표시
+        const results = [];
+        for (const line of lines) {
+          const match = line.match(/^([^:]+):(\d+):(.*)$/);
+          if (match) {
+            const [, file, lineNum, code] = match;
+            results.push({
+              file: file.replace(/\\/g, '/'),
+              line: parseInt(lineNum),
+              code: code.trim().substring(0, 80)
+            });
+          }
+        }
+
+        // 파일별로 정렬
+        results.sort((a, b) => a.file.localeCompare(b.file));
+
+        console.log(`📌 결과 (${results.length}개 발견):\n`);
+
+        let currentFile = null;
+        let count = 0;
+
+        for (const result of results) {
+          if (result.file !== currentFile) {
+            currentFile = result.file;
+            console.log(`📄 ${result.file}`);
+          }
+
+          count++;
+          console.log(`   ${result.line.toString().padStart(4, ' ')} | ${result.code}`);
+
+          if (count >= (limit || 20)) {
+            console.log(`\n... 더 많은 결과 (총 ${results.length}개)\n`);
+            break;
+          }
+        }
+
+        if (count < results.length) {
+          console.log(`\n📊 표시: ${count}개 / ${results.length}개 (전체)\n`);
+        } else {
+          console.log();
+        }
+
+      } catch (grepError) {
+        if (grepError.status === 1) {
+          console.log(`❌ 참조를 찾을 수 없습니다.\n`);
+        } else {
+          throw grepError;
+        }
+      }
+    } catch (error) {
+      console.error(`❌ 오류: ${error.message}\n`);
+      process.exit(1);
+    }
+  }
+
+  /**
    * 도움말 표시
    */
   showHelp() {
@@ -315,6 +407,9 @@ class PHPIndexGenerator {
 
     console.log(`  goto        - 정의 위치 찾기`);
     console.log(`    옵션: --symbol <name> --format <json|plain>\n`);
+
+    console.log(`  refs        - 심볼 참조 찾기`);
+    console.log(`    옵션: --symbol <name> --source <dir> --limit <n>\n`);
 
     console.log(`  help        - 도움말 표시\n`);
 

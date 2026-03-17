@@ -28,7 +28,8 @@
     "php:index:search": "node plugins/php-index-generator/index.js search",
     "php:index:info": "node plugins/php-index-generator/index.js info",
     "php:index:list": "node plugins/php-index-generator/index.js list",
-    "php:index:goto": "node plugins/php-index-generator/index.js goto"
+    "php:index:goto": "node plugins/php-index-generator/index.js goto",
+    "php:index:refs": "node plugins/php-index-generator/index.js refs"
   },
   "keywords": [
     "mcp",
