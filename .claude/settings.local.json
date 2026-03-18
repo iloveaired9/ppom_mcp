@@ -142,7 +142,12 @@
       "Bash(then)",
       "Bash(else)",
       "Bash(fi)",
-      "Bash(/tmp/build-all.sh)"
+      "Bash(/tmp/build-all.sh)",
+      "Bash(sort -k5 -hr)",
+      "Bash(while read:*)",
+      "Bash(do du:*)",
+      "Read(//c/rnd/claude/mcp/ppom_mcp/**)",
+      "Bash(done)"
     ]
   }
 }

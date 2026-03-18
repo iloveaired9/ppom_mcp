@@ -586,21 +586,18 @@ class IndexBuilder {
           );
         }
 
-        // 파일 정보 저장
+        // 파일 정보 저장 (경량 버전 - 해시 계산 제거)
         try {
-          const content = fs.readFileSync(filePath, 'utf8');
-          const hash = require('crypto').createHash('sha256').update(content).digest('hex');
           const stats = fs.statSync(filePath);
-
           insertFile.run(
             filePath,
             relativePath,
-            hash,
+            '',  // 해시는 나중에 필요시 계산
             stats.mtime.getTime(),
             JSON.stringify(data.symbols)
           );
         } catch (e) {
-          // 파일 읽기 오류 무시
+          // 파일 정보 저장 오류 무시
         }
       }
 
