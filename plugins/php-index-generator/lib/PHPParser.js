@@ -206,16 +206,16 @@ class PHPParser {
    */
   extractMethodsForClass(content, className, classLine) {
     const methods = {};
+    // 별도의 정규식 인스턴스 사용 (공유 패턴 lastIndex 충돌 방지)
+    const methodRegex = /(?:public|protected|private)\s+(?:static\s+)?function\s+(\w+)\s*\(/gm;
     let match;
 
-    while ((match = this.patterns.method.exec(content)) !== null) {
+    while ((match = methodRegex.exec(content)) !== null) {
       const methodName = match[1];
       const line = this.getLineNumber(match.index, content);
 
-      // 메서드가 클래스 내에 있는지 확인
-      // (간단한 휴리스틱: 클래스 이후, 다음 클래스 이전)
-      const beforeMatch = this.patterns.class.exec(content);
-      if (beforeMatch && beforeMatch.index < match.index) {
+      // 클래스 시작 라인 이후의 메서드만 포함
+      if (line >= classLine) {
         methods[methodName] = {
           type: 'method',
           line,
@@ -224,7 +224,6 @@ class PHPParser {
       }
     }
 
-    this.patterns.method.lastIndex = 0;
     return methods;
   }
 

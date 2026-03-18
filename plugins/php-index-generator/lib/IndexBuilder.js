@@ -132,7 +132,12 @@ class IndexBuilder {
           const filePath = batch[i];
           const fileIndex = batchStart + i;
 
+          const fileStartTime = Date.now();
           const fileSymbols = await this.processFile(filePath);
+          const fileElapsed = Date.now() - fileStartTime;
+          if (fileElapsed > 500) {
+            console.log(`\n  ⚠️ 느린 파일: ${path.basename(filePath)} (${fileElapsed}ms)`);
+          }
           batchSymbols.push({
             file: filePath,
             symbols: fileSymbols.symbols || [],
@@ -577,12 +582,10 @@ class IndexBuilder {
       INSERT OR REPLACE INTO symbols (fqcn, name, type, file, line_start, line_end, symbol_json)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
-
     const insertFile = db.prepare(`
       INSERT OR REPLACE INTO files (file_path, relative_path, hash, mtime, symbols_json)
       VALUES (?, ?, ?, ?, ?)
     `);
-
     const insertDep = db.prepare(`
       INSERT INTO dependencies (file_path, dep_type, dep_json)
       VALUES (?, ?, ?)
@@ -593,44 +596,17 @@ class IndexBuilder {
         const filePath = data.file;
         const relativePath = path.relative(this.options.sourceDir, filePath);
 
-        // 각 심볼 저장
         for (const symbol of data.symbols) {
           const fqcn = `${relativePath}::${symbol.name}`;
-          insertSymbol.run(
-            fqcn,
-            symbol.name,
-            symbol.type,
-            filePath,
-            symbol.start || 0,
-            symbol.end || 0,
-            JSON.stringify(symbol)
-          );
+          insertSymbol.run(fqcn, symbol.name, symbol.type, filePath, symbol.start || 0, symbol.end || 0, JSON.stringify(symbol));
         }
 
-        // 파일 정보 저장 (경량 버전 - 해시 계산 제거)
-        try {
-          const stats = fs.statSync(filePath);
-          insertFile.run(
-            filePath,
-            relativePath,
-            '',  // 해시는 나중에 필요시 계산
-            stats.mtime.getTime(),
-            JSON.stringify(data.symbols)
-          );
-        } catch (e) {
-          // 파일 정보 저장 오류 무시
-        }
+        insertFile.run(filePath, relativePath, '', 0, JSON.stringify(data.symbols));
       }
 
-      // 의존성 저장
       for (const data of batchDependencies) {
-        const filePath = data.file;
         if (data.dependencies) {
-          insertDep.run(
-            filePath,
-            'mixed',
-            JSON.stringify(data.dependencies)
-          );
+          insertDep.run(data.file, 'mixed', JSON.stringify(data.dependencies));
         }
       }
     });
