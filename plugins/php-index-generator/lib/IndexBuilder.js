@@ -239,7 +239,7 @@ class IndexBuilder {
             if (!this.shouldExclude(relativePath + '/')) {
               walkSync(fullPath);
             }
-          } else if (entry.isFile() && entry.name.endsWith('.php')) {
+          } else if (entry.isFile() && (entry.name.endsWith('.php') || entry.name.endsWith('.inc'))) {
             files.push(fullPath);
           }
         }
