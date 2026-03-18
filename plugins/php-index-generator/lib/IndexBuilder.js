@@ -20,7 +20,7 @@ class IndexBuilder {
       sourceDir: 'work/mobile',
       outputDir: 'plugins/php-index-generator/output',
       cacheDir: '.claude/php-index-cache',
-      excludePatterns: ['vendor/*', 'node_modules/*', 'tests/*', '*.tmp.php'],
+      excludePatterns: ['vendor/*', 'vendors/*', 'node_modules/*', 'tests/*', '*.tmp.php'],
       includePatterns: ['**/*.php'],
       incremental: true,
       followSymlinks: false,
@@ -66,42 +66,81 @@ class IndexBuilder {
         if (verbose) console.log(`✓ ${filesToProcess.length}개 파일 변경됨`);
       }
 
-      if (verbose) console.log(`🔨 파일 처리 중 (${filesToProcess.length}/${totalFiles})...`);
+      if (verbose) {
+        console.log(`🔨 파일 처리 중 (${filesToProcess.length}/${totalFiles})...`);
+      }
 
-      // 4. 파일 처리
-      const allSymbols = [];
-      const allDependencies = [];
-      for (const filePath of filesToProcess) {
-        const fileSymbols = await this.processFile(filePath);
-        allSymbols.push({
-          file: filePath,
-          symbols: fileSymbols.symbols || [],
-          includes: fileSymbols.includes || [],
-          symbolCallMap: fileSymbols.symbolCallMap || {}  // 심볼별 호출 맵
-        });
+      const startTime = Date.now();
 
-        // 의존성 수집
-        if (fileSymbols.dependencies) {
-          allDependencies.push({
-            file: filePath,
-            dependencies: fileSymbols.dependencies
-          });
+      // 4. 배치 처리로 메모리 관리 (5개씩 그룹화 - 메모리 최적화)
+      const BATCH_SIZE = 5;
+      let mergedIndex = {};
+      let dependencies = {};
+      let totalProcessed = 0;
+
+      for (let batchStart = 0; batchStart < filesToProcess.length; batchStart += BATCH_SIZE) {
+        const batchEnd = Math.min(batchStart + BATCH_SIZE, filesToProcess.length);
+        const batch = filesToProcess.slice(batchStart, batchEnd);
+        const batchNum = Math.ceil((batchStart + 1) / BATCH_SIZE);
+        const totalBatches = Math.ceil(filesToProcess.length / BATCH_SIZE);
+
+        if (verbose && batchStart > 0) {
+          console.log(`\n📦 배치 ${batchNum}/${totalBatches} 처리 중...`);
         }
 
-        if (verbose && (allSymbols.length % 10 === 0)) {
-          console.log(`  ✓ ${allSymbols.length}/${filesToProcess.length} 파일 처리됨`);
+        // 배치 내 파일 처리
+        const batchSymbols = [];
+        const batchDependencies = [];
+
+        for (let i = 0; i < batch.length; i++) {
+          const filePath = batch[i];
+          const fileIndex = batchStart + i;
+
+          const fileSymbols = await this.processFile(filePath);
+          batchSymbols.push({
+            file: filePath,
+            symbols: fileSymbols.symbols || [],
+            includes: fileSymbols.includes || [],
+            symbolCallMap: fileSymbols.symbolCallMap || {}
+          });
+
+          if (fileSymbols.dependencies) {
+            batchDependencies.push({
+              file: filePath,
+              dependencies: fileSymbols.dependencies
+            });
+          }
+
+          totalProcessed++;
+
+          // 진행도 표시 (매 10개 파일마다)
+          const progress = Math.round(totalProcessed / filesToProcess.length * 100);
+          if (totalProcessed % 10 === 0 || totalProcessed === filesToProcess.length) {
+            process.stdout.write(`\r  ⏳ ${totalProcessed}/${filesToProcess.length} 파일 처리 중... [${progress}%]`);
+          }
+        }
+
+        // 배치 병합 (메모리 최적화)
+        mergedIndex = this.mergeSymbols(batchSymbols, mergedIndex);
+        dependencies = this.mergeDependencies(batchDependencies, dependencies);
+
+        // 배치 완료 후 메모리 정리
+        batchSymbols.length = 0;
+        batchDependencies.length = 0;
+        if (global.gc) {
+          global.gc();
         }
       }
 
-      if (verbose) console.log('🧬 심볼 병합 중...');
+      // 처리 완료 시간 표시
+      const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(2);
+      console.log(`\n  ✓ 완료! (${elapsedSeconds}초)\n`);
 
-      // 5. 심볼 병합 (FQCN 생성)
-      const mergedIndex = this.mergeSymbols(allSymbols);
+      // 심볼과 의존성은 배치별로 이미 병합됨
+      if (verbose) console.log('🧬 색인 정리 중...');
 
-      if (verbose) console.log('🔗 의존성 병합 중...');
-
-      // 5-1. 의존성 병합
-      const dependencies = this.mergeDependencies(allDependencies);
+      // 이미 배치 처리 중에 병합된 상태이므로 추가 처리 없음
+      // mergedIndex와 dependencies는 이미 준비됨
 
       // 6. 메타데이터 생성
       const metadata = this.generateMetadata(mergedIndex, totalFiles, filesToProcess.length);
@@ -146,6 +185,9 @@ class IndexBuilder {
       };
     } catch (error) {
       console.error(`[ERROR] 색인 생성 실패: ${error.message}`);
+      if (options.verbose) {
+        console.error(`[STACK] ${error.stack}`);
+      }
       return {
         success: false,
         error: error.message
@@ -193,7 +235,10 @@ class IndexBuilder {
           }
 
           if (entry.isDirectory()) {
-            walkSync(fullPath);
+            // 제외된 디렉토리는 진입하지 않음
+            if (!this.shouldExclude(relativePath + '/')) {
+              walkSync(fullPath);
+            }
           } else if (entry.isFile() && entry.name.endsWith('.php')) {
             files.push(fullPath);
           }
@@ -213,6 +258,11 @@ class IndexBuilder {
    * @returns {boolean} 제외할지 여부
    */
   shouldExclude(filePath) {
+    // 하드코딩: vendors 디렉토리는 절대로 제외
+    if (filePath.includes('vendors')) {
+      return true;
+    }
+
     for (const pattern of this.options.excludePatterns) {
       // 간단한 glob 패턴 매칭
       const regexPattern = pattern
@@ -259,11 +309,11 @@ class IndexBuilder {
    * @param {array} allSymbols - 모든 심볼 데이터
    * @returns {object} 병합된 색인
    */
-  mergeSymbols(allSymbols) {
-    const symbols = {};
-    const fileMap = {};
-    const fileCache = {};
-    const callGraph = {}; // 호출 그래프 (심볼 레벨)
+  mergeSymbols(allSymbols, existingIndex = null) {
+    const symbols = existingIndex && existingIndex.symbols ? { ...existingIndex.symbols } : {};
+    const fileMap = existingIndex && existingIndex.fileMap ? { ...existingIndex.fileMap } : {};
+    const fileCache = existingIndex && existingIndex.fileCache ? { ...existingIndex.fileCache } : {};
+    const callGraph = existingIndex && existingIndex.callGraph ? { ...existingIndex.callGraph } : {};
 
     // 첫 번째 패스: 심볼 기본 정보 저장
     for (const data of allSymbols) {
@@ -359,15 +409,23 @@ class IndexBuilder {
    * @param {array} allDependencies - 모든 파일의 의존성 데이터
    * @returns {object} 병합된 의존성 데이터
    */
-  mergeDependencies(allDependencies) {
-    const result = {
-      byFile: {},      // 파일별 의존성
-      functionCalls: {},  // 함수 호출 통계
-      classDependencies: {  // 클래스 상속/구현 관계
+  mergeDependencies(allDependencies, existingDeps = null) {
+    const result = (existingDeps && Object.keys(existingDeps).length > 0) ? {
+      byFile: { ...existingDeps.byFile },
+      functionCalls: { ...existingDeps.functionCalls },
+      classDependencies: {
+        extends: [...(existingDeps.classDependencies?.extends || [])],
+        implements: [...(existingDeps.classDependencies?.implements || [])]
+      },
+      fileDependencies: { ...existingDeps.fileDependencies }
+    } : {
+      byFile: {},
+      functionCalls: {},
+      classDependencies: {
         extends: [],
         implements: []
       },
-      fileDependencies: {}  // include/require 의존성
+      fileDependencies: {}
     };
 
     for (const data of allDependencies) {

@@ -40,6 +40,10 @@ class PHPIndexGenerator {
           await this.cmdBuild(args);
           break;
 
+        case 'build-all':
+          await this.cmdBuildAll(args);
+          break;
+
         case 'search':
           await this.cmdSearch(args);
           break;
@@ -135,6 +139,112 @@ class PHPIndexGenerator {
       console.log(`  • 오류: ${result.error}\n`);
       process.exit(1);
     }
+  }
+
+  /**
+   * 폴더별 순차 처리 (build-all 커맨드)
+   */
+  async cmdBuildAll(args) {
+    const fs = require('fs');
+    const path = require('path');
+
+    console.log('\n🔨 PHP Index Generator - Build All (폴더별 순차 처리)\n');
+
+    const sourceBase = args.source || 'work/mobile';
+
+    // 주요 폴더 목록 (크기 순서)
+    const folders = ['mobile', 'common', 'ppomppu'];
+    const folderPaths = folders
+      .map(folder => ({
+        name: folder,
+        path: path.join(sourceBase, folder),
+        exists: fs.existsSync(path.join(sourceBase, folder))
+      }))
+      .filter(f => f.exists);
+
+    if (folderPaths.length === 0) {
+      console.log(`❌ 처리할 폴더가 없습니다. (${sourceBase})\n`);
+      process.exit(1);
+    }
+
+    console.log(`📁 처리 대상 폴더 (${folderPaths.length}개):`);
+    folderPaths.forEach((f, i) => {
+      const fileCount = this.countPhpFiles(f.path);
+      console.log(`  ${i + 1}. ${f.name} (${fileCount}개 파일)`);
+    });
+    console.log('');
+
+    let totalSymbols = 0;
+    let totalFiles = 0;
+    const startTime = Date.now();
+
+    // 폴더별 순차 처리
+    for (let i = 0; i < folderPaths.length; i++) {
+      const folder = folderPaths[i];
+      console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+      console.log(`📦 [${i + 1}/${folderPaths.length}] ${folder.name} 폴더 처리 중...`);
+      console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+
+      // 각 폴더마다 새로운 IndexBuilder 생성 (메모리 초기화)
+      const builder = new IndexBuilder({
+        sourceDir: folder.path,
+        outputDir: path.join(__dirname, 'output'),
+        cacheDir: '.claude/php-index-cache'
+      });
+
+      const result = await builder.build({
+        force: args.force === true,
+        verbose: args.verbose === true
+      });
+
+      if (result.success) {
+        totalSymbols += result.totalSymbols;
+        totalFiles += result.processedFiles;
+
+        console.log(`\n✅ ${folder.name} 완료!`);
+        console.log(`  • 처리 파일: ${result.processedFiles}/${result.totalFiles}개`);
+        console.log(`  • 심볼: ${result.totalSymbols}개`);
+      } else {
+        console.log(`\n❌ ${folder.name} 실패! 오류: ${result.error}`);
+        process.exit(1);
+      }
+    }
+
+    const totalTime = (Date.now() - startTime) / 1000;
+    console.log(`\n\n🎉 모든 폴더 처리 완료!`);
+    console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    console.log(`  • 총 처리 파일: ${totalFiles}개`);
+    console.log(`  • 총 심볼: ${totalSymbols}개`);
+    console.log(`  • 총 소요 시간: ${totalTime.toFixed(2)}초\n`);
+  }
+
+  /**
+   * 디렉토리의 PHP 파일 개수를 계산합니다.
+   */
+  countPhpFiles(dir) {
+    const fs = require('fs');
+    const path = require('path');
+    let count = 0;
+
+    function walk(currentPath) {
+      try {
+        const files = fs.readdirSync(currentPath);
+        for (const file of files) {
+          const filePath = path.join(currentPath, file);
+          const stat = fs.statSync(filePath);
+          if (stat.isDirectory()) {
+            walk(filePath);
+          } else if (file.endsWith('.php')) {
+            count++;
+          }
+        }
+      } catch (e) {
+        // 접근 불가능한 디렉토리 무시
+      }
+    }
+
+    walk(dir);
+    return count;
   }
 
   /**
@@ -663,7 +773,12 @@ class PHPIndexGenerator {
     console.log(`📖 도움말\n`);
     console.log(`명령어:\n`);
     console.log(`  build       - 색인 생성`);
-    console.log(`    옵션: --source <dir> --output <dir> --force --verbose\n`);
+    console.log(`    옵션: --source <dir> --output <dir> --force --verbose`);
+    console.log(`    예: node index.js build --source work/mobile --force\n`);
+
+    console.log(`  build-all   - 폴더별 순차 처리 (mobile → common → ppomppu)`);
+    console.log(`    옵션: --source <base-dir> --force --verbose`);
+    console.log(`    예: node index.js build-all --source work/mobile --force\n`);
 
     console.log(`  search      - 심볼 검색`);
     console.log(`    옵션: --symbol <name> --type <type> --exact --limit <n>\n`);
@@ -689,6 +804,9 @@ class PHPIndexGenerator {
     console.log(`예제:\n`);
     console.log(`  # 기본 색인 생성`);
     console.log(`  node index.js build --source work/mobile --force\n`);
+
+    console.log(`  # 폴더별 순차 처리 (전체 대용량 데이터)`);
+    console.log(`  node index.js build-all --source work/mobile --force\n`);
 
     console.log(`  # 심볼 검색`);
     console.log(`  node index.js search --symbol "manager"\n`);
