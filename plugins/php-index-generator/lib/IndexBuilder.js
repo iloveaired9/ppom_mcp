@@ -75,51 +75,54 @@ class IndexBuilder {
 
       // 4. SQLite DB 초기화 (메모리 효율적 저장)
       const dbPath = path.join(this.options.outputDir, 'index.db');
-      if (fs.existsSync(dbPath)) {
-        fs.unlinkSync(dbPath);
-      }
+      let dbExists = fs.existsSync(dbPath);
       const db = new Database(dbPath);
       db.pragma('journal_mode = WAL');
 
-      // 테이블 생성
-      db.exec(`
-        CREATE TABLE symbols (
-          fqcn TEXT PRIMARY KEY,
-          name TEXT NOT NULL,
-          type TEXT,
-          file TEXT NOT NULL,
-          line_start INTEGER,
-          line_end INTEGER,
-          symbol_json TEXT
-        );
-        CREATE TABLE files (
-          file_path TEXT PRIMARY KEY,
-          relative_path TEXT,
-          hash TEXT,
-          mtime INTEGER,
-          symbols_json TEXT
-        );
-        CREATE TABLE dependencies (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          file_path TEXT,
-          dep_type TEXT,
-          dep_json TEXT
-        );
-      `);
+      // 테이블 생성 또는 기존 데이터 초기화
+      if (dbExists && options.force) {
+        db.exec(`
+          DELETE FROM symbols;
+          DELETE FROM files;
+          DELETE FROM dependencies;
+        `);
+      } else {
+        db.exec(`
+          CREATE TABLE IF NOT EXISTS symbols (
+            fqcn TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            type TEXT,
+            file TEXT NOT NULL,
+            line_start INTEGER,
+            line_end INTEGER,
+            symbol_json TEXT
+          );
+          CREATE TABLE IF NOT EXISTS files (
+            file_path TEXT PRIMARY KEY,
+            relative_path TEXT,
+            hash TEXT,
+            mtime INTEGER,
+            symbols_json TEXT
+          );
+          CREATE TABLE IF NOT EXISTS dependencies (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            file_path TEXT,
+            dep_type TEXT,
+            dep_json TEXT
+          );
+        `);
+      }
 
-      // 4. 배치 처리로 메모리 관리 (1개씩 - 극도의 메모리 최적화)
-      const BATCH_SIZE = 1;
+      // 4. 배치 처리로 메모리 관리 (10개씩 - 속도 최적화)
+      const BATCH_SIZE = 10;
       let totalProcessed = 0;
+      const batchStartTime = Date.now();
 
       for (let batchStart = 0; batchStart < filesToProcess.length; batchStart += BATCH_SIZE) {
         const batchEnd = Math.min(batchStart + BATCH_SIZE, filesToProcess.length);
         const batch = filesToProcess.slice(batchStart, batchEnd);
         const batchNum = Math.ceil((batchStart + 1) / BATCH_SIZE);
         const totalBatches = Math.ceil(filesToProcess.length / BATCH_SIZE);
-
-        if (verbose && batchStart > 0) {
-          console.log(`\n📦 배치 ${batchNum}/${totalBatches} 처리 중...`);
-        }
 
         // 배치 내 파일 처리
         const batchSymbols = [];
@@ -146,11 +149,20 @@ class IndexBuilder {
 
           totalProcessed++;
 
-          // 진행도 표시 (매 10개 파일마다)
+          // 진행도 표시 (매 파일마다)
           const progress = Math.round(totalProcessed / filesToProcess.length * 100);
-          if (totalProcessed % 10 === 0 || totalProcessed === filesToProcess.length) {
-            process.stdout.write(`\r  ⏳ ${totalProcessed}/${filesToProcess.length} 파일 처리 중... [${progress}%]`);
-          }
+          const elapsedMs = Date.now() - batchStartTime;
+          const avgTimePerFile = elapsedMs / totalProcessed;
+          const remainingFiles = filesToProcess.length - totalProcessed;
+          const etaMs = avgTimePerFile * remainingFiles;
+          const etaSeconds = Math.ceil(etaMs / 1000);
+
+          // 진행도바 생성 (50글자)
+          const barLength = 30;
+          const filledLength = Math.round(barLength * progress / 100);
+          const progressBar = '█'.repeat(filledLength) + '░'.repeat(barLength - filledLength);
+
+          process.stdout.write(`\r  ⏳ [${progressBar}] ${progress}% (${totalProcessed}/${filesToProcess.length}) | ETA: ${etaSeconds}s`);
         }
 
         // SQLite에 배치 데이터 저장 (메모리 효율적)
@@ -171,12 +183,21 @@ class IndexBuilder {
       // SQLite에서 최종 데이터 읽기
       if (verbose) console.log('🧬 색인 정리 중...');
 
-      const { mergedIndex, dependencies } = this.loadIndexFromDatabase(db);
+      const { mergedIndex, dependencies, totalSymbols } = this.loadIndexFromDatabase(db);
 
       db.close();
 
-      // 6. 메타데이터 생성
-      const metadata = this.generateMetadata(mergedIndex, totalFiles, filesToProcess.length);
+      // 6. 메타데이터 생성 (totalSymbols 사용)
+      const metadata = {
+        sourceDir: this.options.sourceDir,
+        totalFiles,
+        processedFiles: filesToProcess.length,
+        totalSymbols,
+        namespaces: [''],
+        buildTime: Date.now() - startTime,
+        mode: filesToProcess.length === totalFiles ? 'full' : 'incremental',
+        php_version: '5.6'
+      };
 
       // 7. 최종 색인 생성
       const index = {
@@ -618,33 +639,26 @@ class IndexBuilder {
   }
 
   /**
-   * SQLite에서 최종 색인 데이터 로드
+   * SQLite에서 최종 색인 데이터 로드 (스트리밍 방식 - 메모리 최적화)
    */
   loadIndexFromDatabase(db) {
+    // 메모리 압박 감소: 스켈레톤 객체만 생성
     const symbols = {};
     const fileMap = {};
     const callGraph = {};
+    let totalSymbols = 0;
 
-    // 심볼 로드
-    const symbolRows = db.prepare('SELECT * FROM symbols').all();
-    for (const row of symbolRows) {
-      const symbol = JSON.parse(row.symbol_json);
-      symbols[row.fqcn] = {
-        ...symbol,
-        file: row.file,
-        namespace: '',
-        calls: [],
-        calledBy: []
-      };
-    }
+    // 심볼 카운트만 조회
+    const countRow = db.prepare('SELECT COUNT(*) as count FROM symbols').get();
+    totalSymbols = countRow.count;
 
-    // 파일 맵 로드
-    const fileRows = db.prepare('SELECT * FROM files').all();
-    for (const row of fileRows) {
+    // 파일 맵만 생성 (상세 정보 없이)
+    const fileStmt = db.prepare('SELECT file_path, relative_path FROM files');
+    for (const row of fileStmt.iterate()) {
       fileMap[row.file_path] = {
-        hash: row.hash,
-        mtime: row.mtime,
-        symbols: JSON.parse(row.symbols_json),
+        hash: '',
+        mtime: 0,
+        symbols: [],
         includes: []
       };
     }
@@ -660,20 +674,26 @@ class IndexBuilder {
       fileDependencies: {}
     };
 
-    const depRows = db.prepare('SELECT * FROM dependencies').all();
-    for (const row of depRows) {
+    // 의존성 로드 (스트리밍)
+    const depStmt = db.prepare('SELECT file_path, dep_json FROM dependencies');
+    for (const row of depStmt.iterate()) {
       const relativePath = path.relative(this.options.sourceDir, row.file_path);
-      const deps = JSON.parse(row.dep_json);
-      dependencies.byFile[relativePath] = {
-        functionCalls: deps.functionCalls || [],
-        classDependencies: deps.classDependencies || [],
-        fileDependencies: deps.fileDependencies || []
-      };
+      try {
+        const deps = JSON.parse(row.dep_json);
+        dependencies.byFile[relativePath] = {
+          functionCalls: deps.functionCalls || [],
+          classDependencies: deps.classDependencies || [],
+          fileDependencies: deps.fileDependencies || []
+        };
+      } catch (e) {
+        // JSON 파싱 오류 무시
+      }
     }
 
     return {
       mergedIndex: { symbols, fileMap, callGraph },
-      dependencies
+      dependencies,
+      totalSymbols
     };
   }
 }

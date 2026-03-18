@@ -147,7 +147,19 @@
       "Bash(while read:*)",
       "Bash(do du:*)",
       "Read(//c/rnd/claude/mcp/ppom_mcp/**)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(echo '📊 vendors 제외 확인:' echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ echo echo '전체 파일:' find work/mobile/common -type f \\\\\\(-name *.php -o -name *.inc \\\\\\))",
+      "Bash(wc -l echo echo 'vendors 제외:' find work/mobile/common -type f \\\\\\(-name *.php -o -name *.inc \\\\\\) ! -path */vendors/*)",
+      "Bash(wc -l echo echo 'vendors 폴더 내 파일:' find work/mobile/common/lib/libraries/vendors -type f \\\\\\(-name *.php -o -name *.inc \\\\\\))",
+      "Bash(find work/mobile/common -type f -name *.php)",
+      "Bash(echo \"📊 common 폴더 구조:\" find work/mobile/common -type f \\\\\\( -name \"*.php\" -o -name \"*.inc\" \\\\\\))",
+      "Bash(find work/mobile/common -name *.php -o -name *.inc)",
+      "Bash(echo '📊 vendors 폴더 확인:' echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ echo echo '전체 파일 수:' find work/mobile/common -name *.php -o -name *.inc)",
+      "Bash(wc -l echo echo 'vendors 제외 파일 수:' find work/mobile/common -name *.php -o -name *.inc)",
+      "Bash(wc -l echo echo 'vendors 폴더 내 파일 수:' find work/mobile/common -path */vendors/* \\\\\\(-name *.php -o -name *.inc \\\\\\))",
+      "Bash(find work/mobile/common -path */vendors/* \\\\\\(-name *.php -o -name *.inc \\\\\\))",
+      "Bash(ls -lh plugins/php-index-generator/output/index.*)",
+      "Bash(echo '✅ 모든 프로세스 완료' echo ls -lh plugins/php-index-generator/output/index.*)"
     ]
   }
 }
