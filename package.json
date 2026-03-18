@@ -24,8 +24,8 @@
     "ppom:tools": "curl -s http://localhost:3008/tools | jq . || curl -s http://localhost:3008/tools",
     "ppom:status": "curl -s http://localhost:3008/health | jq . || curl -s http://localhost:3008/health",
     "php:index:init": "node plugins/php-index-generator/index.js help",
-    "php:index:build": "node --expose-gc --max-old-space-size=4096 plugins/php-index-generator/index.js build",
-    "php:index:build-all": "node --expose-gc --max-old-space-size=4096 plugins/php-index-generator/index.js build-all",
+    "php:index:build": "node --expose-gc --max-old-space-size=8192 plugins/php-index-generator/index.js build",
+    "php:index:build-all": "node --expose-gc --max-old-space-size=8192 plugins/php-index-generator/index.js build-all",
     "php:index:search": "node plugins/php-index-generator/index.js search",
     "php:index:info": "node plugins/php-index-generator/index.js info",
     "php:index:list": "node plugins/php-index-generator/index.js list",
@@ -44,6 +44,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.13.6",
+    "better-sqlite3": "^12.8.0",
     "cheerio": "^1.2.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",

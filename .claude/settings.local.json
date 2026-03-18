@@ -137,7 +137,12 @@
       "Bash(node .claude/skills/php-query/scripts/extract-queries.js ppomppu/zboard/zboard.php)",
       "Bash(node plugins/php-index-generator/index.js build --source work/mobile/ppomppu --output plugins/php-index-generator/output --force --verbose)",
       "Bash(grep -n \"executeFetch\\\\|executeCount\\\\|db_query\\\\|$sql\" work/mobile/ppomppu/zboard/zboard.php)",
-      "Bash(pkill -f \"php-index-generator\")"
+      "Bash(pkill -f \"php-index-generator\")",
+      "Bash(if ps:*)",
+      "Bash(then)",
+      "Bash(else)",
+      "Bash(fi)",
+      "Bash(/tmp/build-all.sh)"
     ]
   }
 }
