@@ -37,19 +37,27 @@ const SQL_START_PATTERNS = [
 /**
  * 파일에서 함수 위치 추출
  */
-function extractFunctionLocations(content, indexData) {
+function extractFunctionLocations(content, indexData, targetFileName) {
   const functions = [];
+
+  // 파일명 정규화 (경로 구분자 통일)
+  const normalizedTarget = targetFileName.replace(/\\/g, '/').toLowerCase();
 
   // 인덱스에서 해당 파일의 함수 찾기
   for (const [fqcn, symbol] of Object.entries(indexData.symbols || {})) {
-    if (symbol.file && symbol.file.includes('notice_ad.class.php')) {
-      functions.push({
-        name: symbol.name,
-        fqcn: fqcn,
-        line: symbol.line,
-        type: symbol.type,
-        calls: symbol.calls || []
-      });
+    if (symbol.file) {
+      const normalizedFile = symbol.file.replace(/\\/g, '/').toLowerCase();
+
+      // 파일명이 일치하거나 경로 끝부분이 일치하는지 확인
+      if (normalizedFile.includes(normalizedTarget) || normalizedFile.endsWith(normalizedTarget)) {
+        functions.push({
+          name: symbol.name,
+          fqcn: fqcn,
+          line: symbol.line,
+          type: symbol.type,
+          calls: symbol.calls || []
+        });
+      }
     }
   }
 
@@ -185,10 +193,18 @@ function main() {
     const lines = content.split('\n');
 
     // 4. 함수 추출
-    const functions = extractFunctionLocations(content, indexData);
+    const functions = extractFunctionLocations(content, indexData, fileName);
     if (functions.length === 0) {
       console.log('⚠️  인덱스에서 함수를 찾을 수 없습니다');
-      console.log('💡 파일 경로가 정확한지 확인하세요');
+      console.log('💡 파일 경로가 정확한지 확인하세요: ' + fileName);
+      console.log('💡 인덱스에 있는 파일들:');
+
+      // 인덱스에 있는 파일 목록 출력
+      const files = new Set();
+      for (const [fqcn, symbol] of Object.entries(indexData.symbols || {})) {
+        if (symbol.file) files.add(symbol.file);
+      }
+      Array.from(files).slice(0, 10).forEach(f => console.log('   - ' + f));
       return;
     }
 
