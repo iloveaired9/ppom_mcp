@@ -15,6 +15,7 @@ const graphController = require('../controllers/graphController');
 const depsController = require('../controllers/depsController');
 const statsController = require('../controllers/statsController');
 const codeController = require('../controllers/codeController');
+const queryController = require('../controllers/queryController');
 
 // 검색 API
 router.get('/search', searchController.search);
@@ -46,6 +47,32 @@ router.get('/code-test/:symbol', (req, res) => {
 
 // 코드 뷰어 API
 router.get('/code/:symbol', codeController.getCode);
+
+// 쿼리 추출 API
+router.get('/queries', async (req, res) => {
+  try {
+    await queryController.extractQueries(req, res);
+  } catch (error) {
+    console.error('Query extraction error:', error);
+    res.json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// PHP 파일 목록 조회 API
+router.get('/files/php', async (req, res) => {
+  try {
+    await queryController.listPhpFiles(req, res);
+  } catch (error) {
+    console.error('File list error:', error);
+    res.json({
+      success: false,
+      error: error.message
+    });
+  }
+});
 
 // 헬스 체크
 router.get('/health', (req, res) => {

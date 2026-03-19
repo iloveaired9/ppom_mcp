@@ -12,7 +12,7 @@ const path = require('path');
 
 const http = require('http');
 const app = express();
-const PORT = process.env.PHP_DASHBOARD_PORT || 3012;
+const PORT = process.env.PORT || process.env.PHP_DASHBOARD_PORT || 3012;
 
 // 미들웨어
 app.use(cors());

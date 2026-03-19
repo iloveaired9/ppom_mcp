@@ -336,9 +336,8 @@ class PHPIndexService {
       // 2. 심볼 정보 조회
       let symbolInfo = index.symbols[symbol];
 
-      // 폴백: 심볼이 단순 이름만 있으면 FQCN으로 검색
+      // 폴백 1: 심볼이 단순 이름만 있으면 FQCN으로 검색
       if (!symbolInfo && !symbol.includes('::')) {
-        // 인덱스에서 "::심볼명"으로 끝나는 항목 찾기
         const matchingKey = Object.keys(index.symbols).find(key =>
           key.endsWith(`::${symbol}`)
         );
@@ -348,12 +347,44 @@ class PHPIndexService {
         }
       }
 
+      // 폴백 2: FQCN인데 경로 접두사가 다를 경우 (예: ppomppu\zboard\... vs zboard\...)
+      if (!symbolInfo && symbol.includes('::')) {
+        const symbolName = symbol.split('::').pop();
+        const matchingKey = Object.keys(index.symbols).find(key =>
+          key.endsWith(`::${symbolName}`) && symbol.endsWith(key)
+        );
+        if (matchingKey) {
+          symbolInfo = index.symbols[matchingKey];
+          console.log(`[PHPIndexService] FQCN 접미사 폴백: ${symbol} -> ${matchingKey}`);
+        }
+      }
+
+      // 폴백 3: 파일경로 부분매칭 + 심볼명 일치
+      if (!symbolInfo && symbol.includes('::')) {
+        const [filePart, symbolName] = symbol.split('::');
+        const normalizedFile = filePart.replace(/\\/g, '/');
+        const matchingKey = Object.keys(index.symbols).find(key => {
+          if (!key.endsWith(`::${symbolName}`)) return false;
+          const keyFile = key.split('::')[0].replace(/\\/g, '/');
+          return normalizedFile.endsWith(keyFile) || keyFile.endsWith(normalizedFile);
+        });
+        if (matchingKey) {
+          symbolInfo = index.symbols[matchingKey];
+          console.log(`[PHPIndexService] 파일경로 부분매칭 폴백: ${symbol} -> ${matchingKey}`);
+        }
+      }
+
       if (!symbolInfo) {
         throw new Error(`심볼을 찾을 수 없습니다: ${symbol}`);
       }
 
       // 3. PHP 파일 읽기 (EUC-KR 지원)
-      const filePath = symbolInfo.file;
+      // 파일 경로는 프로젝트 루트 기준 상대 경로 (예: work\mobile\ppomppu\...)
+      const projectRoot = path.join(__dirname, '../../..');
+      let filePath = symbolInfo.file;
+      if (!path.isAbsolute(filePath)) {
+        filePath = path.join(projectRoot, filePath);
+      }
       if (!fs.existsSync(filePath)) {
         throw new Error(`파일을 찾을 수 없습니다: ${filePath}`);
       }

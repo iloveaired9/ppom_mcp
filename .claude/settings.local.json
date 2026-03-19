@@ -159,7 +159,32 @@
       "Bash(wc -l echo echo 'vendors 폴더 내 파일 수:' find work/mobile/common -path */vendors/* \\\\\\(-name *.php -o -name *.inc \\\\\\))",
       "Bash(find work/mobile/common -path */vendors/* \\\\\\(-name *.php -o -name *.inc \\\\\\))",
       "Bash(ls -lh plugins/php-index-generator/output/index.*)",
-      "Bash(echo '✅ 모든 프로세스 완료' echo ls -lh plugins/php-index-generator/output/index.*)"
+      "Bash(echo '✅ 모든 프로세스 완료' echo ls -lh plugins/php-index-generator/output/index.*)",
+      "Bash(TaskOutput task_id=b97vno641 block=false timeout=5000)",
+      "Bash(TaskOutput task_id=b6ckbm1ck block=false timeout=5000)",
+      "Bash(timeout 30 node -e \":*)",
+      "Bash(timeout 60 node -e \":*)",
+      "Bash(timeout 10 node -e \":*)",
+      "Bash(npm exec:*)",
+      "Bash(cd /d C:rndclaudemcpppom_mcp)",
+      "Bash(rm -f plugins/php-index-generator/output/index.json)",
+      "Bash(node plugins/php-index-generator/index.js build --source work/mobile/ppomppu)",
+      "Bash(node plugins/php-index-generator/index.js build --source work/mobile/ppomppu --force)",
+      "Bash(node .claude/skills/php-query/scripts/extract-queries.js lib.php)",
+      "Bash(node .claude/skills/php-query/scripts/extract-queries.js ppomppu/zboard/lib.php)",
+      "Bash(sqlite3 /c/rnd/claude/mcp/ppom_mcp/plugins/php-index-generator/output/index.db .schema)",
+      "Bash(sqlite3 /c/rnd/claude/mcp/ppom_mcp/plugins/php-index-generator/output/index.db \"SELECT COUNT\\(*\\) as symbol_count FROM symbols;\")",
+      "Bash(node -e \"const idx = require\\(''C:/rnd/claude/mcp/ppom_mcp/plugins/php-index-generator/output/index.json''\\); const keys = Object.keys\\(idx.symbols\\).filter\\(k => k.includes\\(''setData''\\)\\); console.log\\(keys\\);\")",
+      "Bash(node -e \"const idx = require\\(''C:/rnd/claude/mcp/ppom_mcp/plugins/php-index-generator/output/index.json''\\); const keys = Object.keys\\(idx.symbols\\).slice\\(0, 10\\); console.log\\(keys\\);\")",
+      "Bash(taskkill //PID 24324 //F)",
+      "Bash(node -c mcp-servers/php-index-dashboard/controllers/queryController.js)",
+      "Bash(taskkill /PID 78516 /F)",
+      "Bash(node -e \"const qc = require\\(''./mcp-servers/php-index-dashboard/controllers/queryController''\\); console.log\\(''QueryController loaded:'', typeof qc.extractQueries\\)\")",
+      "Bash(wmic process:*)",
+      "Bash(node .claude/skills/php-query/scripts/extract-queries.js work/mobile/ppomppu/zboard/zboard.php plugins/php-index-generator/output/index.json)",
+      "Bash(node \".claude/skills/php-query/scripts/extract-queries.js\" \"ppomppu/zboard/zboard.php\" \"plugins/php-index-generator/output/index.json\")",
+      "Bash(node mcp-servers/php-index-dashboard.js)",
+      "Bash(node .claude/skills/php-query/scripts/extract-queries.js \"ppomppu/zboard/zboard.php\" \"plugins/php-index-generator/output/index.json\")"
     ]
   }
 }

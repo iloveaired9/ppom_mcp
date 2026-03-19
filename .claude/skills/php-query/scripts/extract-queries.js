@@ -47,9 +47,12 @@ function extractFunctionLocations(content, indexData, targetFileName) {
   for (const [fqcn, symbol] of Object.entries(indexData.symbols || {})) {
     if (symbol.file) {
       const normalizedFile = symbol.file.replace(/\\/g, '/').toLowerCase();
+      const normalizedFilename = (symbol.filename || '').toLowerCase();
 
-      // 파일명이 일치하거나 경로 끝부분이 일치하는지 확인
-      if (normalizedFile.includes(normalizedTarget) || normalizedFile.endsWith(normalizedTarget)) {
+      // 파일명(basename), 전체경로, 경로 끝부분으로 매칭
+      if (normalizedFilename === normalizedTarget ||
+          normalizedFile.includes(normalizedTarget) ||
+          normalizedFile.endsWith(normalizedTarget)) {
         functions.push({
           name: symbol.name,
           fqcn: fqcn,
@@ -61,21 +64,21 @@ function extractFunctionLocations(content, indexData, targetFileName) {
     }
   }
 
-  // 라인 번호순 정렬
-  return functions.sort((a, b) => a.line - b.line).slice(0, 10);
+  // 라인 번호순 정렬 (제한 없음 - 모든 함수 반환)
+  return functions.sort((a, b) => a.line - b.line);
 }
 
 /**
  * 주어진 라인에서 SQL 쿼리 추출
  */
-function extractQueriesFromLines(lines, startLine) {
+function extractQueriesFromLines(lines, startLine, endLine) {
   const queries = [];
   let inQuery = false;
   let currentQuery = '';
   let queryStartLine = startLine;
 
-  for (let i = startLine; i < lines.length; i++) {
-    const line = lines[i].trim();
+  for (let i = startLine; i < Math.min(endLine || lines.length, lines.length); i++) {
+    const line = String(lines[i] || '').trim();
 
     // SQL 쿼리 시작 감지
     if (!inQuery) {
@@ -138,7 +141,7 @@ function findFunctionEndLine(lines, startLine) {
   let foundOpening = false;
 
   for (let i = startLine; i < lines.length; i++) {
-    const line = lines[i];
+    const line = String(lines[i] || '');
 
     for (const char of line) {
       if (char === '{') {
@@ -171,6 +174,10 @@ function main() {
     }
 
     const indexData = JSON.parse(fs.readFileSync(INDEX_PATH, 'utf8'));
+    if (!indexData || !indexData.symbols) {
+      console.error('❌ 인덱스 데이터가 잘못되었습니다');
+      process.exit(1);
+    }
 
     // 2. PHP 파일 찾기
     let filePath = path.join(WORK_DIR, fileName);
@@ -194,22 +201,33 @@ function main() {
 
     // 4. 함수 추출
     const functions = extractFunctionLocations(content, indexData, fileName);
-    if (functions.length === 0) {
-      console.log('⚠️  인덱스에서 함수를 찾을 수 없습니다');
-      console.log('💡 파일 경로가 정확한지 확인하세요: ' + fileName);
-      console.log('💡 인덱스에 있는 파일들:');
 
-      // 인덱스에 있는 파일 목록 출력
-      const files = new Set();
-      for (const [fqcn, symbol] of Object.entries(indexData.symbols || {})) {
-        if (symbol.file) files.add(symbol.file);
+    let results = [];
+
+    // 5. 함수가 없으면 프로시저럴 코드에서 직접 SQL 추출
+    if (functions.length === 0) {
+      console.log(`📄 ${fileName} - SQL 쿼리 추출 (프로시저럴 코드)\n`);
+      const queries = extractQueriesFromLines(lines, 0);
+
+      if (queries.length === 0) {
+        console.log('⚠️  SQL 쿼리를 찾을 수 없습니다');
+        return;
       }
-      Array.from(files).slice(0, 10).forEach(f => console.log('   - ' + f));
+
+      // 마크다운 테이블로 출력 (함수명 없음)
+      console.log('| # | 라인범위 | SQL 쿼리 |');
+      console.log('|---|---------|---------|');
+
+      queries.forEach((query, idx) => {
+        const queryPreview = query.query.length > 80
+          ? query.query.substring(0, 80) + '...'
+          : query.query;
+        console.log(`| ${idx + 1} | ${query.startLine}-${query.endLine} | \`${queryPreview}\` |`);
+      });
       return;
     }
 
     // 5. 각 함수에서 쿼리 추출
-    const results = [];
     for (const func of functions) {
       const endLine = findFunctionEndLine(lines, func.line - 1);
       const queries = extractQueriesFromLines(lines, func.line - 1, endLine);
@@ -226,7 +244,7 @@ function main() {
     }
 
     // 6. 마크다운 테이블 출력
-    console.log(`\n📄 ${fileName} - SQL 쿼리 추출 (함수 최대 10개)\n`);
+    console.log(`\n📄 ${fileName} - SQL 쿼리 추출 (모든 함수)\n`);
 
     if (results.length === 0) {
       console.log('⚠️  SQL 쿼리를 찾을 수 없습니다\n');
@@ -252,6 +270,7 @@ function main() {
 
   } catch (error) {
     console.error('❌ 오류:', error.message);
+    console.error('스택 트레이스:', error.stack);
     process.exit(1);
   }
 }

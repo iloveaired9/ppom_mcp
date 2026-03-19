@@ -9,7 +9,10 @@ class App {
     // 컴포넌트 초기화
     this.initComponents();
 
-    // 탭 전환 이벤트
+    // 상단 메인 탭 전환
+    this.setupMainTabs();
+
+    // 우측 탭 전환 이벤트
     this.setupTabSwitching();
 
     // 초기 데이터 로드
@@ -59,6 +62,34 @@ class App {
       themeLink.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${theme}`;
       console.log(`[App] highlight.js 테마 변경: ${theme}`);
     }
+  }
+
+  setupMainTabs() {
+    const mainTabs = document.querySelectorAll('.main-tab');
+    const centerViews = document.querySelectorAll('.center-view');
+
+    mainTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const viewName = tab.getAttribute('data-view');
+
+        // 모든 메인 탭 비활성화
+        mainTabs.forEach(t => t.classList.remove('active'));
+        centerViews.forEach(v => v.classList.remove('active'));
+
+        // 선택한 뷰 활성화
+        tab.classList.add('active');
+        const targetView = document.getElementById(`${viewName}-view`);
+        if (targetView) {
+          targetView.classList.add('active');
+        }
+
+        // 쿼리 뷰 전환 시 입력 필드 포커스
+        if (viewName === 'queries') {
+          const input = document.getElementById('query-filename-input');
+          if (input) input.focus();
+        }
+      });
+    });
   }
 
   setupTabSwitching() {

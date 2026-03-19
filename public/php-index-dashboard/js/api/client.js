@@ -73,6 +73,16 @@ class APIClient {
   getCode(symbol) {
     return this.fetch(`/code/${encodeURIComponent(symbol)}`);
   }
+
+  // 쿼리 추출
+  extractQueries(filename) {
+    return this.fetch(`/queries?filename=${encodeURIComponent(filename)}`);
+  }
+
+  // PHP 파일 목록
+  getPhpFiles() {
+    return this.fetch('/files/php');
+  }
 }
 
 const api = window.api = new APIClient();

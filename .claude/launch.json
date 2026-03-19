@@ -30,6 +30,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["mcp-servers/npm-scripts.js"],
       "port": 3000
+    },
+    {
+      "name": "php-index-dashboard",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["mcp-servers/php-index-dashboard.js"],
+      "port": 3012
     }
   ]
 }

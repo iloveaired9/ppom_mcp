@@ -93,6 +93,7 @@ class IndexBuilder {
             name TEXT NOT NULL,
             type TEXT,
             file TEXT NOT NULL,
+            filename TEXT,
             line_start INTEGER,
             line_end INTEGER,
             symbol_json TEXT
@@ -579,8 +580,8 @@ class IndexBuilder {
    */
   saveBatchToDatabase(db, batchSymbols, batchDependencies) {
     const insertSymbol = db.prepare(`
-      INSERT OR REPLACE INTO symbols (fqcn, name, type, file, line_start, line_end, symbol_json)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT OR REPLACE INTO symbols (fqcn, name, type, file, filename, line_start, line_end, symbol_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const insertFile = db.prepare(`
       INSERT OR REPLACE INTO files (file_path, relative_path, hash, mtime, symbols_json)
@@ -596,9 +597,10 @@ class IndexBuilder {
         const filePath = data.file;
         const relativePath = path.relative(this.options.sourceDir, filePath);
 
+        const filename = path.basename(filePath);
         for (const symbol of data.symbols) {
           const fqcn = `${relativePath}::${symbol.name}`;
-          insertSymbol.run(fqcn, symbol.name, symbol.type, filePath, symbol.start || 0, symbol.end || 0, JSON.stringify(symbol));
+          insertSymbol.run(fqcn, symbol.name, symbol.type, filePath, filename, symbol.line || symbol.start || 0, symbol.end || 0, JSON.stringify(symbol));
         }
 
         insertFile.run(filePath, relativePath, '', 0, JSON.stringify(data.symbols));
@@ -637,6 +639,23 @@ class IndexBuilder {
         symbols: [],
         includes: []
       };
+    }
+
+    // 심볼 로드 (스트리밍)
+    const symbolStmt = db.prepare('SELECT fqcn, file, line_start, symbol_json FROM symbols');
+    for (const row of symbolStmt.iterate()) {
+      try {
+        const symbol = JSON.parse(row.symbol_json);
+        symbol.file = row.file;
+        symbol.filename = path.basename(row.file);
+        // line_start가 0이면 symbol_json의 line 값 유지
+        if (row.line_start > 0) {
+          symbol.line = row.line_start;
+        }
+        symbols[row.fqcn] = symbol;
+      } catch (e) {
+        // JSON 파싱 오류 무시
+      }
     }
 
     // 의존성 로드

@@ -24,20 +24,31 @@
      │           │             │
      └───────────┼─────────────┘
                  │
-         ┌───────▼────────────────────────┐
-         │   IndexBuilder / Searcher      │
-         │  (비즈니스 로직)               │
-         └───────┬────────────────────────┘
+         ┌───────▼──────────────────────────┐
+         │   IndexBuilder (배치 처리)     │
+         │  - 파일 스캔 (Batch 단위)     │
+         │  - 메모리 최적화 (GC)         │
+         │  - SQLite 저장                │
+         │  - JSON 내보내기              │
+         └───────┬──────────────────────┘
                  │
-     ┌───────────┼────────────┐
-     │           │            │
-     ▼           ▼            ▼
-┌─────────┐ ┌────────┐ ┌─────────────┐
-│PHPParser│ │  Cache │ │ FileSystem  │
-│ (정규식)│ │(메타데이터) │ (I/O)     │
-└─────────┘ └────────┘ └─────────────┘
-     │
-     └─ output/index.json (색인 저장소)
+     ┌───────────┼────────────┬──────────────┐
+     │           │            │              │
+     ▼           ▼            ▼              ▼
+┌─────────┐ ┌────────┐ ┌─────────┐  ┌──────────────┐
+│PHPParser│ │  Cache │ │ SQLite  │  │ IndexSearcher│
+│ (정규식)│ │(메타데이터) │  DB  │  │  (JSON)      │
+└─────────┘ └────────┘ └─────────┘  └──────────────┘
+         │           │
+         └───────┬───┘
+                 │
+      ┌──────────▼──────────┐
+      │  output/            │
+      ├── index.db          │
+      ├── index.db-shm      │
+      ├── index.db-wal      │
+      └── index.json        │
+      └──────────────────────┘
 ```
 
 ## 📦 모듈별 역할
@@ -133,37 +144,47 @@
 }
 ```
 
-### 3. IndexBuilder.js (색인 생성)
+### 3. IndexBuilder.js (색인 생성 - SQLite 배치 처리)
 
-**책임**: 파일 시스템 스캔 및 색인 생성
+**책임**: 파일 시스템 스캔, 배치 처리, SQLite 저장
 
 ```javascript
 // 주요 기능
-- build(sourceDir, options)     // 전체 색인 생성
-- buildIncremental()            // 증분 색인화
-- collectFiles(sourceDir)       // PHP 파일 수집
-- processFile(filePath)         // 단일 파일 처리
-- mergeSymbols()                // 심볼 병합
-- writeIndex()                  // 색인 저장
-- generateMetadata()            // 메타데이터 생성
+- build(sourceDir, options)       // 전체 색인 생성
+- buildIncremental()              // 증분 색인화
+- collectFiles(sourceDir)         // PHP 파일 수집
+- processFileBatch(files)         // 배치 단위 파일 처리 (메모리 최적화)
+- saveBatchToDatabase(batch)      // SQLite에 배치 저장
+- loadIndexFromDatabase()         // SQLite에서 색인 로드 (스트리밍)
+- writeIndex()                    // JSON 내보내기
+- generateMetadata()              // 메타데이터 생성
 ```
 
-**처리 흐름**:
+**처리 흐름 (배치 기반)**:
 ```
 1. sourceDir 스캔 → PHP 파일 목록
    ↓
 2. 캐시 로드 → 변경된 파일 필터링
    ↓
-3. 각 파일 파싱 → 심볼 추출
+3. 파일을 BATCH_SIZE만큼 분할
    ↓
-4. 심볼 병합 (FQCN 키)
+4. 각 배치 처리:
+   - 파일 파싱 → 심볼 추출
+   - SQLite에 저장 (INSERT)
+   - 메모리 해제 (GC)
    ↓
-5. 메타데이터 생성
+5. SQLite에서 심볼 로드 (스트리밍)
    ↓
-6. output/index.json 저장
+6. JSON 내보내기 (index.json)
    ↓
 7. 캐시 업데이트
 ```
+
+**메모리 최적화**:
+- BATCH_SIZE = 1 (파일당 즉시 저장)
+- 스트리밍 쿼리로 대용량 심볼 처리
+- 파일 > 1MB 후 즉시 GC
+- WAL 모드로 동시성 향상
 
 **출력 형식** (output/index.json):
 ```json
@@ -212,19 +233,25 @@
 }
 ```
 
-### 4. IndexSearcher.js (검색 엔진)
+### 4. IndexSearcher.js (검색 엔진 - JSON 기반)
 
-**책임**: 고속 심볼 검색
+**책임**: 고속 심볼 검색 (JSON 색인 사용)
 
 ```javascript
 // 주요 기능
-- loadIndex()                    // 색인 로드
-- search(query, options)         // 심볼 검색
-- searchByType(type)             // 타입별 검색
+- loadIndex()                    // JSON 색인 로드 (메모리)
+- search(query, options)         // 심볼 검색 (부분 일치)
+- searchByType(type)             // 타입별 검색 (class, function, method)
 - searchInNamespace(namespace)   // 네임스페이스 검색
 - getSymbolInfo(fullName)        // 심볼 상세 정보
-- findDefinition(symbol)         // 정의 위치 찾기
+- findDefinition(symbol)         // 정의 위치 찾기 (파일, 라인)
+- searchByFilename(filename)     // 파일명 기반 심볼 검색 (NEW!)
 ```
+
+**검색 전략**:
+- JSON 메모리 로드 (빠른 검색)
+- 정확 일치 → 부분 일치 → 퍼지 매칭
+- 파일명 기반 매칭 (확장자 제거, 경로 정규화)
 
 **검색 알고리즘**:
 ```
