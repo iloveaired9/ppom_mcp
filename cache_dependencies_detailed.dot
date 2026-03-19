@@ -1,0 +1,124 @@
+digraph CacheDependencies {
+  rankdir=LR;
+  bgcolor="white";
+  fontname="Helvetica";
+
+  node [shape="box", style="rounded,filled", fontname="Helvetica"];
+  edge [fontname="Helvetica", fontsize="9"];
+
+  // Subgraph: Memcached Helper Functions
+  subgraph cluster_memcached {
+    label="Memcached Library (lib_memcached.php)";
+    style="filled";
+    fillcolor="#E8F4F8";
+    color="#2C3E50";
+
+    memcache_connect [label="connect_memcache()", fillcolor="#4CAF50"];
+    memcache_read [label="read_memcache($mem, $key)", fillcolor="#66BB6A"];
+    memcache_write [label="write_memcache($mem, $key, $val)", fillcolor="#66BB6A"];
+    memcache_delete [label="delete_memcache($mem, $key)", fillcolor="#66BB6A"];
+    memcache_close [label="close_memcache($mem)", fillcolor="#FFA726"];
+  }
+
+  // Subgraph: PageCacher Internal Functions
+  subgraph cluster_pagecacher {
+    label="PageCacher Class (pageCacherEx.php)";
+    style="filled";
+    fillcolor="#FCE4EC";
+    color="#C2185B";
+
+    cache_key [label="_cache_key($bbs_name)", fillcolor="#EC407A"];
+    cache_connect [label="_cache_connect()", fillcolor="#AB47BC"];
+    cache_disconnect [label="_cache_disconnect()", fillcolor="#AB47BC"];
+    cache_get [label="_cache_get($k)", fillcolor="#5C6BC0"];
+    cache_set [label="_cache_set($k, $data, $ttl)", fillcolor="#5C6BC0"];
+    cache_delete [label="_cache_delete($k)", fillcolor="#5C6BC0"];
+  }
+
+  // Subgraph: Redis Cache Functions
+  subgraph cluster_redis {
+    label="Redis Cache Functions";
+    style="filled";
+    fillcolor="#F3E5F5";
+    color="#6A1B9A";
+
+    article_hit [label="article_hit($id, $no)", fillcolor="#BA68C8"];
+    memory_pop [label="memory_pop()", fillcolor="#AB47BC"];
+  }
+
+  // Subgraph: Coupon Cache
+  subgraph cluster_coupon {
+    label="Coupon Functions";
+    style="filled";
+    fillcolor="#E0F2F1";
+    color="#00695C";
+
+    cache_coupon [label="set_cache_coupon_\nticket_event_ing()", fillcolor="#26A69A"];
+  }
+
+  // Subgraph: WSDL Cache
+  subgraph cluster_wsdl {
+    label="WSDL Cache (NuSOAP)";
+    style="filled";
+    fillcolor="#FFF9C4";
+    color="#F9A825";
+
+    wsdl_cache [label="wsdlcache class", fillcolor="#FDD835"];
+    nusoap_cache [label="nusoap_wsdlcache()", fillcolor="#FFB300"];
+  }
+
+  // Subgraph: Board Functions
+  subgraph cluster_board {
+    label="Board Library Functions";
+    style="filled";
+    fillcolor="#FFFDE7";
+    color="#F57C00";
+
+    duration_memcache [label="in_duration_with_\nmemcache()", fillcolor="#FFA726"];
+  }
+
+  // Dependencies
+  // PageCacher internal dependencies
+  cache_get -> cache_connect [label="calls", color="#2196F3", style="solid"];
+  cache_get -> cache_disconnect [label="calls", color="#2196F3"];
+  cache_set -> cache_connect [label="calls", color="#FF9800"];
+  cache_set -> cache_disconnect [label="calls", color="#FF9800"];
+  cache_delete -> cache_connect [label="calls", color="#F44336"];
+  cache_delete -> cache_disconnect [label="calls", color="#F44336"];
+
+  // Cache key generation
+  cache_key -> cache_get [label="used by"];
+  cache_key -> cache_set [label="used by"];
+  cache_key -> cache_delete [label="used by"];
+
+  // Memcached connections
+  cache_connect -> memcache_connect [label="depends on", color="#673AB7", style="dashed"];
+  memcache_read -> memcache_connect [label="depends on", color="#2196F3"];
+  memcache_write -> memcache_connect [label="depends on", color="#FF9800"];
+  memcache_delete -> memcache_connect [label="depends on", color="#F44336"];
+  memcache_close -> memcache_connect [label="cleanup after"];
+
+  // Redis article hit
+  article_hit -> memory_pop [label="related", color="#9C27B0", style="dotted"];
+
+  // Duration with memcache
+  duration_memcache -> memcache_read [label="uses", color="#2196F3"];
+
+  // Cross-module integration (optional)
+  cache_set -> memcache_write [label="similar operation", color="#9CCC65", style="dotted"];
+  cache_get -> memcache_read [label="similar operation", color="#9CCC65", style="dotted"];
+
+  // Legend
+  subgraph cluster_legend {
+    style="dashed";
+    color="#999999";
+    label="Legend";
+    fontsize="10";
+
+    leg_init [label="Init/Setup", fillcolor="#4CAF50", shape="box"];
+    leg_read [label="Read Operation", fillcolor="#66BB6A", shape="box"];
+    leg_write [label="Write Operation", fillcolor="#5C6BC0", shape="box"];
+    leg_del [label="Delete Operation", fillcolor="#F44336", shape="box"];
+    leg_close [label="Cleanup", fillcolor="#FFA726", shape="box"];
+  }
+}

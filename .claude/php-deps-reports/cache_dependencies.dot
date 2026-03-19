@@ -1,0 +1,118 @@
+digraph "PHP Cache Dependencies - Pattern: 'cache'" {
+  rankdir=LR;
+  bgcolor=white;
+  fontname="Arial";
+  label="PHP Cache Function Dependency Graph\nPattern: 'cache' | Total Functions: 18 | Total Dependencies: 22";
+  labelloc="top";
+  fontsize=14;
+
+  node [shape=box, style="rounded,filled", fillcolor="#E3F2FD", fontname="Arial", margin="0.2,0.1"];
+  edge [color="#666666", fontsize=9, penwidth=1.5];
+
+  // Cache function nodes with proper clustering
+
+  // Memcache Operations Cluster
+  subgraph cluster_memcache {
+    label="Memcache Functions";
+    style="rounded,filled";
+    fillcolor="#E8F5E9";
+    fontname="Arial";
+    fontsize=12;
+
+    cache_1 [label="connect_memcache()\nlib_memcached.php:8", fillcolor="#C8E6C9", shape=ellipse];
+    cache_2 [label="read_memcache()\nlib_memcached.php:19", fillcolor="#A5D6A7"];
+    cache_3 [label="write_memcache()\nlib_memcached.php:23", fillcolor="#A5D6A7"];
+    cache_4 [label="delete_memcache()\nlib_memcached.php:27", fillcolor="#A5D6A7"];
+    cache_5 [label="close_memcache()\nlib_memcached.php:31", fillcolor="#FFE0B2", shape=ellipse];
+  }
+
+  // PageCache Extended Operations
+  subgraph cluster_pagecache_ex {
+    label="PageCache Extended Operations";
+    style="rounded,filled";
+    fillcolor="#E1F5FE";
+    fontname="Arial";
+    fontsize=12;
+
+    cache_8 [label="_cache_key()\npageCacherEx.php:68", fillcolor="#BBDEFB"];
+    cache_9 [label="_cache_connect()\npageCacherEx.php:72", fillcolor="#BBDEFB"];
+    cache_10 [label="_cache_disconnect()\npageCacherEx.php:81", fillcolor="#BBDEFB"];
+    cache_11 [label="_cache_get()\npageCacherEx.php:87", fillcolor="#BBDEFB"];
+    cache_12 [label="_cache_set()\npageCacherEx.php:97", fillcolor="#BBDEFB"];
+    cache_13 [label="_cache_delete()\npageCacherEx.php:103", fillcolor="#BBDEFB"];
+  }
+
+  // Helper Cache Functions
+  subgraph cluster_helper_cache {
+    label="Helper Cache Functions";
+    style="rounded,filled";
+    fillcolor="#FCE4EC";
+    fontname="Arial";
+    fontsize=12;
+
+    cache_0 [label="set_cache_coupon_ticket_event_ing()\ncoupon.php:956", fillcolor="#E1BEE7"];
+    cache_6 [label="memory_pop()\nmemcached.php:8", fillcolor="#F8BBD0"];
+    cache_7 [label="article_hit()\nrcache.php:6", fillcolor="#F8BBD0"];
+    cache_16 [label="in_duration_with_memcache()\nlib.php:3099", fillcolor="#F8BBD0"];
+  }
+
+  // WSDL Cache Classes
+  subgraph cluster_wsdl_cache {
+    label="WSDL Cache";
+    style="rounded,filled";
+    fillcolor="#FFF9C4";
+    fontname="Arial";
+    fontsize=12;
+
+    cache_15 [label="nusoap_wsdlcache\nclass.wsdlcache.php:16", fillcolor="#FFE082", shape=box];
+    cache_14 [label="wsdlcache\nclass.wsdlcache.php:131", fillcolor="#FFD54F"];
+  }
+
+  // Dependency relationships and call graph
+
+  // Memcache initialization chain
+  cache_2 -> cache_1 [label="requires", color="#FF6B6B", style=dashed];
+  cache_3 -> cache_1 [label="requires", color="#FF6B6B", style=dashed];
+  cache_4 -> cache_1 [label="requires", color="#FF6B6B", style=dashed];
+  cache_5 -> cache_1 [label="closes", color="#95E1D3"];
+
+  // PageCache extended operations dependencies
+  cache_9 -> cache_1 [label="uses", color="#FF6B6B"];
+  cache_11 -> cache_2 [label="uses", color="#4ECDC4"];
+  cache_12 -> cache_3 [label="uses", color="#FFE66D"];
+  cache_13 -> cache_4 [label="uses", color="#FF6B6B"];
+  cache_10 -> cache_5 [label="uses", color="#95E1D3"];
+
+  // PageCache extended operations call sequence
+  cache_11 -> cache_8 [label="after", style=dotted];
+  cache_12 -> cache_8 [label="after", style=dotted];
+  cache_13 -> cache_8 [label="after", style=dotted];
+
+  // Helper cache function dependencies
+  cache_6 -> cache_1 [label="uses", color="#FF6B6B"];
+  cache_6 -> cache_2 [label="reads", color="#4ECDC4"];
+  cache_6 -> cache_3 [label="writes", color="#FFE66D"];
+  cache_7 -> cache_1 [label="uses", color="#FF6B6B"];
+  cache_16 -> cache_2 [label="uses", color="#4ECDC4"];
+
+  // WSDL Cache inheritance
+  cache_15 -> cache_14 [label="extends", color="#66BB6A"];
+
+  // Summary box
+  summary [shape=plaintext, label="Summary Statistics\n\nCache Functions: 18\nFunction Calls: 22\nFiles Analyzed: 8\n\nKey Dependencies:\n• Memcache ops depend on connect()\n• PageCache ops use memcache layers\n• WSDL cache inherits from base class", fontsize=10];
+
+  // Legend cluster
+  subgraph cluster_legend {
+    style=dotted;
+    label="Legend";
+    fontname="Arial";
+    fontsize=11;
+
+    legend_init [label="Initialization", fillcolor="#C8E6C9", shape=box, style="rounded,filled"];
+    legend_read [label="Read Operation", fillcolor="#A5D6A7", shape=box, style="rounded,filled"];
+    legend_write [label="Write Operation", fillcolor="#FFE66D", shape=box, style="rounded,filled"];
+    legend_delete [label="Delete Operation", fillcolor="#FF6B6B", shape=box, style="rounded,filled"];
+    legend_solid [label="Direct Dependency", style="solid"];
+    legend_dashed [label="Conditional/Optional", style="dashed"];
+  }
+}

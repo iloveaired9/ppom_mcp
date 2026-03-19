@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHP Dependency Map - Helper Module</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .file-path {
+            opacity: 0.8;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            word-break: break-all;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 8px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #667eea;
+            font-size: 1.3em;
+        }
+
+        .dependency-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dep-name {
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+            font-family: 'Courier New', monospace;
+        }
+
+        .dep-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 10px;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-include {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .badge-internal {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-external {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .line-number {
+            color: #999;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .dependency-list {
+            list-style: none;
+        }
+
+        .dependency-list li {
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-left: 4px solid #667eea;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .function-name {
+            font-weight: 500;
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+
+        .diagram-section {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .central-module {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8em;
+            font-weight: bold;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+            text-align: center;
+            padding: 20px;
+            line-height: 1.2;
+        }
+
+        .diagram-label {
+            margin-top: 30px;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .file-info {
+            padding: 15px;
+            background: white;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #2196F3;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            font-size: 0.9em;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .summary-item {
+            padding: 12px;
+            background: white;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+        }
+
+        .summary-label {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .summary-value {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+            margin-top: 4px;
+        }
+
+        .footer {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .empty-state {
+            padding: 30px;
+            text-align: center;
+            color: #999;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .diagram-section {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PHP Dependency Map</h1>
+            <p>Helper Module Analysis - Direct Dependencies (1-Level Recursion)</p>
+            <div class="file-path">File: C:\rnd\claude\mcp\ppom_mcp\work\mobile\ppomppu\syndi\helper.php</div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">16</div>
+                <div class="stat-label">Functions Defined</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">2</div>
+                <div class="stat-label">File Includes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Function Calls</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Calls to Local Functions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">8</div>
+                <div class="stat-label">External Calls</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">14</div>
+                <div class="stat-label">Total Dependencies</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>File Information</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">File Size</div>
+                        <div class="summary-value">16,384 bytes</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Lines of Code</div>
+                        <div class="summary-value">551</div>
+                    </div>
+                </div>
+                <div class="file-info">
+                    <div class="info-label">Path:</div>
+                    <div>C:\rnd\claude\mcp\ppom_mcp\work\mobile\ppomppu\syndi\helper.php</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Defined Functions (16)</h2>
+                <ul class="dependency-list">
+                    <li><span class="function-name">atom_header()</span></li>
+                    <li><span class="function-name">bad_request()</span></li>
+                    <li><span class="function-name">get_site_updated()</span></li>
+                    <li><span class="function-name">get_channel_updated()</span></li>
+                    <li><span class="function-name">channel_validate()</span></li>
+                    <li><span class="function-name">article_validate()</span></li>
+                    <li><span class="function-name">get_board_articles()</span></li>
+                    <li><span class="function-name">get_article()</span></li>
+                    <li><span class="function-name">get_channel_articles()</span></li>
+                    <li><span class="function-name">get_site_deleted_articles()</span></li>
+                    <li><span class="function-name">get_channel_deleted_articles()</span></li>
+                    <li><span class="function-name">get_articles_site()</span></li>
+                    <li><span class="function-name">get_articles_by_idx()</span></li>
+                    <li><span class="function-name">parse_syndi_req()</span></li>
+                    <li><span class="function-name">pingNaverSyndicationServer()</span></li>
+                    <li><span class="function-name">pingNaverSyndicationV2Server()</span></li>
+                    <li><span class="function-name">pingNaverSyndicationV3Server()</span></li>
+                </ul>
+            </div>
+
+            <div class="diagram-section">
+                <div class="central-module">helper.php<br>Module</div>
+                <div class="diagram-label">Direct Dependencies Mapped Below</div>
+            </div>
+
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2>File Includes/Requires (2)</h2>
+                <ul class="dependency-list">
+                    <li><span class="dep-name">/config/config.inc</span> <span class="line-number">Line 2</span></li>
+                    <li><span class="dep-name">/include/helpers/database.php</span> <span class="line-number">Line 3</span></li>
+                </ul>
+            </div>
+
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2>Function Calls - Direct Dependencies (12)</h2>
+                <ul class="dependency-list">
+                    <li>
+                        <div>
+                            <span class="dep-name">master_conn()</span>
+                            <span class="dep-badge badge-external">External</span>
+                        </div>
+                        <span class="line-number">Lines 54, 87, 123, 198, 242, 287, 366</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">article_validate()</span>
+                            <span class="dep-badge badge-internal">Internal</span>
+                        </div>
+                        <span class="line-number">Lines 72, 96</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">get_board_articles()</span>
+                            <span class="dep-badge badge-internal">Internal</span>
+                        </div>
+                        <span class="line-number">Lines 165, 332, 402</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">header()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Lines 6, 10</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">date()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Multiple occurrences</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">preg_replace()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Multiple occurrences</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">str_replace()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Multiple occurrences</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">strip_tags()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Multiple occurrences</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">array_keys()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Lines 329, 399</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">array_push()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Lines 73, 154, 228, 273, 318, 388</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">explode()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Lines 457, 468</span>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">urlencode()</span>
+                            <span class="dep-badge badge-external">PHP Built-in</span>
+                        </div>
+                        <span class="line-number">Lines 476, 497</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2>Inheritance & Relationships</h2>
+                <ul class="dependency-list">
+                    <li>
+                        <div>
+                            <span class="dep-name">DatabasePDO</span>
+                            <span class="dep-badge">External Dependency</span>
+                        </div>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 8px;">Included via database.php helper. Used for PDO::FETCH_ASSOC</p>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">Global Variable: $m_connect</span>
+                            <span class="dep-badge badge-external">Shared State</span>
+                        </div>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 8px;">Database connection object used across multiple functions</p>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">Global Variable: $all_boards_info</span>
+                            <span class="dep-badge badge-external">Shared State</span>
+                        </div>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 8px;">Board information array used in validation functions</p>
+                    </li>
+                    <li>
+                        <div>
+                            <span class="dep-name">Global Variable: $ACCESS_TOKEN</span>
+                            <span class="dep-badge badge-external">Shared State</span>
+                        </div>
+                        <p style="font-size: 0.85em; color: #666; margin-top: 8px;">Authentication token for Naver syndication APIs</p>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="section" style="grid-column: 1 / -1;">
+                <h2>Module Architecture Summary</h2>
+                <ul class="dependency-list">
+                    <li>
+                        <strong>Module Type:</strong> Procedural Helper Library
+                    </li>
+                    <li>
+                        <strong>Primary Purpose:</strong> Syndication and article management for Naver and internal APIs
+                    </li>
+                    <li>
+                        <strong>Function Categories:</strong>
+                        <ul style="margin-left: 20px; margin-top: 8px;">
+                            <li>Article Retrieval (6 functions)</li>
+                            <li>Article Validation (2 functions)</li>
+                            <li>Syndication Utilities (3 functions)</li>
+                            <li>Naver Ping Services (3 functions)</li>
+                            <li>Utility Functions (2 functions)</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Database Interaction:</strong> Heavy use of PDO through $m_connect global
+                    </li>
+                    <li>
+                        <strong>External API Dependencies:</strong> Naver syndication servers, HTTP requests
+                    </li>
+                    <li>
+                        <strong>Code Complexity:</strong> Moderate - contains nested loops and conditional logic for article processing
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Generated: 2026-03-19 12:00:00 | Analysis Type: Helper Module Dependency Map | Recursion Depth: 1 | PHP Dependency Mapper v1.0</p>
+        </div>
+    </div>
+</body>
+</html>
