@@ -190,7 +190,12 @@
       "Bash(echo \"위치: C:\\\\rnd\\\\claude\\\\mcp\\\\ppom_mcp\\\\.claude\\\\php-deps-reports\"\":*)",
       "Bash(__NEW_LINE_03f44a5f4f22354b__ cd:*)",
       "Bash(grep -E \"\\\\.\\(md|txt|html|dot|php|js|py|bat|sh\\)$\")",
-      "Bash(ls -1 *.md *.txt *.html *.dot *.php *.js *.py *.bat *.sh *.exe)"
+      "Bash(ls -1 *.md *.txt *.html *.dot *.php *.js *.py *.bat *.sh *.exe)",
+      "Bash(node -c \"C:\\\\rnd\\\\claude\\\\mcp\\\\ppom_mcp\\\\mcp-servers\\\\php-index-dashboard\\\\controllers\\\\stringController.js\")",
+      "Bash(node -c \"C:\\\\rnd\\\\claude\\\\mcp\\\\ppom_mcp\\\\public\\\\php-index-dashboard\\\\js\\\\components\\\\StringSearchPanel.js\")",
+      "Bash(find . -type d -name *.php -o -name *php*)",
+      "Bash(find . -name *.php -type f)",
+      "Bash(__NEW_LINE_01106d1d78afa987__ git:*)"
     ]
   }
 }

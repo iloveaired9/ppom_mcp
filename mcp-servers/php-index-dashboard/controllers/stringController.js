@@ -14,10 +14,21 @@ let stringIndexer = null;
  */
 function getIndexer() {
   if (!stringIndexer) {
-    stringIndexer = new StringIndexer({
-      sourceDir: 'work/mobile',
-      outputDir: './plugins/php-string-finder/output'
-    });
+    try {
+      stringIndexer = new StringIndexer({
+        sourceDir: 'work/mobile',
+        outputDir: './plugins/php-string-finder/output'
+      });
+    } catch (error) {
+      console.error('StringIndexer 초기화 실패:', error.message);
+      // 빈 색인 반환
+      return {
+        search: () => [],
+        analyze: () => ({ totalStrings: 0, totalOccurrences: 0, totalFiles: 0 }),
+        listStrings: () => [],
+        getStats: () => ({})
+      };
+    }
   }
   return stringIndexer;
 }
