@@ -160,31 +160,182 @@ PHP 5.6 코드를 현대 문법으로 자동 변환
 
 ---
 
+## 🔍 PHP 코드 분석 & 쿼리 추출
+
+### /php-index - PHP 심볼 색인 생성
+PHP 파일의 함수, 클래스, 변수 등을 색인화하여 빠른 검색 가능
+
+```bash
+# 색인 생성 (필수!)
+/php-index build --source work/mobile --force
+
+# 색인 검색
+/php-index search get_user
+
+# 심볼 정보 조회
+/php-index info get_user
+
+# 의존성 분석
+/php-index deps my_function
+```
+
+**주요 기능**:
+- 🔍 심볼 검색 (함수, 클래스)
+- 📊 의존성 분석 (호출 관계)
+- 🔗 참조 추적 (어디서 호출되는지)
+- 📋 구조 분석 (파일 구성)
+
+---
+
+### /php-query - SQL 쿼리 자동 추출
+PHP 파일에서 SQL 쿼리를 자동으로 찾아 마크다운 테이블로 표시
+
+```bash
+# 쿼리 추출 (색인 필수)
+/php-query work/mobile/ppomppu/books/get_price.php
+
+# 결과 예시:
+# | # | 함수명 | 라인번호 | SQL 쿼리 |
+# |----|--------|---------|---------|
+# | 1 | getPrice() | 12-25 | SELECT * FROM products WHERE id=? |
+# | 2 | updatePrice() | 30-45 | UPDATE products SET price=? WHERE id=? |
+```
+
+**추출 대상**:
+- ✅ SELECT 쿼리
+- ✅ INSERT 쿼리
+- ✅ UPDATE 쿼리
+- ✅ DELETE 쿼리
+- ✅ JOIN, UNION 등 복합 쿼리
+
+**활용 사례**:
+- 📊 **성능 분석** - 최적화할 쿼리 식별
+- 🔗 **의존성 분석** - 테이블 사용 범위 파악
+- 🔒 **보안 감사** - SQL 인젝션 취약점 찾기
+- 🔄 **마이그레이션** - 레거시 코드 쿼리 패턴 분석
+
+---
+
+## 📊 대시보드
+
+### PHP Index Dashboard (포트 3012)
+PHP 파일의 심볼, 의존성, 쿼리를 시각화하는 웹 대시보드
+
+```bash
+# 대시보드 시작
+npm run php:dashboard
+
+# 개발 모드 (자동 새로고침)
+npm run php:dashboard:dev
+```
+
+**접속 주소**: http://localhost:3012
+
+**기능**:
+- 🔍 심볼 검색 UI
+- 📊 의존성 그래프
+- 🔗 참조 관계 시각화
+- 📋 쿼리 목록
+- 💡 코드 인텔리센스
+
+---
+
+### System Dashboard (포트 3000)
+시스템 전체 상태 및 성능 모니터링
+
+```bash
+npm run dashboard
+```
+
+**접속 주소**: http://localhost:3000
+
+---
+
+## 🔄 PHP 코드 분석 워크플로우
+
+### 단계 1: 색인 생성
+```bash
+npm run php:index:build -- --source work/mobile --force
+```
+- 📂 소스 디렉토리의 모든 PHP 파일 스캔
+- 🔍 함수, 클래스, 변수 추출
+- 📊 의존성 그래프 생성
+- 💾 색인 저장
+
+### 단계 2: 쿼리 추출
+```bash
+/php-query work/mobile/ppomppu/books/get_price.php
+```
+- 📋 파일의 모든 SQL 쿼리 찾기
+- 🔢 라인 번호 및 함수명 표시
+- 📊 마크다운 테이블 형식 출력
+- 💡 쿼리 패턴 분석
+
+### 단계 3: 대시보드에서 시각화
+```bash
+npm run php:dashboard
+```
+- 🌐 브라우저 접속: http://localhost:3012
+- 🔍 심볼 검색
+- 📊 의존성 그래프 확인
+- 💡 코드 구조 파악
+
+---
+
 ## ⚙️ npm Scripts
 
 ```bash
 # MCP 서버 실행
-npm run ppom                   # ppomppu-crawler (포트 3008)
-npm run myawsdb                # myawsdb (포트 3010)
+npm run ppom                          # ppomppu-crawler (포트 3008)
+npm run myawsdb                       # myawsdb (포트 3010)
+
+# PHP 코드 분석 (색인 생성)
+npm run php:index:build               # 색인 생성 (기본)
+npm run php:index:build --            # 색인 생성 + 옵션
+  --source work/mobile --force        # 소스 경로 + 강제 재생성
+
+# PHP 색인 검색
+npm run php:index:search              # 심볼 검색
+npm run php:index:info                # 심볼 정보 조회
+npm run php:index:deps                # 의존성 분석
+
+# 대시보드
+npm run dashboard                     # System Dashboard (포트 3000)
+npm run php:dashboard                 # PHP Index Dashboard (포트 3012)
+npm run php:dashboard:dev             # PHP Dashboard (개발 모드)
 
 # 데이터 작업
-npm run fetch-freeboard        # 게시판 데이터 수집
-npm run analyze-all            # 모든 데이터 분석
-npm run query-posts            # DB 쿼리
+npm run fetch-freeboard               # 게시판 데이터 수집
+npm run analyze-all                   # 모든 데이터 분석
+npm run query-posts                   # DB 쿼리
 
 # 유틸리티
-npm run status                 # 시스템 상태 확인
-npm run help                   # 도움말
+npm run status                        # 시스템 상태 확인
+npm run help                          # 도움말
+npm run build                         # 빌드
+npm run test                          # 테스트
 ```
 
 ---
 
 ## 📚 상세 문서
 
+### MCP 서버 & 대시보드
 | 문서 | 내용 |
 |------|------|
 | [API 명세](docs/API.md) | 모든 엔드포인트 및 파라미터 문서 |
 | [게시판 추가 가이드](docs/01-overview/ADDING_MORE_BOARDS.md) | 새로운 크롤러 추가하기 |
+
+### PHP 코드 분석
+| 문서 | 내용 |
+|------|------|
+| [.claude/skills/php-query/](\.claude/skills/php-query/) | PHP 쿼리 추출 스킬 가이드 |
+| [.claude/skills/php-index/](\.claude/skills/php-index/) | PHP 색인 생성 스킬 가이드 |
+| [plugins/php-code-migrator/README.md](plugins/php-code-migrator/README.md) | PHP 코드 마이그레이션 플러그인 |
+
+### 기술 & 현황
+| 문서 | 내용 |
+|------|------|
 | [기술 설계](docs/02-design/) | 아키텍처 및 설계 문서 |
 | [프로젝트 현황](docs/01-overview/PROJECT_STATUS.md) | 완료된 작업 및 진행 상황 |
 | [PDCA 인덱스](docs/01-overview/PDCA-INDEX.md) | 프로젝트 체계 및 진행 |
@@ -206,6 +357,7 @@ npm run help                   # 도움말
 
 ## 📊 현재 상태
 
+### MCP 서버 & 스킬
 | 컴포넌트 | 상태 | 설명 |
 |---------|------|------|
 | **ppomppu-crawler** | ✅ 완성 | 4개 게시판 크롤링 + 분석 |
@@ -213,6 +365,14 @@ npm run help                   # 도움말
 | **스킬 자동화** | ✅ 완성 | 4개 스킬 완전 자동화 |
 | **데이터 내보내기** | ✅ 완성 | CSV/JSON/TSV 지원 |
 | **PHP 마이그레이션** | ✅ 완성 | EUC-KR 인코딩 지원 |
+
+### PHP 코드 분석 & 대시보드
+| 컴포넌트 | 상태 | 설명 |
+|---------|------|------|
+| **php-index** | ✅ 완성 | PHP 심볼 색인 및 의존성 분석 |
+| **php-query** | ✅ 완성 | SQL 쿼리 자동 추출 |
+| **PHP Dashboard** | ✅ 완성 | 심볼, 의존성, 쿼리 시각화 (포트 3012) |
+| **System Dashboard** | ✅ 완성 | 시스템 상태 모니터링 (포트 3000) |
 
 ---
 
@@ -237,6 +397,22 @@ npm run help                   # 도움말
 1. /php-migrate old_code.php                → PHP 5.6 → 현대 문법
 2. 자동으로 클래스 생성 및 문서화
 3. 151개 함수 → 151개 클래스 변환 (예: lib.php)
+```
+
+### 사례 4: PHP 코드 SQL 쿼리 분석
+```
+1. npm run php:index:build --source work/mobile --force    → 색인 생성
+2. /php-query work/mobile/ppomppu/books/get_price.php      → 쿼리 추출
+3. npm run php:dashboard                                    → 대시보드에서 시각화
+4. 마크다운 테이블로 모든 쿼리 확인 및 최적화
+```
+
+### 사례 5: 데이터베이스 성능 감사
+```
+1. /php-query api/member.php              → 회원 관련 쿼리 추출
+2. /php-query api/post.php                → 게시물 관련 쿼리 추출
+3. 추출된 쿼리로 성능 최적화 포인트 식별
+4. 인덱스 추가 또는 쿼리 개선
 ```
 
 ---
