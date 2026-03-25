@@ -27,6 +27,7 @@
         <div class="main-tabs">
           <button class="main-tab active" data-view="graph">그래프</button>
           <button class="main-tab" data-view="queries">쿼리</button>
+          <button class="main-tab" data-view="strings">🔍 문자열 검색</button>
         </div>
       </div>
       <div class="header-right">
@@ -111,6 +112,11 @@
             </div>
           </div>
         </div>
+
+        <!-- 문자열 검색 뷰 -->
+        <div id="strings-view" class="center-view">
+          <div id="string-search-container"></div>
+        </div>
       </main>
 
       <!-- 우측 상세정보 패널 -->
@@ -189,6 +195,7 @@
   <script src="js/components/StatsPanel.js"></script>
   <script src="js/components/CodeViewer.js"></script>
   <script src="js/components/QueryPanel.js"></script>
+  <script src="js/components/StringSearchPanel.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

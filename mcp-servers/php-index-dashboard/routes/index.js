@@ -16,6 +16,7 @@ const depsController = require('../controllers/depsController');
 const statsController = require('../controllers/statsController');
 const codeController = require('../controllers/codeController');
 const queryController = require('../controllers/queryController');
+const stringController = require('../controllers/stringController');
 
 // 검색 API
 router.get('/search', searchController.search);
@@ -73,6 +74,28 @@ router.get('/files/php', async (req, res) => {
     });
   }
 });
+
+// ========== String Search API (NEW) ==========
+
+// 문자열 검색
+router.get('/search/string', stringController.search);
+
+// 색인 생성/갱신
+router.post('/string/index', stringController.buildIndex);
+
+// 색인 분석
+router.get('/string/analyze', stringController.analyze);
+
+// 색인된 문자열 목록
+router.get('/string/list', stringController.listStrings);
+
+// 색인 통계
+router.get('/string/stats', stringController.getStats);
+
+// 특정 문자열 상세 정보
+router.get('/string/detail', stringController.getDetail);
+
+// ========== Health Check ==========
 
 // 헬스 체크
 router.get('/health', (req, res) => {
