@@ -188,7 +188,9 @@
       "Bash(find C:rndclaudemcpppom_mcppluginsphp-index-generator -maxdepth 2 -type f -name *.js)",
       "Bash(__NEW_LINE_8f865db25cf957d0__ echo:*)",
       "Bash(echo \"위치: C:\\\\rnd\\\\claude\\\\mcp\\\\ppom_mcp\\\\.claude\\\\php-deps-reports\"\":*)",
-      "Bash(__NEW_LINE_03f44a5f4f22354b__ cd:*)"
+      "Bash(__NEW_LINE_03f44a5f4f22354b__ cd:*)",
+      "Bash(grep -E \"\\\\.\\(md|txt|html|dot|php|js|py|bat|sh\\)$\")",
+      "Bash(ls -1 *.md *.txt *.html *.dot *.php *.js *.py *.bat *.sh *.exe)"
     ]
   }
 }
