@@ -22,7 +22,7 @@ class StringSearchPanel {
           <h2>🔍 문자열 검색</h2>
           <p class="subtitle">PHP 코드에서 특정 문자열을 검색하세요</p>
           <div class="index-info">
-            <small>📂 색인 위치: <code>work/mobile</code></small>
+            <small>📂 색인 위치: <code>work/mobile/mobile</code></small>
             <small>💾 저장소: <code>./plugins/php-string-finder/output/string-index.json</code></small>
           </div>
         </div>

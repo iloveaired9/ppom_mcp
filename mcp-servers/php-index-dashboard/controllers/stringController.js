@@ -16,7 +16,7 @@ function getIndexer() {
   if (!stringIndexer) {
     try {
       stringIndexer = new StringIndexer({
-        sourceDir: 'work/mobile',
+        sourceDir: 'work/mobile/mobile',
         outputDir: './plugins/php-string-finder/output'
       });
     } catch (error) {
@@ -92,8 +92,10 @@ exports.buildIndex = async (req, res) => {
 
     console.log('🔍 문자열 색인 생성 시작...');
 
+    // 항상 새로운 인스턴스로 재초기화
+    stringIndexer = null;
     const indexer = getIndexer();
-    const result = await indexer.build({ force });
+    const result = await indexer.build({ force: true });
 
     res.json({
       success: true,

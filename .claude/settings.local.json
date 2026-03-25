@@ -195,7 +195,11 @@
       "Bash(node -c \"C:\\\\rnd\\\\claude\\\\mcp\\\\ppom_mcp\\\\public\\\\php-index-dashboard\\\\js\\\\components\\\\StringSearchPanel.js\")",
       "Bash(find . -type d -name *.php -o -name *php*)",
       "Bash(find . -name *.php -type f)",
-      "Bash(__NEW_LINE_01106d1d78afa987__ git:*)"
+      "Bash(__NEW_LINE_01106d1d78afa987__ git:*)",
+      "Bash(__NEW_LINE_b3a5c977dee05369__ echo:*)",
+      "Bash(__NEW_LINE_690749ed7aee0855__ echo:*)",
+      "Bash(__NEW_LINE_1f20a7acd2dd01a4__ node -e \":*)",
+      "Bash(__NEW_LINE_dca02efd606d36a5__ git:*)"
     ]
   }
 }

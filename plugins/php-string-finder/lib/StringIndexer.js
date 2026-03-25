@@ -266,8 +266,16 @@ class StringIndexer {
    * PHP 파일 목록 조회
    */
   getPhpFiles() {
-    const pattern = path.join(this.sourceDir, '**/*.php');
-    return glob.sync(pattern, { ignore: '**/node_modules/**' });
+    // glob은 포워드 슬래시를 사용해야 함 (Windows 경로 호환성)
+    const pattern = this.sourceDir.replace(/\\/g, '/') + '/**/*.php';
+    console.log(`[StringIndexer] 패턴: ${pattern}`);
+    console.log(`[StringIndexer] 디렉토리 존재: ${fs.existsSync(this.sourceDir)}`);
+    const files = glob.sync(pattern, { ignore: '**/node_modules/**' });
+    console.log(`[StringIndexer] 찾은 파일: ${files.length}개`);
+    if (files.length > 0) {
+      console.log(`[StringIndexer] 첫 파일: ${files[0]}`);
+    }
+    return files;
   }
 
   /**
