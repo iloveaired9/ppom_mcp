@@ -1,0 +1,65 @@
+{
+  "name": "php-string-finder",
+  "version": "1.0.0",
+  "description": "PHP 코드에서 문자열을 검색하고 색인화하는 플러그인. 함수 위치와 의존성 정보를 제공합니다.",
+  "type": "utility",
+  "author": "Claude",
+  "license": "MIT",
+  "main": "index.js",
+  "entry": "index.js",
+  "keywords": [
+    "php",
+    "string-search",
+    "code-analysis",
+    "indexing",
+    "dependencies"
+  ],
+  "commands": {
+    "search": {
+      "description": "PHP 코드에서 문자열 검색",
+      "usage": "search <searchTerm> [options]",
+      "options": {
+        "source": "소스 디렉토리 (기본: work/mobile)",
+        "type": "검색 타입 (search/function-content/comment)",
+        "limit": "결과 제한 (기본: 20)",
+        "case-sensitive": "대소문자 구분"
+      }
+    },
+    "index": {
+      "description": "문자열 색인 생성",
+      "usage": "index [options]",
+      "options": {
+        "source": "소스 디렉토리 (기본: work/mobile)",
+        "force": "강제 재생성"
+      }
+    },
+    "analyze": {
+      "description": "색인 정보 분석",
+      "usage": "analyze"
+    }
+  },
+  "dependencies": {
+    "glob": "^9.3.0"
+  },
+  "configuration": {
+    "indexPath": "./plugins/php-string-finder/output/string-index.json",
+    "sourceDir": "work/mobile",
+    "batchSize": 50,
+    "cacheEnabled": true
+  },
+  "api": {
+    "version": "1.0.0",
+    "endpoints": [
+      "POST /execute",
+      "GET /status",
+      "POST /index",
+      "GET /search"
+    ]
+  },
+  "metadata": {
+    "createdAt": "2026-03-25",
+    "lastUpdated": "2026-03-25",
+    "stable": true,
+    "tested": true
+  }
+}

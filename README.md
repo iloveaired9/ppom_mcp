@@ -158,6 +158,20 @@ CSV, JSON, TSV 형식 자동 변환 내보내기
 ```
 PHP 5.6 코드를 현대 문법으로 자동 변환
 
+### /php-string-search - PHP 문자열 검색 ⭐ **NEW**
+```bash
+/php-string-search "옥션 책 정보"
+/php-string-search "get_url_data" --type function-content
+/php-string-search "TODO" --type comment --limit 50
+```
+PHP 코드에서 특정 문자열을 검색하여 위치, 함수명, 의존성 표시
+
+**기능**:
+- 📄 문자열 리터럴 검색
+- 🔗 함수 자동 파악
+- 👥 의존성 정보 표시
+- 💾 색인화로 빠른 검색
+
 ---
 
 ## 🔍 PHP 코드 분석 & 쿼리 추출
@@ -290,14 +304,15 @@ npm run ppom                          # ppomppu-crawler (포트 3008)
 npm run myawsdb                       # myawsdb (포트 3010)
 
 # PHP 코드 분석 (색인 생성)
-npm run php:index:build               # 색인 생성 (기본)
-npm run php:index:build --            # 색인 생성 + 옵션
-  --source work/mobile --force        # 소스 경로 + 강제 재생성
-
-# PHP 색인 검색
+npm run php:index:build               # 심볼 색인 생성
 npm run php:index:search              # 심볼 검색
-npm run php:index:info                # 심볼 정보 조회
 npm run php:index:deps                # 의존성 분석
+
+# PHP 문자열 검색 ⭐ NEW
+npm run php:string:search search "옥션"         # 문자열 검색
+npm run php:string:index                        # 문자열 색인 생성
+npm run php:string:analyze                      # 색인 분석
+npm run php:string:list                         # 색인된 문자열 목록
 
 # 대시보드
 npm run dashboard                     # System Dashboard (포트 3000)

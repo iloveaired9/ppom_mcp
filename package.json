@@ -32,6 +32,10 @@
     "php:index:goto": "node plugins/php-index-generator/index.js goto",
     "php:index:refs": "node plugins/php-index-generator/index.js refs",
     "php:index:deps": "node plugins/php-index-generator/index.js deps",
+    "php:string:search": "node plugins/php-string-finder/index.js",
+    "php:string:index": "node plugins/php-string-finder/index.js index",
+    "php:string:analyze": "node plugins/php-string-finder/index.js analyze",
+    "php:string:list": "node plugins/php-string-finder/index.js list",
     "php:dashboard": "node mcp-servers/php-index-dashboard.js",
     "php:dashboard:dev": "nodemon mcp-servers/php-index-dashboard.js"
   },
