@@ -13,6 +13,37 @@ class PHPIndexService {
     this.cliPath = path.join(__dirname, '../../../plugins/php-index-generator/index.js');
     this.cache = new Map();
     this.cacheExpiry = 5 * 60 * 1000; // 5분
+    this.codeIndex = null; // code-index.json (lazy load)
+    this.codeIndexPath = path.join(__dirname, '../../../plugins/php-index-generator/output/code-index.json');
+  }
+
+  /**
+   * code-index.json을 로드합니다 (선택적).
+   * @returns {Promise<object|null>} code-index 객체 또는 null
+   */
+  async loadCodeIndex() {
+    // 이미 로드되었으면 반환
+    if (this.codeIndex !== null) {
+      return this.codeIndex;
+    }
+
+    try {
+      // 파일 존재 확인
+      if (!fs.existsSync(this.codeIndexPath)) {
+        console.debug('[PHPIndexService] code-index.json이 없습니다. API에서 원본 파일을 파싱합니다.');
+        return null;
+      }
+
+      // 파일 읽기
+      const content = fs.readFileSync(this.codeIndexPath, 'utf8');
+      this.codeIndex = JSON.parse(content);
+      console.debug('[PHPIndexService] code-index.json 로드 완료');
+      return this.codeIndex;
+    } catch (error) {
+      console.warn(`[PHPIndexService] code-index 로드 실패: ${error.message}`);
+      this.codeIndex = null; // 실패하면 null 설정
+      return null;
+    }
   }
 
   /**
@@ -324,6 +355,28 @@ class PHPIndexService {
    */
   async getCode(symbol) {
     try {
+      // 0. code-index.json에서 먼저 조회 (매우 빠름)
+      try {
+        const codeIndex = await this.loadCodeIndex();
+        if (codeIndex && codeIndex.symbols && codeIndex.symbols[symbol]) {
+          const codeData = codeIndex.symbols[symbol];
+          console.debug(`[PHPIndexService] code-index에서 로드: ${symbol}`);
+          return {
+            success: true,
+            symbol: symbol,
+            code: codeData.code,
+            file: codeData.file,
+            startLine: codeData.startLine,
+            endLine: codeData.endLine,
+            type: codeData.type,
+            language: 'php',
+            cached: 'code-index'
+          };
+        }
+      } catch (err) {
+        console.debug(`[PHPIndexService] code-index 조회 실패: ${err.message}`);
+      }
+
       // 1. 색인 파일 로드
       const indexPath = path.join(__dirname, '../../../plugins/php-index-generator/output/index.json');
       if (!fs.existsSync(indexPath)) {

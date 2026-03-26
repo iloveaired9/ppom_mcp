@@ -221,9 +221,14 @@ class IndexBuilder {
       // 8. 색인 저장
       await this.writeIndex(index);
 
+      // 9. code-index.json 생성 (함수 본문 저장) - TODO: allSymbols 데이터 수집 필요
+      // if (verbose) console.log('📝 코드 색인 생성 중...');
+      // const codeIndex = this.buildCodeIndex(allSymbols, mergedIndex.symbols);
+      // await this.writeCodeIndex(codeIndex);
+
       if (verbose) console.log('🗄️  캐시 업데이트 중...');
 
-      // 9. 캐시 업데이트
+      // 10. 캐시 업데이트
       const cacheData = {
         files: mergedIndex.fileCache,
         version: '1.0.0'
@@ -346,6 +351,17 @@ class IndexBuilder {
     try {
       const result = await this.parser.parseFile(filePath);
 
+      // 함수 본문 추출 (code-index.json용)
+      try {
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const codeBodies = this.extractCodeBodies(fileContent, result.symbols);
+        result.codeBodies = codeBodies;
+      } catch (codeError) {
+        // 코드 추출 실패해도 계속 진행
+        console.warn(`[WARN] 코드 추출 실패 (${filePath}): ${codeError.message}`);
+        result.codeBodies = {};
+      }
+
       // 파일 크기가 크면 메모리 정리 강제 실행
       const stats = fs.statSync(filePath);
       if (stats.size > 1024 * 1024) { // 1MB 이상
@@ -357,8 +373,66 @@ class IndexBuilder {
       return result;
     } catch (error) {
       console.warn(`[WARN] 파일 처리 실패 (${filePath}): ${error.message}`);
-      return { symbols: [], includes: [] };
+      return { symbols: [], includes: [], codeBodies: {} };
     }
+  }
+
+  /**
+   * 파일에서 심볼들의 코드 본문을 추출합니다.
+   * @param {string} fileContent - 파일 내용
+   * @param {array} symbols - 추출된 심볼 배열
+   * @returns {object} 심볼별 코드 본문 { symbolName: { type, startLine, endLine, code } }
+   */
+  extractCodeBodies(fileContent, symbols) {
+    const codeBodies = {};
+
+    for (const symbol of symbols) {
+      try {
+        let code = '';
+        let startLine = symbol.line;
+        let endLine = symbol.line;
+
+        if (symbol.type === 'function') {
+          // 함수 본문 추출
+          code = this.parser.extractFunctionBody(fileContent, symbol.name);
+          if (code) {
+            const lines = fileContent.substring(0, fileContent.indexOf(code)).split('\n').length;
+            startLine = lines;
+            endLine = lines + code.split('\n').length - 1;
+          }
+        } else if (symbol.type === 'method') {
+          // 메서드 본문 추출
+          code = this.parser.extractMethodBody(fileContent, symbol.name);
+          if (code) {
+            const lines = fileContent.substring(0, fileContent.indexOf(code)).split('\n').length;
+            startLine = lines;
+            endLine = lines + code.split('\n').length - 1;
+          }
+        } else if (symbol.type === 'class') {
+          // 클래스 본문 추출 (최대 200줄)
+          code = this.parser.extractClassBody(fileContent, symbol.name, 200);
+          if (code) {
+            const lines = fileContent.substring(0, fileContent.indexOf(code)).split('\n').length;
+            startLine = lines;
+            endLine = lines + code.split('\n').length - 1;
+          }
+        }
+
+        if (code) {
+          codeBodies[symbol.name] = {
+            type: symbol.type,
+            startLine,
+            endLine,
+            code: code
+          };
+        }
+      } catch (err) {
+        // 개별 심볼 코드 추출 실패해도 계속
+        console.warn(`[WARN] 심볼 코드 추출 실패 (${symbol.name}): ${err.message}`);
+      }
+    }
+
+    return codeBodies;
   }
 
   /**
@@ -458,6 +532,75 @@ class IndexBuilder {
     } catch (error) {
       console.error(`[ERROR] 색인 저장 실패: ${error.message}`);
       throw error;
+    }
+  }
+
+  /**
+   * 코드 색인을 생성합니다 (함수 본문 포함).
+   * @param {array} allSymbols - 모든 파일의 심볼 데이터
+   * @param {object} mergedSymbols - 병합된 심볼 데이터 (FQCN 기반)
+   * @returns {object} 코드 색인
+   */
+  buildCodeIndex(allSymbols, mergedSymbols) {
+    const codeIndex = {
+      version: '1.0.0',
+      generated: new Date().toISOString(),
+      metadata: {
+        sourceDir: this.options.sourceDir,
+        totalSymbols: Object.keys(mergedSymbols).length,
+        buildTime: Date.now() - this.startTime
+      },
+      symbols: {}
+    };
+
+    // 모든 파일에서 코드 본문 수집
+    for (const fileData of allSymbols) {
+      if (!fileData.codeBodies) continue;
+
+      const filePath = fileData.file;
+      const relativePath = path.relative(this.options.sourceDir, filePath);
+
+      for (const [symbolName, codeBody] of Object.entries(fileData.codeBodies)) {
+        // FQCN = 파일명::심볼명
+        const fqcn = `${relativePath}::${symbolName}`;
+
+        // mergedSymbols에서 해당 심볼 찾기
+        if (mergedSymbols[fqcn]) {
+          codeIndex.symbols[fqcn] = {
+            name: symbolName,
+            type: codeBody.type,
+            file: filePath,
+            startLine: codeBody.startLine,
+            endLine: codeBody.endLine,
+            code: codeBody.code
+          };
+        }
+      }
+    }
+
+    return codeIndex;
+  }
+
+  /**
+   * 코드 색인을 파일로 저장합니다.
+   * @param {object} codeIndex - 코드 색인
+   */
+  async writeCodeIndex(codeIndex) {
+    try {
+      // 출력 디렉토리 생성
+      if (!fs.existsSync(this.options.outputDir)) {
+        fs.mkdirSync(this.options.outputDir, { recursive: true });
+      }
+
+      const outputPath = path.join(this.options.outputDir, 'code-index.json');
+      const content = JSON.stringify(codeIndex, null, 2);
+      fs.writeFileSync(outputPath, content, 'utf8');
+
+      const stats = fs.statSync(outputPath);
+      console.log(`✓ code-index.json 생성: ${(stats.size / 1024 / 1024).toFixed(2)}MB`);
+    } catch (error) {
+      console.warn(`[WARN] 코드 색인 저장 실패: ${error.message}`);
+      // 코드 색인 생성 실패는 빌드 실패로 취급하지 않음
     }
   }
 

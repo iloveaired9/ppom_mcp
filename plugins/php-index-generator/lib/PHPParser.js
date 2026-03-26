@@ -334,6 +334,140 @@ class PHPParser {
   }
 
   /**
+   * 메서드 본문을 추출합니다.
+   * @param {string} content - PHP 코드
+   * @param {string} methodName - 메서드명
+   * @param {string} className - 클래스명 (메서드가 속한 클래스)
+   * @returns {string} 메서드 본문 (중괄호 포함)
+   */
+  extractMethodBody(content, methodName, className = null) {
+    // public/protected/private function methodName( ... ) { ... }
+    const pattern = new RegExp(
+      `(?:public|protected|private)?\\s+(?:static\\s+)?function\\s+${methodName}\\s*\\([^)]*\\)\\s*\\{`,
+      'i'
+    );
+
+    const match = pattern.exec(content);
+    if (!match) return '';
+
+    let braceCount = 0;
+    let startIndex = match.index + match[0].length - 1; // 시작 중괄호 위치
+    let endIndex = startIndex;
+    let inString = false;
+    let stringChar = '';
+
+    // 중괄호 매칭으로 메서드 본문 끝 찾기
+    for (let i = startIndex; i < content.length; i++) {
+      const char = content[i];
+
+      // 문자열 처리
+      if (!inString && (char === '"' || char === "'")) {
+        inString = true;
+        stringChar = char;
+        continue;
+      } else if (inString && char === stringChar && content[i - 1] !== '\\') {
+        inString = false;
+        continue;
+      }
+
+      if (!inString) {
+        if (char === '{') {
+          braceCount++;
+        } else if (char === '}') {
+          braceCount--;
+          if (braceCount === 0) {
+            endIndex = i;
+            break;
+          }
+        }
+      }
+    }
+
+    return content.substring(startIndex, endIndex + 1);
+  }
+
+  /**
+   * 클래스 본문을 추출합니다.
+   * @param {string} content - PHP 코드
+   * @param {string} className - 클래스명
+   * @param {number} maxLines - 최대 라인 수 (기본값: 200, 매우 큰 클래스의 경우)
+   * @returns {string} 클래스 본문 (중괄호 포함)
+   */
+  extractClassBody(content, className, maxLines = 200) {
+    // class ClassName { ... }
+    const pattern = new RegExp(
+      `(?:abstract\\s+)?(?:final\\s+)?class\\s+${className}\\s*(?:extends\\s+\\w+)?\\s*(?:implements\\s+[\\w,\\s]+)?\\s*\\{`,
+      'i'
+    );
+
+    const match = pattern.exec(content);
+    if (!match) return '';
+
+    let braceCount = 0;
+    let startIndex = match.index + match[0].length - 1; // 시작 중괄호 위치
+    let endIndex = startIndex;
+    let inString = false;
+    let stringChar = '';
+    let lineCount = 0;
+
+    // 중괄호 매칭으로 클래스 본문 끝 찾기
+    for (let i = startIndex; i < content.length; i++) {
+      const char = content[i];
+
+      // 라인 수 확인
+      if (char === '\n') {
+        lineCount++;
+        if (lineCount > maxLines) {
+          // 최대 라인을 초과하면 여기서 끝냄
+          endIndex = i;
+          break;
+        }
+      }
+
+      // 문자열 처리
+      if (!inString && (char === '"' || char === "'")) {
+        inString = true;
+        stringChar = char;
+        continue;
+      } else if (inString && char === stringChar && content[i - 1] !== '\\') {
+        inString = false;
+        continue;
+      }
+
+      if (!inString) {
+        if (char === '{') {
+          braceCount++;
+        } else if (char === '}') {
+          braceCount--;
+          if (braceCount === 0) {
+            endIndex = i;
+            break;
+          }
+        }
+      }
+    }
+
+    return content.substring(startIndex, endIndex + 1);
+  }
+
+  /**
+   * 라인 범위 기반으로 코드를 추출합니다.
+   * @param {string} content - PHP 코드
+   * @param {number} startLine - 시작 라인 (1부터 시작)
+   * @param {number} endLine - 종료 라인 (포함)
+   * @returns {string} 추출된 코드
+   */
+  extractCodeRange(content, startLine, endLine) {
+    const lines = content.split('\n');
+
+    // 1-indexed를 0-indexed로 변환
+    const start = Math.max(0, startLine - 1);
+    const end = Math.min(lines.length, endLine);
+
+    return lines.slice(start, end).join('\n');
+  }
+
+  /**
    * PHP 코드의 함수 호출을 추출합니다.
    * @param {string} content - PHP 코드
    * @param {string} sourceFunction - 어느 함수에서 호출되는지 (선택사항)
