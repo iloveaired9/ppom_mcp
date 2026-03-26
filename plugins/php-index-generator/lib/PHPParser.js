@@ -119,8 +119,39 @@ class PHPParser {
       // 함수 호출 추출 (파일 레벨)
       const functionCalls = this.extractFunctionCalls(cleanContent);
 
+      // 클래스 메서드들을 별도의 심볼로 추출
+      const methods = [];
+      for (const classSymbol of classes) {
+        if (classSymbol.methods) {
+          for (const [methodName, methodInfo] of Object.entries(classSymbol.methods)) {
+            methods.push({
+              name: methodName,
+              type: 'method',
+              line: methodInfo.line,
+              visibility: methodInfo.visibility,
+              className: classSymbol.name
+            });
+          }
+        }
+      }
+
+      // 인터페이스 메서드들도 추출
+      const interfaceMethods = [];
+      for (const interfaceSymbol of interfaces) {
+        if (interfaceSymbol.methods) {
+          for (const [methodName, methodInfo] of Object.entries(interfaceSymbol.methods)) {
+            interfaceMethods.push({
+              name: methodName,
+              type: 'method',
+              line: methodInfo.line,
+              interfaceName: interfaceSymbol.name
+            });
+          }
+        }
+      }
+
       // 모든 심볼 합치기
-      const symbols = [...classes, ...interfaces, ...traits, ...functions];
+      const symbols = [...classes, ...interfaces, ...traits, ...functions, ...methods, ...interfaceMethods];
 
       // 각 심볼별 호출 관계 분석 (함수 레벨)
       const symbolCallMap = this.buildSymbolCallMap(cleanContent, symbols);
