@@ -223,7 +223,17 @@
       "Bash(node ../../.claude/skills/php-query/scripts/extract-queries.js \"ppomppu/zboard/zboard.php\")",
       "Bash(__NEW_LINE_76d385bfe728c3bc__ echo:*)",
       "Bash(__NEW_LINE_a8883f4653a7d8b2__ cd:*)",
-      "Bash(__NEW_LINE_a8883f4653a7d8b2__ echo:*)"
+      "Bash(__NEW_LINE_a8883f4653a7d8b2__ echo:*)",
+      "Bash(taskkill //PID 4592 //F)",
+      "Bash(npx ccusage:*)",
+      "Bash(find C:rndclaudemcpppom_mcp -name *.pindex -o -name *index* -type f)",
+      "Bash(dir \"C:\\\\rnd\\\\claude\\\\mcp\\\\ppom_mcp\\\\plugins\\\\php-index-generator\\\\output\" \")",
+      "Bash(find C:rndclaudemcpppom_mcppluginsphp-index-generator -name *.json -type f)",
+      "Bash(find C:rndclaudemcpppom_mcppluginsphp-index-generatoroutput -type f -exec wc -l {} +)",
+      "Bash(taskkill /F /PID 26480)",
+      "Bash(node -e \"const r = require\\(''./mcp-servers/php-index-dashboard/routes/index''\\); console.log\\(r.stack.filter\\(x => x.route && x.route.path.includes\\(''progress''\\)\\).length\\)\")",
+      "Bash(node -e \"const ctrl = require\\(''./mcp-servers/php-index-dashboard/controllers/indexController''\\); console.log\\(typeof ctrl.getRebuildProgress, typeof ctrl.getIndexStatus\\)\")",
+      "Bash(node -e \"const r = require\\(''./mcp-servers/php-index-dashboard/routes/index''\\); r.stack.filter\\(x => x.route\\).forEach\\(x => console.log\\(x.route.methods, x.route.path\\)\\)\")"
     ]
   }
 }

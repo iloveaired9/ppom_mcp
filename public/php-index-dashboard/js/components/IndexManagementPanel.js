@@ -365,23 +365,47 @@ class IndexManagementPanel {
       if (data.success) {
         this.showSuccess('색인 재생성이 시작되었습니다');
 
-        // 진행률 시뮬레이션
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress += Math.random() * 15;
-          if (progress > 95) progress = 95;
+        // 실시간 진행률 폴링
+        let pollCount = 0;
+        const pollInterval = setInterval(async () => {
+          try {
+            pollCount++;
+            const progressRes = await fetch('/api/index/progress');
+            const progressData = await progressRes.json();
 
-          document.getElementById('progress-fill').style.width = Math.floor(progress) + '%';
-          document.getElementById('progress-percent').textContent = Math.floor(progress) + '%';
+            if (progressData.success && progressData.data) {
+              const progress = progressData.data.progress;
+              const status = progressData.data.status;
+              const currentFile = progressData.data.currentFile || '';
 
-          if (progress > 95) {
-            clearInterval(interval);
-            this.loadStatus();
+              // UI 업데이트
+              document.getElementById('progress-fill').style.width = progress + '%';
+              document.getElementById('progress-percent').textContent = progress + '%';
+
+              // 콘솔 로그
+              console.log(`[Rebuild Progress] ${progress}% - ${currentFile} (${status})`);
+
+              // 완료 시 폴링 종료
+              if (status === 'completed' || status === 'failed' || progress >= 100) {
+                clearInterval(pollInterval);
+                setTimeout(() => {
+                  this.loadStatus();
+                  document.getElementById('rebuild-progress').style.display = 'none';
+                }, 500);
+              }
+            }
+
+            // 타임아웃 방지: 30분 이상 폴링하지 않기
+            if (pollCount > 3600) {
+              clearInterval(pollInterval);
+              this.showError('재색인 진행중 타임아웃이 발생했습니다');
+              this.loadStatus();
+            }
+          } catch (error) {
+            console.error('Progress polling error:', error);
+            // 계속 폴링 (네트워크 오류 가능)
           }
         }, 500);
-
-        // 5초 후 상태 재확인
-        setTimeout(() => this.loadStatus(), 5000);
       } else {
         this.showError(data.error || '재색인 시작 실패');
       }
@@ -408,23 +432,47 @@ class IndexManagementPanel {
       if (data.success) {
         this.showSuccess(`"${sourceDir}" 경로의 색인 재생성이 시작되었습니다`);
 
-        // 진행률 시뮬레이션
-        let progress = 0;
-        const interval = setInterval(() => {
-          progress += Math.random() * 15;
-          if (progress > 95) progress = 95;
+        // 실시간 진행률 폴링
+        let pollCount = 0;
+        const pollInterval = setInterval(async () => {
+          try {
+            pollCount++;
+            const progressRes = await fetch('/api/index/progress');
+            const progressData = await progressRes.json();
 
-          document.getElementById('progress-fill').style.width = Math.floor(progress) + '%';
-          document.getElementById('progress-percent').textContent = Math.floor(progress) + '%';
+            if (progressData.success && progressData.data) {
+              const progress = progressData.data.progress;
+              const status = progressData.data.status;
+              const currentFile = progressData.data.currentFile || '';
 
-          if (progress > 95) {
-            clearInterval(interval);
-            this.loadStatus();
+              // UI 업데이트
+              document.getElementById('progress-fill').style.width = progress + '%';
+              document.getElementById('progress-percent').textContent = progress + '%';
+
+              // 콘솔 로그
+              console.log(`[Rebuild Progress] ${progress}% - ${currentFile} (${status})`);
+
+              // 완료 시 폴링 종료
+              if (status === 'completed' || status === 'failed' || progress >= 100) {
+                clearInterval(pollInterval);
+                setTimeout(() => {
+                  this.loadStatus();
+                  document.getElementById('rebuild-progress').style.display = 'none';
+                }, 500);
+              }
+            }
+
+            // 타임아웃 방지: 30분 이상 폴링하지 않기
+            if (pollCount > 3600) {
+              clearInterval(pollInterval);
+              this.showError('재색인 진행중 타임아웃이 발생했습니다');
+              this.loadStatus();
+            }
+          } catch (error) {
+            console.error('Progress polling error:', error);
+            // 계속 폴링 (네트워크 오류 가능)
           }
         }, 500);
-
-        // 5초 후 상태 재확인
-        setTimeout(() => this.loadStatus(), 5000);
       } else {
         this.showError(data.error || '재색인 시작 실패');
       }

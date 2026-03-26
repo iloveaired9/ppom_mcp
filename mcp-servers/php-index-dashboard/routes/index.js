@@ -33,7 +33,7 @@ router.get('/deps/trace', depsController.getTrace);
 
 // 통계 API
 router.get('/stats', statsController.getStats);
-router.post('/index/rebuild', statsController.rebuildIndex);
+// router.post('/index/rebuild', statsController.rebuildIndex); // 주석: indexController.rebuildIndex 사용
 
 // 코드 뷰어 API - 테스트 엔드포인트
 router.get('/code-test/:symbol', (req, res) => {
@@ -106,6 +106,9 @@ router.get('/index/stats', indexController.getIndexStats.bind(indexController));
 
 // 색인 재생성
 router.post('/index/rebuild', indexController.rebuildIndex.bind(indexController));
+
+// 색인 재생성 진행상황 조회
+router.get('/index/progress', indexController.getRebuildProgress.bind(indexController));
 
 // 캐시 삭제
 router.delete('/index/cache', indexController.clearCache.bind(indexController));

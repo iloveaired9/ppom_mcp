@@ -21,6 +21,16 @@ class IndexController {
     this.cachePath = CACHE_PATH;
     this.stringIndexPath = STRING_INDEX_PATH;
     this.rebuilding = false;
+    this.rebuildProgress = {
+      status: 'idle', // idle, running, completed
+      progress: 0,
+      totalFiles: 0,
+      processedFiles: 0,
+      currentFile: '',
+      startTime: null,
+      estimatedTime: null,
+      elapsedTime: null
+    };
   }
 
   /**
@@ -148,9 +158,22 @@ class IndexController {
 
       this.rebuilding = true;
       const forceFlag = req.body?.force ? '--force' : '';
+      const sourceDir = req.body?.sourceDir || 'work/mobile';
+
+      // 진행상황 초기화
+      this.rebuildProgress = {
+        status: 'running',
+        progress: 0,
+        totalFiles: 0,
+        processedFiles: 0,
+        currentFile: '준비 중...',
+        startTime: Date.now(),
+        estimatedTime: null,
+        elapsedTime: 0
+      };
 
       // 비동기로 재색인 실행
-      const command = `cd ${path.join(__dirname, '../../..')} && npm run php:index:build -- --source work/mobile ${forceFlag}`;
+      const command = `cd ${path.join(__dirname, '../../..')} && npm run php:index:build -- --source ${sourceDir} ${forceFlag}`;
 
       res.json({
         success: true,
@@ -162,18 +185,59 @@ class IndexController {
       execAsync(command)
         .then(() => {
           this.rebuilding = false;
+          this.rebuildProgress.status = 'completed';
+          this.rebuildProgress.progress = 100;
           console.log('✅ 색인 재생성 완료');
         })
         .catch(error => {
           this.rebuilding = false;
+          this.rebuildProgress.status = 'failed';
+          this.rebuildProgress.error = error.message;
           console.error('❌ 색인 재생성 실패:', error.message);
         });
 
     } catch (error) {
       this.rebuilding = false;
+      this.rebuildProgress.status = 'failed';
       res.status(500).json({
         success: false,
         error: error.message || '색인 재생성 시작 실패'
+      });
+    }
+  }
+
+  /**
+   * 색인 재생성 진행상황 조회
+   */
+  async getRebuildProgress(req, res) {
+    try {
+      // 색인 파일 현재 크기 확인 (진행상황 추정)
+      if (this.rebuilding && fs.existsSync(this.indexPath)) {
+        const stats = fs.statSync(this.indexPath);
+        const currentSize = stats.size;
+
+        // 크기 기반 진행률 계산 (대략적)
+        // 일반적으로 최종 색인 크기는 11-12MB
+        const estimatedFinalSize = 12 * 1024 * 1024;
+        const sizeBasedProgress = Math.min(Math.floor((currentSize / estimatedFinalSize) * 90), 90);
+
+        // 경과 시간 기반 진행률
+        const elapsedTime = Date.now() - this.rebuildProgress.startTime;
+        this.rebuildProgress.elapsedTime = Math.floor(elapsedTime / 1000); // 초 단위
+
+        // 진행률 업데이트 (크기 기반과 경과 시간 기반의 평균)
+        this.rebuildProgress.progress = Math.max(sizeBasedProgress, Math.floor(elapsedTime / 50));
+        this.rebuildProgress.progress = Math.min(this.rebuildProgress.progress, 95); // 최대 95%
+      }
+
+      res.json({
+        success: true,
+        data: this.rebuildProgress
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message
       });
     }
   }
