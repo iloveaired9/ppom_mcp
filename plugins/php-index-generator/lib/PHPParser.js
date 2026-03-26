@@ -95,6 +95,7 @@ class PHPParser {
       const cleanContent = this.stripComments(phpContent);
 
       // 라인별로 처리하기 위해 라인 번호 추적
+      // 원본 content를 기준으로 라인 번호 계산 (정확한 파일 라인)
       const lines = content.split('\n');
       const cleanLines = cleanContent.split('\n');
 
@@ -102,16 +103,22 @@ class PHPParser {
       const namespace = this.getNamespace(cleanContent);
 
       // 클래스 추출
-      const classes = this.extractClasses(cleanContent, lines);
+      // Note: Use phpContent (not cleanContent) for accurate line numbers!
+      // cleanContent has comments removed, which affects character positions
+      const classes = this.extractClasses(phpContent, lines);
 
       // 인터페이스 추출
-      const interfaces = this.extractInterfaces(cleanContent, lines);
+      // Note: Use phpContent (not cleanContent) for accurate line numbers!
+      const interfaces = this.extractInterfaces(phpContent, lines);
 
       // Trait 추출
-      const traits = this.extractTraits(cleanContent, lines);
+      // Note: Use phpContent (not cleanContent) for accurate line numbers!
+      const traits = this.extractTraits(phpContent, lines);
 
       // 함수 추출 (클래스 밖의 함수만)
-      const functions = this.extractFunctions(cleanContent, lines);
+      // Note: Use phpContent (not cleanContent) for accurate line numbers!
+      // cleanContent has comments removed, which affects character positions
+      const functions = this.extractFunctions(phpContent, lines);
 
       // include/require 추적
       const includes = this.extractIncludes(content, lines);
@@ -320,8 +327,9 @@ class PHPParser {
    */
   extractFunctionBody(content, functionName) {
     // function functionName( ... ) { ... }
+    // 단어 경계를 추가하여 autolink5 와 autolink5_callback 구분
     const pattern = new RegExp(
-      `function\\s+${functionName}\\s*\\([^)]*\\)\\s*\\{`,
+      `function\\s+${functionName}\\b\\s*\\([^)]*\\)\\s*\\{`,
       'i'
     );
 
@@ -373,8 +381,9 @@ class PHPParser {
    */
   extractMethodBody(content, methodName, className = null) {
     // public/protected/private function methodName( ... ) { ... }
+    // 단어 경계를 추가하여 메서드 이름 정확히 매칭
     const pattern = new RegExp(
-      `(?:public|protected|private)?\\s+(?:static\\s+)?function\\s+${methodName}\\s*\\([^)]*\\)\\s*\\{`,
+      `(?:public|protected|private)?\\s+(?:static\\s+)?function\\s+${methodName}\\b\\s*\\([^)]*\\)\\s*\\{`,
       'i'
     );
 
@@ -426,8 +435,9 @@ class PHPParser {
    */
   extractClassBody(content, className, maxLines = 200) {
     // class ClassName { ... }
+    // 단어 경계를 추가하여 클래스 이름 정확히 매칭
     const pattern = new RegExp(
-      `(?:abstract\\s+)?(?:final\\s+)?class\\s+${className}\\s*(?:extends\\s+\\w+)?\\s*(?:implements\\s+[\\w,\\s]+)?\\s*\\{`,
+      `(?:abstract\\s+)?(?:final\\s+)?class\\s+${className}\\b\\s*(?:extends\\s+\\w+)?\\s*(?:implements\\s+[\\w,\\s]+)?\\s*\\{`,
       'i'
     );
 

@@ -355,11 +355,34 @@ class PHPIndexService {
    */
   async getCode(symbol) {
     try {
+      // Debug logging
+      const fs = require('fs');
+      const debugPath = 'C:/temp/code_debug.log';
+      const debugMsg = `[${new Date().toISOString()}] getCode called with symbol (JSON): ${JSON.stringify(symbol)}\n`;
+      try {
+        fs.appendFileSync(debugPath, debugMsg, 'utf8');
+      } catch (e) {
+        console.error('[PHPIndexService] Debug log write failed:', e.message);
+      }
+
       // 0. code-index.json에서 먼저 조회 (매우 빠름)
       try {
         const codeIndex = await this.loadCodeIndex();
+        const codeIndexMsg = `[${new Date().toISOString()}] code-index loaded, symbols count: ${codeIndex ? Object.keys(codeIndex.symbols || {}).length : 0}\n`;
+        try {
+          fs.appendFileSync(debugPath, codeIndexMsg, 'utf8');
+        } catch (e) {
+          console.error('[PHPIndexService] Debug log write failed:', e.message);
+        }
+
         if (codeIndex && codeIndex.symbols && codeIndex.symbols[symbol]) {
           const codeData = codeIndex.symbols[symbol];
+          const successMsg = `[${new Date().toISOString()}] Found in code-index: ${symbol}, code length: ${codeData.code.length}\n`;
+          try {
+            fs.appendFileSync(debugPath, successMsg, 'utf8');
+          } catch (e) {
+            console.error('[PHPIndexService] Debug log write failed:', e.message);
+          }
           console.debug(`[PHPIndexService] code-index에서 로드: ${symbol}`);
           return {
             success: true,
@@ -372,8 +395,21 @@ class PHPIndexService {
             language: 'php',
             cached: 'code-index'
           };
+        } else {
+          const notFoundMsg = `[${new Date().toISOString()}] Symbol NOT found in code-index (available: ${codeIndex ? Object.keys(codeIndex.symbols || {}).filter(k => k.includes('autolink5') && k.includes('ajax_article')).slice(0, 3).join(', ') : 'N/A'})\n`;
+          try {
+            fs.appendFileSync(debugPath, notFoundMsg, 'utf8');
+          } catch (e) {
+            console.error('[PHPIndexService] Debug log write failed:', e.message);
+          }
         }
       } catch (err) {
+        const errMsg = `[${new Date().toISOString()}] code-index 조회 실패: ${err.message}\n`;
+        try {
+          fs.appendFileSync(debugPath, errMsg, 'utf8');
+        } catch (e) {
+          console.error('[PHPIndexService] Debug log write failed:', e.message);
+        }
         console.debug(`[PHPIndexService] code-index 조회 실패: ${err.message}`);
       }
 

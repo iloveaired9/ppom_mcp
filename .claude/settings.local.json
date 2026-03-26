@@ -233,7 +233,22 @@
       "Bash(taskkill /F /PID 26480)",
       "Bash(node -e \"const r = require\\(''./mcp-servers/php-index-dashboard/routes/index''\\); console.log\\(r.stack.filter\\(x => x.route && x.route.path.includes\\(''progress''\\)\\).length\\)\")",
       "Bash(node -e \"const ctrl = require\\(''./mcp-servers/php-index-dashboard/controllers/indexController''\\); console.log\\(typeof ctrl.getRebuildProgress, typeof ctrl.getIndexStatus\\)\")",
-      "Bash(node -e \"const r = require\\(''./mcp-servers/php-index-dashboard/routes/index''\\); r.stack.filter\\(x => x.route\\).forEach\\(x => console.log\\(x.route.methods, x.route.path\\)\\)\")"
+      "Bash(node -e \"const r = require\\(''./mcp-servers/php-index-dashboard/routes/index''\\); r.stack.filter\\(x => x.route\\).forEach\\(x => console.log\\(x.route.methods, x.route.path\\)\\)\")",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(f✅ Index Status: {d[''''data''''][''''exists'''']}\\); print\\(f   Files: {d[''''data''''][''''symbols'''']}, Size: {d[''''data''''][''''size'''']}\\)\")",
+      "Bash(ls -lh /c/rnd/claude/mcp/ppom_mcp/plugins/php-index-generator/output/*.json)",
+      "Bash(ls -lh plugins/php-index-generator/output/*.json)",
+      "Bash(grep -o 'work\\\\\\\\[^\"\"\"\"]*\\\\.\\(php|inc\\)' plugins/php-index-generator/output/code-index.json)",
+      "Bash(grep -E '\\(inc|php\\)$')",
+      "Bash(grep -o \"common\\\\\\\\lib\\\\\\\\libraries\\\\\\\\class\\\\.Page_Cacher\\\\.inc::addComment\" plugins/php-index-generator/output/code-index.json)",
+      "Bash(ls -la /tmp/*.log)",
+      "Bash(node test-autolink5.js)",
+      "Bash(findstr node:*)",
+      "Bash(taskkill /PID 2852 /F)",
+      "Bash(node test-api.js)",
+      "Bash(xargs -I {} taskkill /PID {} /F)",
+      "Bash(taskkill /PID 2852 /F /T)",
+      "Bash(taskkill /F /IM npm.cmd)",
+      "Bash(do taskkill:*)"
     ]
   }
 }

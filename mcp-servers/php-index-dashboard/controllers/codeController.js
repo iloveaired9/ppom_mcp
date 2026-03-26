@@ -21,13 +21,29 @@ function getCacheManager() {
  */
 async function getCode(req, res) {
   const fs = require('fs');
+  const debugPath = 'C:/temp/code_debug.log';
   const logMsg = `[${new Date().toISOString()}] codeController.getCode called! params: ${JSON.stringify(req.params)}\n`;
-  fs.appendFileSync('/tmp/codeController.log', logMsg, 'utf8');
+  try {
+    fs.appendFileSync(debugPath, logMsg, 'utf8');
+  } catch (e) {
+    console.log('[codeController] Debug log write failed:', e.message);
+  }
   console.log(`[codeController] 진입: req.params =`, req.params);
 
   try {
     const { symbol } = req.params;
-    console.log(`[codeController] 추출된 symbol: ${symbol}`);
+    // Debug: log the symbol with proper escape sequences
+    const symbolDebug = JSON.stringify(symbol);
+    const logDebug = `[${new Date().toISOString()}] Symbol (JSON): ${symbolDebug}, length: ${symbol.length}, hex: ${Buffer.from(symbol).toString('hex')}\n`;
+    try {
+      fs.appendFileSync(debugPath, logDebug, 'utf8');
+    } catch (e) {
+      console.log('[codeController] Debug log 2 write failed:', e.message);
+    }
+    console.log(`[codeController] 추출된 symbol (JSON): ${symbolDebug}`);
+    console.log(`[codeController] 추출된 symbol (raw): ${symbol}`);
+    console.log(`[codeController] symbol length: ${symbol.length}`);
+    console.log(`[codeController] symbol bytes:`, Buffer.from(symbol).toString('hex'));
 
     if (!symbol) {
       return res.json({
