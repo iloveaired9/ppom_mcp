@@ -118,6 +118,7 @@ class IndexBuilder {
       const BATCH_SIZE = 10;
       let totalProcessed = 0;
       const batchStartTime = Date.now();
+      const allCodeBodies = []; // code-index 생성용 데이터 수집
 
       for (let batchStart = 0; batchStart < filesToProcess.length; batchStart += BATCH_SIZE) {
         const batchEnd = Math.min(batchStart + BATCH_SIZE, filesToProcess.length);
@@ -143,8 +144,17 @@ class IndexBuilder {
             file: filePath,
             symbols: fileSymbols.symbols || [],
             includes: fileSymbols.includes || [],
-            symbolCallMap: fileSymbols.symbolCallMap || {}
+            symbolCallMap: fileSymbols.symbolCallMap || {},
+            codeBodies: fileSymbols.codeBodies || {} // code-index용 함수 본문
           });
+
+          // code-index 생성용 codeBodies 수집
+          if (fileSymbols.codeBodies && Object.keys(fileSymbols.codeBodies).length > 0) {
+            allCodeBodies.push({
+              file: filePath,
+              codeBodies: fileSymbols.codeBodies
+            });
+          }
 
           if (fileSymbols.dependencies) {
             batchDependencies.push({
@@ -221,10 +231,10 @@ class IndexBuilder {
       // 8. 색인 저장
       await this.writeIndex(index);
 
-      // 9. code-index.json 생성 (함수 본문 저장) - TODO: allSymbols 데이터 수집 필요
-      // if (verbose) console.log('📝 코드 색인 생성 중...');
-      // const codeIndex = this.buildCodeIndex(allSymbols, mergedIndex.symbols);
-      // await this.writeCodeIndex(codeIndex);
+      // 9. code-index.json 생성 (함수 본문 저장)
+      if (verbose) console.log('📝 코드 색인 생성 중...');
+      const codeIndex = this.buildCodeIndex(allCodeBodies, mergedIndex.symbols);
+      await this.writeCodeIndex(codeIndex);
 
       if (verbose) console.log('🗄️  캐시 업데이트 중...');
 
