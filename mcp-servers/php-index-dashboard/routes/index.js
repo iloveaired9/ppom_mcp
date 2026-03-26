@@ -17,6 +17,7 @@ const statsController = require('../controllers/statsController');
 const codeController = require('../controllers/codeController');
 const queryController = require('../controllers/queryController');
 const stringController = require('../controllers/stringController');
+const indexController = require('../controllers/indexController');
 
 // 검색 API
 router.get('/search', searchController.search);
@@ -94,6 +95,23 @@ router.get('/string/stats', stringController.getStats);
 
 // 특정 문자열 상세 정보
 router.get('/string/detail', stringController.getDetail);
+
+// ========== Index Management API (NEW) ==========
+
+// 색인 상태 조회
+router.get('/index/status', indexController.getIndexStatus.bind(indexController));
+
+// 색인 통계 조회
+router.get('/index/stats', indexController.getIndexStats.bind(indexController));
+
+// 색인 재생성
+router.post('/index/rebuild', indexController.rebuildIndex.bind(indexController));
+
+// 캐시 삭제
+router.delete('/index/cache', indexController.clearCache.bind(indexController));
+
+// 색인 내보내기
+router.get('/index/export', indexController.exportIndex.bind(indexController));
 
 // ========== Health Check ==========
 
