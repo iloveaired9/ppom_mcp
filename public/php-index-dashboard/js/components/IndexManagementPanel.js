@@ -8,6 +8,7 @@ class IndexManagementPanel {
     this.container = document.getElementById(containerId);
     this.api = api;
     this.autoRefreshInterval = null;
+    this.foldersLoaded = false;
     this.init();
   }
 
@@ -15,12 +16,26 @@ class IndexManagementPanel {
     this.render();
     this.attachEventListeners();
     this.loadStatus();
-    this.loadSourceFolders();
+
+    // 폴더는 처음 필요할 때 로드 (지연 로드)
+    this.loadSourceFoldersLazy();
 
     // 10초마다 상태 자동 갱신
     this.autoRefreshInterval = setInterval(() => {
       this.loadStatus();
     }, 10000);
+  }
+
+  // 폴더를 지연 로드 (에러 방지)
+  loadSourceFoldersLazy() {
+    if (this.foldersLoaded) return;
+
+    // 500ms 후에 폴더 로드 (서버 준비 확인)
+    setTimeout(() => {
+      if (!this.foldersLoaded) {
+        this.loadSourceFolders();
+      }
+    }, 500);
   }
 
   render() {
@@ -271,9 +286,11 @@ class IndexManagementPanel {
 
       if (data.success && data.data.folders && data.data.folders.length > 0) {
         this.populateFolderSelect(data.data.folders);
+        this.foldersLoaded = true;
       }
     } catch (error) {
-      console.error('Folder loading error:', error);
+      // 조용히 실패 (지연 로드이므로 중대하지 않음)
+      console.debug('Folder loading deferred:', error.message);
     }
   }
 
