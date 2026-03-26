@@ -12,10 +12,11 @@
 
 | 기능 | 설명 | 포트 |
 |------|------|------|
+| **php-index-dashboard** | PHP 코드 인덱싱 및 대시보드 | 3012 |
 | **ppomppu-crawler** | 뽐뿌 게시판 크롤링 및 실시간 분석 | 3008 |
 | **myawsdb** | MySQL 데이터베이스 CRUD 작업 | 3010 |
 | **php-code-migrator** | PHP 5.6 레거시 코드 자동 변환 | - |
-| **claude-skills** | Claude Code 자동화 스킬 4개 | - |
+| **claude-skills** | Claude Code 자동화 스킬 6개 | - |
 
 ---
 
@@ -50,10 +51,14 @@ npm run myawsdb
 ```
 ppom_mcp/
 ├── mcp-servers/              # MCP 서버 구현
+│   ├── php-index-dashboard.js    # PHP 대시보드 (포트 3012)
 │   ├── ppomppu-crawler/      # 뽐뿌 크롤러 (포트 3008)
 │   └── myawsdb.js            # MySQL 데이터베이스 (포트 3010)
 │
 ├── .claude/skills/           # Claude Code 자동화 스킬
+│   ├── php-index/            # PHP 인덱싱 스킬
+│   ├── php-query/            # PHP SQL 쿼리 추출 스킬
+│   ├── php-string-search/    # PHP 문자열 검색 스킬
 │   ├── myawsdb/              # DB 쿼리 스킬
 │   ├── myawsdb-export/       # 데이터 내보내기 (CSV/JSON/TSV)
 │   ├── php-migrate/          # PHP 코드 마이그레이션
@@ -75,6 +80,30 @@ ppom_mcp/
 ---
 
 ## 🔌 MCP 서버 상세
+
+### php-index-dashboard (포트 3012)
+PHP 코드 인덱싱 및 대시보드 - 심볼 검색, 의존성 분석, SQL 쿼리 추출, 문자열 검색, 색인 관리
+
+```bash
+# 대시보드 접속
+http://localhost:3012
+
+# 기능
+- 💾 심볼 검색: 함수, 클래스, 메서드 검색
+- 📊 호출 그래프: 함수 호출 관계 시각화
+- 🔗 의존성 분석: 순환 의존성, 호출 체인 분석
+- 📁 폴더 관리: 소스 폴더 선택 및 재색인
+- 🗂️ 색인 상태: 파일 크기, 심볼 수, 커버리지 표시
+```
+
+**주요 기능**:
+- 🔍 PHP 심볼 인덱싱 및 검색
+- 📈 함수 호출 그래프 (Cytoscape.js)
+- 🔄 순환 의존성 감지
+- 🧹 캐시 관리 및 색인 재생성
+- 📥 색인 내보내기 (JSON/CSV)
+
+---
 
 ### ppomppu-crawler (포트 3008)
 뽐뿌 게시판 데이터 수집 및 실시간 분석
