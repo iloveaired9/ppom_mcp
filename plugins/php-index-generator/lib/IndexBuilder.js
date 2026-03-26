@@ -22,7 +22,7 @@ class IndexBuilder {
       outputDir: 'plugins/php-index-generator/output',
       cacheDir: '.claude/php-index-cache',
       excludePatterns: ['vendor/*', 'vendors/*', 'node_modules/*', 'tests/*', '*.tmp.php'],
-      includePatterns: ['**/*.php'],
+      includePatterns: ['**/*.php', '**/*.inc'],
       incremental: true,
       followSymlinks: false,
       ...options
