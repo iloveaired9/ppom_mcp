@@ -424,8 +424,22 @@
     flex-direction: column;
   }
 
+  .source-dir-select {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
   .source-dir-input {
     font-size: 12px;
     padding: 8px 10px;
+  }
+
+  .folder-list {
+    padding: 8px;
+  }
+
+  .folder-item {
+    padding: 6px;
+    font-size: 12px;
   }
 }

@@ -307,6 +307,91 @@ class IndexController {
 
     return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
   }
+
+  /**
+   * work 폴더 하위 디렉토리 목록 조회
+   */
+  async getSourceFolders(req, res) {
+    try {
+      const workDir = path.join(__dirname, '../../../work');
+
+      // work 폴더가 없으면 빈 배열 반환
+      if (!fs.existsSync(workDir)) {
+        return res.json({
+          success: true,
+          data: {
+            folders: [],
+            basePath: 'work'
+          }
+        });
+      }
+
+      // work 폴더의 모든 항목 읽기
+      const items = fs.readdirSync(workDir);
+      const folders = [];
+
+      // 폴더만 필터링 (파일 제외)
+      items.forEach(item => {
+        const itemPath = path.join(workDir, item);
+        try {
+          const stats = fs.statSync(itemPath);
+          if (stats.isDirectory()) {
+            folders.push({
+              name: item,
+              path: `work/${item}`,
+              fileCount: this.countFiles(itemPath),
+              lastModified: stats.mtime.toISOString()
+            });
+          }
+        } catch (error) {
+          // 접근 불가 폴더는 무시
+        }
+      });
+
+      res.json({
+        success: true,
+        data: {
+          folders: folders.sort((a, b) => a.name.localeCompare(b.name)),
+          basePath: 'work'
+        }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message || '폴더 목록 조회 실패'
+      });
+    }
+  }
+
+  /**
+   * 디렉토리 내 파일 개수 카운트
+   */
+  countFiles(dirPath, ext = '.php') {
+    try {
+      if (!fs.existsSync(dirPath)) return 0;
+
+      const items = fs.readdirSync(dirPath);
+      let count = 0;
+
+      items.forEach(item => {
+        const itemPath = path.join(dirPath, item);
+        try {
+          const stats = fs.statSync(itemPath);
+          if (stats.isFile() && item.endsWith(ext)) {
+            count++;
+          } else if (stats.isDirectory()) {
+            count += this.countFiles(itemPath, ext);
+          }
+        } catch (error) {
+          // 무시
+        }
+      });
+
+      return count;
+    } catch (error) {
+      return 0;
+    }
+  }
 }
 
 module.exports = new IndexController();

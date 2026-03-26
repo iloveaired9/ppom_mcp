@@ -15,6 +15,7 @@ class IndexManagementPanel {
     this.render();
     this.attachEventListeners();
     this.loadStatus();
+    this.loadSourceFolders();
 
     // 10초마다 상태 자동 갱신
     this.autoRefreshInterval = setInterval(() => {
@@ -106,19 +107,27 @@ class IndexManagementPanel {
         <div class="section">
           <h3>📂 소스 폴더 변경</h3>
           <div class="source-dir-input-group">
-            <input
-              type="text"
-              id="source-dir-input"
-              class="source-dir-input"
-              placeholder="예: work/mobile, /path/to/php/files"
-              value="work/mobile"
-            >
+            <select id="source-dir-select" class="source-dir-select">
+              <option value="">📁 폴더 선택...</option>
+            </select>
             <button id="btn-change-source" class="btn btn-secondary">
-              <span class="btn-icon">📁</span>
-              <span class="btn-text">경로 변경 및 재색인</span>
+              <span class="btn-icon">🔄</span>
+              <span class="btn-text">선택된 폴더 재색인</span>
             </button>
           </div>
-          <small class="help-text">새로운 소스 폴더 경로를 입력하고 버튼을 클릭하면 해당 폴더를 색인화합니다.</small>
+          <div id="folder-list" class="folder-list" style="display: none;"></div>
+          <small class="help-text">또는 직접 경로 입력:</small>
+          <input
+            type="text"
+            id="source-dir-input"
+            class="source-dir-input"
+            placeholder="예: work/ecommerce, /path/to/php/files"
+            value="work/mobile"
+          >
+          <button id="btn-custom-source" class="btn btn-outline">
+            <span class="btn-icon">✏️</span>
+            <span class="btn-text">커스텀 경로 재색인</span>
+          </button>
         </div>
 
         <!-- 관리 도구 -->
@@ -178,8 +187,19 @@ class IndexManagementPanel {
       }
     });
 
-    // 소스 폴더 변경 및 재색인 버튼
-    document.getElementById('btn-change-source').addEventListener('click', () => {
+    // 드롭다운에서 폴더 선택
+    document.getElementById('source-dir-select').addEventListener('change', (e) => {
+      if (e.target.value) {
+        const sourceDir = e.target.value;
+        if (confirm(`소스 폴더를 "${sourceDir}"로 변경하고 재색인하시겠습니까?\n이 작업은 시간이 걸릴 수 있습니다.`)) {
+          this.rebuildIndexWithSourceDir(sourceDir);
+          e.target.value = ''; // 선택 초기화
+        }
+      }
+    });
+
+    // 커스텀 경로 재색인 버튼
+    document.getElementById('btn-custom-source').addEventListener('click', () => {
       const sourceDir = document.getElementById('source-dir-input').value.trim();
       if (!sourceDir) {
         this.showError('소스 폴더 경로를 입력해주세요.');
@@ -242,6 +262,37 @@ class IndexManagementPanel {
     } catch (error) {
       console.error('Statistics loading error:', error);
     }
+  }
+
+  async loadSourceFolders() {
+    try {
+      const response = await fetch('/api/index/folders');
+      const data = await response.json();
+
+      if (data.success && data.data.folders && data.data.folders.length > 0) {
+        this.populateFolderSelect(data.data.folders);
+      }
+    } catch (error) {
+      console.error('Folder loading error:', error);
+    }
+  }
+
+  populateFolderSelect(folders) {
+    const select = document.getElementById('source-dir-select');
+    if (!select) return;
+
+    // 기존 옵션 제거 (첫 번째 옵션 제외)
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
+
+    // 폴더 옵션 추가
+    folders.forEach(folder => {
+      const option = document.createElement('option');
+      option.value = folder.path;
+      option.textContent = `📁 ${folder.name} (${folder.fileCount}개 PHP파일)`;
+      select.appendChild(option);
+    });
   }
 
   displayStatus(data) {

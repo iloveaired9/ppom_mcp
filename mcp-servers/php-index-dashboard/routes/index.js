@@ -113,6 +113,9 @@ router.delete('/index/cache', indexController.clearCache.bind(indexController));
 // 색인 내보내기
 router.get('/index/export', indexController.exportIndex.bind(indexController));
 
+// 소스 폴더 목록 조회
+router.get('/index/folders', indexController.getSourceFolders.bind(indexController));
+
 // ========== Health Check ==========
 
 // 헬스 체크

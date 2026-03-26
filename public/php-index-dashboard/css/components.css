@@ -1453,11 +1453,38 @@ select:focus {
 .source-dir-input-group {
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.source-dir-select {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid var(--color-primary);
+  background: var(--color-background);
+  color: var(--color-text);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.source-dir-select:hover {
+  box-shadow: 0 2px 8px rgba(126, 87, 194, 0.2);
+}
+
+.source-dir-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
+}
+
+.source-dir-select option {
+  background: var(--color-background);
+  color: var(--color-text);
+  padding: 8px 12px;
 }
 
 .source-dir-input {
-  flex: 1;
+  width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   background: var(--color-background);
@@ -1466,6 +1493,7 @@ select:focus {
   font-size: 13px;
   font-family: 'Monaco', 'Courier New', monospace;
   transition: var(--transition);
+  margin-bottom: 8px;
 }
 
 .source-dir-input:focus {
@@ -1482,7 +1510,41 @@ select:focus {
   display: block;
   color: var(--color-text-muted);
   font-size: 12px;
-  margin-top: 6px;
+  margin: 8px 0 8px 0;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-outline:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+}
+
+.folder-list {
+  margin-bottom: 12px;
+  padding: 12px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.folder-item {
+  padding: 8px;
+  margin-bottom: 6px;
+  background: rgba(126, 87, 194, 0.05);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.folder-item:hover {
+  background: rgba(126, 87, 194, 0.1);
 }
 
 /* 액션 버튼 */
