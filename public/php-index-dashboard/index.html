@@ -25,10 +25,10 @@
         <h1>📊 PHP Index Dashboard</h1>
         <!-- 상단 메인 탭 메뉴 -->
         <div class="main-tabs">
-          <button class="main-tab active" data-view="graph">그래프</button>
+          <button class="main-tab" data-view="graph">그래프</button>
           <button class="main-tab" data-view="queries">쿼리</button>
           <button class="main-tab" data-view="strings">🔍 문자열 검색</button>
-          <button class="main-tab" data-view="index-management">🔧 색인 관리</button>
+          <button class="main-tab active" data-view="index-management">🔧 색인 관리</button>
         </div>
       </div>
       <div class="header-right">
@@ -76,7 +76,7 @@
       <!-- 중앙 영역 -->
       <main class="center-panel">
         <!-- 그래프 뷰 -->
-        <div id="graph-view" class="center-view active">
+        <div id="graph-view" class="center-view">
           <div class="graph-container">
             <div id="graph" class="graph"></div>
             <div class="graph-empty-state">
@@ -120,7 +120,7 @@
         </div>
 
         <!-- 색인 관리 뷰 -->
-        <div id="index-management-view" class="center-view">
+        <div id="index-management-view" class="center-view active">
           <div id="index-management-container"></div>
         </div>
       </main>
