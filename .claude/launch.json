@@ -35,7 +35,8 @@
       "name": "php-index-dashboard",
       "runtimeExecutable": "node",
       "runtimeArgs": ["mcp-servers/php-index-dashboard.js"],
-      "port": 3012
+      "port": 3012,
+      "autoPort": true
     }
   ]
 }

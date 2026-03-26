@@ -1542,7 +1542,7 @@ select:focus {
 
 /* 로딩 지시기 */
 .loading-indicator {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   gap: 12px;

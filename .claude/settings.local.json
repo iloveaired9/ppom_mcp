@@ -199,7 +199,31 @@
       "Bash(__NEW_LINE_b3a5c977dee05369__ echo:*)",
       "Bash(__NEW_LINE_690749ed7aee0855__ echo:*)",
       "Bash(__NEW_LINE_1f20a7acd2dd01a4__ node -e \":*)",
-      "Bash(__NEW_LINE_dca02efd606d36a5__ git:*)"
+      "Bash(__NEW_LINE_dca02efd606d36a5__ git:*)",
+      "Bash(__NEW_LINE_bde8e28243e95fb3__ echo:*)",
+      "Bash(__NEW_LINE_e4f81921cc2b9f47__ curl:*)",
+      "Bash(__NEW_LINE_476072f255e64213__ echo:*)",
+      "Bash(__NEW_LINE_a33d394e7867a87a__ echo:*)",
+      "Bash(head -20 __NEW_LINE_a33d394e7867a87a__ echo echo '📂 옥션 관련 디렉토리:' find work/mobile/mobile -type d -name *auction* -o -type d -name *Auction* 2)",
+      "Bash(/dev/null __NEW_LINE_a33d394e7867a87a__ echo echo \"📄 파일 내용에서 ''''옥션'''' 검색:\" grep -r 옥션 work/mobile/mobile --include=*.php)",
+      "Bash(__NEW_LINE_82469dd55267441e__ echo:*)",
+      "Bash(head -10 __NEW_LINE_82469dd55267441e__ echo echo \"2️⃣ ''''크롤'''' 관련 파일:\" find work/mobile/mobile -name *crawl* -o -name *craw* 2)",
+      "Bash(/dev/null __NEW_LINE_82469dd55267441e__ echo echo \"3️⃣ ''''get_price'''' 관련 파일:\" find work/mobile/mobile -name *price* -o -name *get_*)",
+      "Bash(__NEW_LINE_05c5a8a6b5abe51e__ git:*)",
+      "Bash(__NEW_LINE_f448592801c3cb69__ git:*)",
+      "Bash(__NEW_LINE_9e221c2fd36c4a40__ git:*)",
+      "Bash(__NEW_LINE_7a1373604e1bae07__ echo:*)",
+      "Bash(/dev/null __NEW_LINE_7a1373604e1bae07__ echo echo '📄 StringIndexer.js 코드 \\(상단 50줄\\):' head -50 plugins/php-string-finder/lib/StringIndexer.js)",
+      "Bash(__NEW_LINE_f90e0ecdc8182557__ echo:*)",
+      "Bash(__NEW_LINE_34df6522ae1d12ee__ echo:*)",
+      "Bash(echo \"/php-query <파일_경로>\")",
+      "Bash(__NEW_LINE_80a0b097d1a1bd76__ echo:*)",
+      "Bash(__NEW_LINE_fbf48aebca7b524a__ echo:*)",
+      "Bash(__NEW_LINE_b1cee74c4fbab5df__ cd:*)",
+      "Bash(node ../../.claude/skills/php-query/scripts/extract-queries.js \"ppomppu/zboard/zboard.php\")",
+      "Bash(__NEW_LINE_76d385bfe728c3bc__ echo:*)",
+      "Bash(__NEW_LINE_a8883f4653a7d8b2__ cd:*)",
+      "Bash(__NEW_LINE_a8883f4653a7d8b2__ echo:*)"
     ]
   }
 }

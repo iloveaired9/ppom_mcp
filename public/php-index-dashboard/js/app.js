@@ -119,8 +119,16 @@ class App {
       // 통계 로드 (statsPanel에서 자동 처리)
       // 검색 입력에 포커스
       document.getElementById('search-input').focus();
+
+      // 로딩 표시 숨김
+      if (typeof loadingManager !== 'undefined') {
+        loadingManager.hide();
+      }
     } catch (error) {
       console.error('Failed to load initial data:', error);
+      if (typeof loadingManager !== 'undefined') {
+        loadingManager.hide();
+      }
     }
   }
 
