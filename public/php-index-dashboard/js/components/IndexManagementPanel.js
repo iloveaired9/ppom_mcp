@@ -106,16 +106,9 @@ class IndexManagementPanel {
         <!-- 소스 폴더 변경 -->
         <div class="section">
           <h3>📂 소스 폴더 변경</h3>
-          <div class="source-dir-input-group">
-            <select id="source-dir-select" class="source-dir-select">
-              <option value="">📁 폴더 선택...</option>
-            </select>
-            <button id="btn-change-source" class="btn btn-secondary">
-              <span class="btn-icon">🔄</span>
-              <span class="btn-text">선택된 폴더 재색인</span>
-            </button>
+          <div id="folder-list" class="folder-list">
+            <div class="folder-list-loading">폴더 목록 로딩 중...</div>
           </div>
-          <div id="folder-list" class="folder-list" style="display: none;"></div>
           <small class="help-text">또는 직접 경로 입력:</small>
           <input
             type="text"
@@ -187,16 +180,7 @@ class IndexManagementPanel {
       }
     });
 
-    // 드롭다운에서 폴더 선택
-    document.getElementById('source-dir-select').addEventListener('change', (e) => {
-      if (e.target.value) {
-        const sourceDir = e.target.value;
-        if (confirm(`소스 폴더를 "${sourceDir}"로 변경하고 재색인하시겠습니까?\n이 작업은 시간이 걸릴 수 있습니다.`)) {
-          this.rebuildIndexWithSourceDir(sourceDir);
-          e.target.value = ''; // 선택 초기화
-        }
-      }
-    });
+    // 폴더 목록 클릭 이벤트는 populateFolderList()에서 동적으로 등록
 
     // 커스텀 경로 재색인 버튼
     document.getElementById('btn-custom-source').addEventListener('click', () => {
@@ -279,20 +263,39 @@ class IndexManagementPanel {
   }
 
   populateFolderSelect(folders) {
-    const select = document.getElementById('source-dir-select');
-    if (!select) return;
+    const container = document.getElementById('folder-list');
+    if (!container) return;
 
-    // 기존 옵션 제거 (첫 번째 옵션 제외)
-    while (select.options.length > 1) {
-      select.remove(1);
-    }
+    container.innerHTML = folders.map(folder => `
+      <div class="folder-item" data-path="${folder.path}">
+        <span class="folder-icon">📁</span>
+        <span class="folder-name">${folder.name}</span>
+        <span class="folder-count">${folder.fileCount.toLocaleString()}개 PHP</span>
+        <button class="folder-select-btn" data-path="${folder.path}">🔄 재색인</button>
+      </div>
+    `).join('');
 
-    // 폴더 옵션 추가
-    folders.forEach(folder => {
-      const option = document.createElement('option');
-      option.value = folder.path;
-      option.textContent = `📁 ${folder.name} (${folder.fileCount}개 PHP파일)`;
-      select.appendChild(option);
+    // 클릭 이벤트 등록
+    container.querySelectorAll('.folder-select-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sourceDir = e.target.getAttribute('data-path');
+        if (confirm(`소스 폴더를 "${sourceDir}"로 변경하고 재색인하시겠습니까?\n이 작업은 시간이 걸릴 수 있습니다.`)) {
+          this.rebuildIndexWithSourceDir(sourceDir);
+        }
+      });
+    });
+
+    // 폴더 항목 클릭 시 커스텀 경로 입력란에 반영
+    container.querySelectorAll('.folder-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (e.target.classList.contains('folder-select-btn')) return;
+        const path = item.getAttribute('data-path');
+        document.getElementById('source-dir-input').value = path;
+        // 선택 상태 표시
+        container.querySelectorAll('.folder-item').forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+      });
     });
   }
 
