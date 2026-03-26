@@ -401,4 +401,21 @@
   .graph {
     max-height: 500px;
   }
+
+  /* 색인 위치 정보 - 모바일 레이아웃 */
+  .index-info-location {
+    grid-template-columns: 1fr;
+  }
+
+  .location-box {
+    padding: 12px;
+  }
+
+  .location-label {
+    font-size: 12px;
+  }
+
+  .location-value {
+    font-size: 11px;
+  }
 }

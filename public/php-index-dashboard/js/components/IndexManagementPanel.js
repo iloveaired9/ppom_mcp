@@ -36,11 +36,20 @@ class IndexManagementPanel {
             <span>색인 상태 로딩 중...</span>
           </div>
           <div id="index-info-container" style="display: none;">
-            <div class="index-info-grid">
-              <div class="index-info-box">
-                <div class="label">📁 파일 경로</div>
-                <div class="value" id="info-path">-</div>
+            <!-- 위치 정보 (1행) -->
+            <div class="index-info-location">
+              <div class="location-box">
+                <div class="location-label">🎯 색인 파일 위치</div>
+                <div class="location-value" id="info-path">-</div>
               </div>
+              <div class="location-box">
+                <div class="location-label">📂 소스 폴더 위치</div>
+                <div class="location-value" id="info-source-dir">-</div>
+              </div>
+            </div>
+
+            <!-- 상세 정보 (2행) -->
+            <div class="index-info-grid">
               <div class="index-info-box">
                 <div class="label">💾 파일 크기</div>
                 <div class="value" id="info-size">-</div>
@@ -220,6 +229,7 @@ class IndexManagementPanel {
 
     // 정보 채우기
     document.getElementById('info-path').textContent = data.path || '-';
+    document.getElementById('info-source-dir').textContent = data.sourceDir || '-';
     document.getElementById('info-size').textContent = data.size || '-';
     document.getElementById('info-symbols').textContent = (data.symbols || 0).toLocaleString();
     document.getElementById('info-created').textContent = this.formatDate(data.createdAt);
