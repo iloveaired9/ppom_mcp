@@ -418,4 +418,14 @@
   .location-value {
     font-size: 11px;
   }
+
+  /* 소스 폴더 입력 그룹 - 모바일 */
+  .source-dir-input-group {
+    flex-direction: column;
+  }
+
+  .source-dir-input {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
 }

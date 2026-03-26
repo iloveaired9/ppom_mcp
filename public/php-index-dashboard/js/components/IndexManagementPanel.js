@@ -102,13 +102,32 @@ class IndexManagementPanel {
           </div>
         </div>
 
+        <!-- 소스 폴더 변경 -->
+        <div class="section">
+          <h3>📂 소스 폴더 변경</h3>
+          <div class="source-dir-input-group">
+            <input
+              type="text"
+              id="source-dir-input"
+              class="source-dir-input"
+              placeholder="예: work/mobile, /path/to/php/files"
+              value="work/mobile"
+            >
+            <button id="btn-change-source" class="btn btn-secondary">
+              <span class="btn-icon">📁</span>
+              <span class="btn-text">경로 변경 및 재색인</span>
+            </button>
+          </div>
+          <small class="help-text">새로운 소스 폴더 경로를 입력하고 버튼을 클릭하면 해당 폴더를 색인화합니다.</small>
+        </div>
+
         <!-- 관리 도구 -->
         <div class="section">
           <h3>🔨 관리 도구</h3>
           <div class="action-buttons">
             <button id="btn-rebuild" class="btn btn-primary">
               <span class="btn-icon">⚙️</span>
-              <span class="btn-text">재색인</span>
+              <span class="btn-text">현재 경로 재색인</span>
             </button>
             <button id="btn-clear-cache" class="btn btn-secondary">
               <span class="btn-icon">🗑️</span>
@@ -156,6 +175,18 @@ class IndexManagementPanel {
     document.getElementById('btn-clear-cache').addEventListener('click', () => {
       if (confirm('캐시를 삭제하시겠습니까?')) {
         this.clearCache();
+      }
+    });
+
+    // 소스 폴더 변경 및 재색인 버튼
+    document.getElementById('btn-change-source').addEventListener('click', () => {
+      const sourceDir = document.getElementById('source-dir-input').value.trim();
+      if (!sourceDir) {
+        this.showError('소스 폴더 경로를 입력해주세요.');
+        return;
+      }
+      if (confirm(`소스 폴더를 "${sourceDir}"로 변경하고 재색인하시겠습니까?\n이 작업은 시간이 걸릴 수 있습니다.`)) {
+        this.rebuildIndexWithSourceDir(sourceDir);
       }
     });
 
@@ -278,6 +309,49 @@ class IndexManagementPanel {
 
       if (data.success) {
         this.showSuccess('색인 재생성이 시작되었습니다');
+
+        // 진행률 시뮬레이션
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 15;
+          if (progress > 95) progress = 95;
+
+          document.getElementById('progress-fill').style.width = Math.floor(progress) + '%';
+          document.getElementById('progress-percent').textContent = Math.floor(progress) + '%';
+
+          if (progress > 95) {
+            clearInterval(interval);
+            this.loadStatus();
+          }
+        }, 500);
+
+        // 5초 후 상태 재확인
+        setTimeout(() => this.loadStatus(), 5000);
+      } else {
+        this.showError(data.error || '재색인 시작 실패');
+      }
+    } catch (error) {
+      this.showError(error.message);
+    } finally {
+      this.showLoading(false);
+    }
+  }
+
+  async rebuildIndexWithSourceDir(sourceDir) {
+    try {
+      this.showLoading(true);
+      document.getElementById('rebuild-progress').style.display = 'block';
+
+      const response = await fetch('/api/index/rebuild', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force: true, sourceDir: sourceDir })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        this.showSuccess(`"${sourceDir}" 경로의 색인 재생성이 시작되었습니다`);
 
         // 진행률 시뮬레이션
         let progress = 0;
